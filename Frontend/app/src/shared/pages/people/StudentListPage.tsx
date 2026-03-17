@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { DataTable, type Column } from '../../ui/DataTable'
 import { PageHeader, ExportButton, AddButton, StatusBadge } from '../../ui/PageHeader'
+import { Modal } from '../../ui/Modal'
 
 type Row = {
   id: string
@@ -83,6 +85,8 @@ const columns: Column<Row>[] = [
 ]
 
 export function StudentListPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -95,7 +99,7 @@ export function StudentListPage() {
         actions={
           <div className="flex gap-2">
             <ExportButton />
-            <AddButton label="Добавить ученика" />
+            <AddButton label="Добавить ученика" onClick={() => setIsModalOpen(true)} />
           </div>
         }
       />
@@ -106,6 +110,53 @@ export function StudentListPage() {
         searchKeys={['id', 'name', 'className', 'section', 'parent'] as never[]}
         rowKey="id"
       />
+
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title="Добавить нового ученика"
+      >
+        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setIsModalOpen(false); }}>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">ФИО Ученика</label>
+            <input className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20" placeholder="Напр. Александр Иванов" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Класс</label>
+              <select className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20">
+                <option>8 А</option>
+                <option>8 Б</option>
+                <option>9 А</option>
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">ID</label>
+              <input className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20" placeholder="STU008" />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email родителя</label>
+            <input className="w-full h-11 px-4 rounded-xl bg-slate-50 border border-slate-100 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20" placeholder="email@example.com" />
+          </div>
+          
+          <div className="pt-4 flex gap-3">
+             <button 
+               type="button"
+               onClick={() => setIsModalOpen(false)}
+               className="flex-1 h-12 rounded-2xl border border-slate-100 text-sm font-bold text-slate-400 hover:bg-slate-50 transition-all"
+             >
+               Отмена
+             </button>
+             <button 
+               type="submit"
+               className="flex-1 h-12 rounded-2xl bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-all"
+             >
+               Сохранить
+             </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   )
 }
