@@ -6,22 +6,22 @@ type Row = {
   name: string
   building: string
   capacity: number
-  type: 'Classroom' | 'Laboratory' | 'Auditorium'
+  type: 'Класс' | 'Лаборатория' | 'Актовый зал'
   status: boolean
 }
 
 const data: Row[] = [
-  { id: 'R101', name: 'Room 101', building: 'Building A', capacity: 30, type: 'Classroom', status: true },
-  { id: 'R102', name: 'Room 102', building: 'Building A', capacity: 25, type: 'Classroom', status: true },
-  { id: 'R201', name: 'Physics Lab', building: 'Building B', capacity: 20, type: 'Laboratory', status: true },
-  { id: 'R202', name: 'Chemistry Lab', building: 'Building B', capacity: 18, type: 'Laboratory', status: false },
-  { id: 'R301', name: 'Auditorium 301', building: 'Building C', capacity: 80, type: 'Auditorium', status: true },
+  { id: 'R101', name: 'Кабинет 101', building: 'Корпус А', capacity: 30, type: 'Класс', status: true },
+  { id: 'R102', name: 'Кабинет 102', building: 'Корпус А', capacity: 25, type: 'Класс', status: true },
+  { id: 'R201', name: 'Физ. лаборатория', building: 'Корпус Б', capacity: 20, type: 'Лаборатория', status: true },
+  { id: 'R202', name: 'Хим. лаборатория', building: 'Корпус Б', capacity: 18, type: 'Лаборатория', status: false },
+  { id: 'R301', name: 'Актовый зал 301', building: 'Корпус В', capacity: 80, type: 'Актовый зал', status: true },
 ]
 
 const typeColors: Record<string, string> = {
-  Classroom: 'bg-blue-50 text-blue-700',
-  Laboratory: 'bg-emerald-50 text-emerald-700',
-  Auditorium: 'bg-purple-50 text-purple-700',
+  'Класс': 'bg-blue-50 text-blue-700',
+  'Лаборатория': 'bg-emerald-50 text-emerald-700',
+  'Актовый зал': 'bg-purple-50 text-purple-700',
 }
 
 const columns: Column<Row>[] = [
@@ -30,12 +30,12 @@ const columns: Column<Row>[] = [
     label: 'ID',
     render: (r) => <span className="text-primary font-bold text-xs">{r.id}</span>,
   },
-  { key: 'name', label: 'Room Name', render: (r) => <span className="font-bold text-slate-900">{r.name}</span> },
-  { key: 'building', label: 'Building' },
-  { key: 'capacity', label: 'Capacity', align: 'center' },
+  { key: 'name', label: 'Название кабинета', render: (r) => <span className="font-bold text-slate-900">{r.name}</span> },
+  { key: 'building', label: 'Корпус' },
+  { key: 'capacity', label: 'Вместимость', align: 'center' },
   {
     key: 'type',
-    label: 'Type',
+    label: 'Тип',
     render: (r) => (
       <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${typeColors[r.type]}`}>
         {r.type}
@@ -44,8 +44,8 @@ const columns: Column<Row>[] = [
   },
   {
     key: 'status',
-    label: 'Status',
-    render: (r) => <StatusBadge status={r.status} activeLabel="Available" inactiveLabel="Unavailable" />,
+    label: 'Статус',
+    render: (r) => <StatusBadge status={r.status} activeLabel="Доступен" inactiveLabel="Занят" />,
   },
 ]
 
@@ -53,24 +53,24 @@ export function ClassRoomPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Classrooms"
+        title="Кабинеты"
         breadcrumbs={[
-          { label: 'Dashboard', to: '/' },
-          { label: 'Academic' },
-          { label: 'Classrooms' },
+          { label: 'Панель управления', to: '/' },
+          { label: 'Академическое' },
+          { label: 'Кабинеты' },
         ]}
         actions={
           <div className="flex gap-2">
             <ExportButton />
-            <AddButton label="Add Room" />
+            <AddButton label="Добавить кабинет" />
           </div>
         }
       />
       <DataTable
-        title="Classrooms List"
+        title="Список кабинетов"
         data={data as unknown as Record<string, unknown>[]}
         columns={columns as Column<Record<string, unknown>>[]}
-        searchKeys={['id', 'name', 'building', 'type'] as never[]}
+        searchKeys={['id', 'name', 'building', 'type']}
         rowKey="id"
       />
     </div>

@@ -10,10 +10,10 @@ type Row = {
 }
 
 const data: Row[] = [
-  { id: 'E140523', examName: 'Weekly Test', examDate: '13 May 2024', startTime: '09:30 AM', endTime: '10:45 AM' },
-  { id: 'E140522', examName: 'Monthly Test', examDate: '27 May 2024', startTime: '09:30 AM', endTime: '11:00 AM' },
-  { id: 'E140521', examName: 'Chapter Test', examDate: '05 Jun 2024', startTime: '09:30 AM', endTime: '10:30 AM' },
-  { id: 'E140520', examName: 'Unit Test', examDate: '15 Jun 2024', startTime: '10:30 AM', endTime: '11:30 AM' },
+  { id: 'E140523', examName: 'Еженедельный тест', examDate: '13 мая 2024', startTime: '09:30', endTime: '10:45' },
+  { id: 'E140522', examName: 'Ежемесячный тест', examDate: '27 мая 2024', startTime: '09:30', endTime: '11:00' },
+  { id: 'E140521', examName: 'Тест по главе', examDate: '05 июня 2024', startTime: '09:30', endTime: '10:30' },
+  { id: 'E140520', examName: 'Тест по модулю', examDate: '15 июня 2024', startTime: '10:30', endTime: '11:30' },
 ]
 
 const columns: Column<Row>[] = [
@@ -22,18 +22,18 @@ const columns: Column<Row>[] = [
     label: 'ID',
     render: (r) => <span className="text-primary font-bold text-xs">{r.id}</span>,
   },
-  { key: 'examName', label: 'Exam Name', render: (r) => <span className="font-bold text-slate-900">{r.examName}</span> },
-  { key: 'examDate', label: 'Exam Date' },
+  { key: 'examName', label: 'Название экзамена', render: (r) => <span className="font-bold text-slate-900">{r.examName}</span> },
+  { key: 'examDate', label: 'Дата экзамена' },
   {
     key: 'startTime',
-    label: 'Start Time',
+    label: 'Начало',
     render: (r) => (
       <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-[11px] font-bold">{r.startTime}</span>
     ),
   },
   {
     key: 'endTime',
-    label: 'End Time',
+    label: 'Конец',
     render: (r) => (
       <span className="px-2.5 py-1 rounded-full bg-slate-50 text-slate-600 text-[11px] font-bold">{r.endTime}</span>
     ),
@@ -44,24 +44,24 @@ export function ExamListPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Exams"
+        title="Экзамены"
         breadcrumbs={[
-          { label: 'Dashboard', to: '/' },
-          { label: 'Academic' },
-          { label: 'Exams' },
+          { label: 'Панель управления', to: '/' },
+          { label: 'Академическое' },
+          { label: 'Экзамены' },
         ]}
         actions={
           <div className="flex gap-2">
             <ExportButton />
-            <AddButton label="Add Exam" />
+            <AddButton label="Добавить экзамен" />
           </div>
         }
       />
       <DataTable
-        title="Exams List"
+        title="Список экзаменов"
         data={data as unknown as Record<string, unknown>[]}
         columns={columns as Column<Record<string, unknown>>[]}
-        searchKeys={['id', 'examName', 'examDate'] as never[]}
+        searchKeys={['id', 'examName', 'examDate']}
         rowKey="id"
       />
     </div>

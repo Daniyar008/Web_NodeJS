@@ -13,6 +13,9 @@ import { ResetSuccessPage } from '../shared/pages/auth/ResetSuccessPage'
 
 // Dashboard
 import { AdminDashboardPage } from '../shared/pages/dashboard/AdminDashboardPage'
+import { StudentDashboardPage } from '../shared/pages/dashboard/StudentDashboardPage'
+import { ApplicationListPage } from '../shared/pages/applications/ApplicationListPage'
+import { SettingsPage } from '../shared/pages/settings/SettingsPage'
 
 // Academic pages
 import { ClassListPage } from '../shared/pages/academic/ClassListPage'
@@ -23,11 +26,16 @@ import { SubjectPage } from '../shared/pages/academic/SubjectPage'
 import { SyllabusPage } from '../shared/pages/academic/SyllabusPage'
 import { TimeTablePage } from '../shared/pages/academic/TimeTablePage'
 import { HomeWorkPage } from '../shared/pages/academic/HomeWorkPage'
+import { KanbanPage } from '../shared/pages/academic/KanbanPage'
 import { ExamListPage } from '../shared/pages/academic/ExamListPage'
 import { ExamSchedulePage } from '../shared/pages/academic/ExamSchedulePage'
+import { GradebookPage } from '../shared/pages/academic/GradebookPage'
 
 // Management pages
 import { FeesGroupPage } from '../shared/pages/management/FeesGroupPage'
+import { StaffPage } from '../shared/pages/management/StaffPage'
+import { InventoryPage } from '../shared/pages/management/InventoryPage'
+import { LibraryPage } from '../shared/pages/management/LibraryPage'
 
 // People pages
 import { StudentListPage } from '../shared/pages/people/StudentListPage'
@@ -37,6 +45,12 @@ import { GuardianListPage } from '../shared/pages/people/GuardianListPage'
 
 // Reports
 import { AttendanceReportPage } from '../shared/pages/reports/AttendanceReportPage'
+import { StudentReportPage } from '../shared/pages/reports/StudentReportPage'
+import { ClassReportPage } from '../shared/pages/reports/ClassReportPage'
+
+// Profiles
+import { StudentProfilePage } from '../shared/pages/profiles/StudentProfilePage'
+import { TeacherProfilePage } from '../shared/pages/profiles/TeacherProfilePage'
 
 const router = createBrowserRouter([
   {
@@ -56,6 +70,9 @@ const router = createBrowserRouter([
     children: [
       // Main
       { path: '/', element: <AdminDashboardPage /> },
+      { path: '/student-dashboard', element: <StudentDashboardPage /> },
+      { path: '/applications', element: <ApplicationListPage /> },
+      { path: '/settings', element: <SettingsPage /> },
 
       // Academic
       { path: '/classes', element: <ClassListPage /> },
@@ -66,20 +83,29 @@ const router = createBrowserRouter([
       { path: '/syllabus', element: <SyllabusPage /> },
       { path: '/time-table', element: <TimeTablePage /> },
       { path: '/home-work', element: <HomeWorkPage /> },
+      { path: '/kanban', element: <KanbanPage /> },
       { path: '/exams', element: <ExamListPage /> },
       { path: '/exam-schedule', element: <ExamSchedulePage /> },
+      { path: '/gradebook', element: <GradebookPage /> },
 
       // Management
       { path: '/fees-group', element: <FeesGroupPage /> },
+      { path: '/staff', element: <StaffPage /> },
+      { path: '/inventory', element: <InventoryPage /> },
+      { path: '/library', element: <LibraryPage /> },
 
-       // People
+      // People
       { path: '/students', element: <StudentListPage /> },
+      { path: '/students/:id', element: <StudentProfilePage /> },
       { path: '/teachers', element: <TeacherListPage /> },
+      { path: '/teachers/:id', element: <TeacherProfilePage /> },
       { path: '/parents', element: <ParentListPage /> },
       { path: '/guardians', element: <GuardianListPage /> },
 
       // Reports
       { path: '/reports/attendance', element: <AttendanceReportPage /> },
+      { path: '/reports/student', element: <StudentReportPage /> },
+      { path: '/reports/class', element: <ClassReportPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

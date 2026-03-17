@@ -7,21 +7,21 @@ type Row = {
   section: string
   subject: string
   teacher: string
-  uploadStatus: 'Uploaded' | 'Pending' | 'Not Uploaded'
+  uploadStatus: 'Загружен' | 'Ожидает' | 'Не загружен'
 }
 
 const data: Row[] = [
-  { id: 'SYL001', className: 'VIII', section: 'A', subject: 'Mathematics', teacher: 'Ivanov A.V.', uploadStatus: 'Uploaded' },
-  { id: 'SYL002', className: 'VIII', section: 'A', subject: 'Physics', teacher: 'Petrov V.I.', uploadStatus: 'Uploaded' },
-  { id: 'SYL003', className: 'VIII', section: 'B', subject: 'Chemistry', teacher: 'Sidorov K.M.', uploadStatus: 'Pending' },
-  { id: 'SYL004', className: 'IX', section: 'A', subject: 'Biology', teacher: 'Kozlova N.A.', uploadStatus: 'Uploaded' },
-  { id: 'SYL005', className: 'IX', section: 'B', subject: 'History', teacher: 'Morozov D.S.', uploadStatus: 'Not Uploaded' },
+  { id: 'SYL001', className: '8', section: 'А', subject: 'Математика', teacher: 'Иванов А.В.', uploadStatus: 'Загружен' },
+  { id: 'SYL002', className: '8', section: 'А', subject: 'Физика', teacher: 'Петров В.И.', uploadStatus: 'Загружен' },
+  { id: 'SYL003', className: '8', section: 'Б', subject: 'Химия', teacher: 'Сидоров К.М.', uploadStatus: 'Ожидает' },
+  { id: 'SYL004', className: '9', section: 'А', subject: 'Биология', teacher: 'Козлова Н.А.', uploadStatus: 'Загружен' },
+  { id: 'SYL005', className: '9', section: 'Б', subject: 'История', teacher: 'Морозов Д.С.', uploadStatus: 'Не загружен' },
 ]
 
 const uploadColors: Record<string, string> = {
-  Uploaded: 'bg-emerald-50 text-emerald-700',
-  Pending: 'bg-amber-50 text-amber-700',
-  'Not Uploaded': 'bg-rose-50 text-rose-700',
+  'Загружен': 'bg-emerald-50 text-emerald-700',
+  'Ожидает': 'bg-amber-50 text-amber-700',
+  'Не загружен': 'bg-rose-50 text-rose-700',
 }
 
 const columns: Column<Row>[] = [
@@ -30,13 +30,13 @@ const columns: Column<Row>[] = [
     label: 'ID',
     render: (r) => <span className="text-primary font-bold text-xs">{r.id}</span>,
   },
-  { key: 'className', label: 'Class', align: 'center' },
-  { key: 'section', label: 'Section', align: 'center' },
-  { key: 'subject', label: 'Subject' },
-  { key: 'teacher', label: 'Teacher' },
+  { key: 'className', label: 'Класс', align: 'center' },
+  { key: 'section', label: 'Секция', align: 'center' },
+  { key: 'subject', label: 'Предмет' },
+  { key: 'teacher', label: 'Учитель' },
   {
     key: 'uploadStatus',
-    label: 'Upload Status',
+    label: 'Статус загрузки',
     render: (r) => (
       <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${uploadColors[r.uploadStatus]}`}>
         {r.uploadStatus}
@@ -49,24 +49,24 @@ export function SyllabusPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Syllabus"
+        title="Силлабус"
         breadcrumbs={[
-          { label: 'Dashboard', to: '/' },
-          { label: 'Academic' },
-          { label: 'Syllabus' },
+          { label: 'Панель управления', to: '/' },
+          { label: 'Академическое' },
+          { label: 'Силлабус' },
         ]}
         actions={
           <div className="flex gap-2">
             <ExportButton />
-            <AddButton label="Add Syllabus" />
+            <AddButton label="Добавить силлабус" />
           </div>
         }
       />
       <DataTable
-        title="Syllabus List"
+        title="Список силлабусов"
         data={data as unknown as Record<string, unknown>[]}
         columns={columns as Column<Record<string, unknown>>[]}
-        searchKeys={['id', 'className', 'subject', 'teacher'] as never[]}
+        searchKeys={['id', 'className', 'subject', 'teacher']}
         rowKey="id"
       />
     </div>

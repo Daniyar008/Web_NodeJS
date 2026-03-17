@@ -6,11 +6,11 @@ const TEACHERS = [
 ]
 
 const ATTENDANCE_TYPES = [
-  { label: 'Present', color: 'bg-emerald-500', value: 'P' },
-  { label: 'Absent', color: 'bg-rose-500', value: 'A' },
-  { label: 'Late', color: 'bg-sky-400', value: 'L' },
-  { label: 'Halfday', color: 'bg-slate-800', value: 'H' },
-  { label: 'Holiday', color: 'bg-primary', value: 'F' },
+  { label: 'Присутствует', color: 'bg-emerald-500', value: 'P' },
+  { label: 'Отсутствует', color: 'bg-rose-500', value: 'A' },
+  { label: 'Опоздание', color: 'bg-sky-400', value: 'L' },
+  { label: 'Пол дня', color: 'bg-slate-800', value: 'H' },
+  { label: 'Выходной', color: 'bg-primary', value: 'F' },
 ]
 
 export function AttendanceReportPage() {
@@ -20,11 +20,11 @@ export function AttendanceReportPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Attendance Report"
+        title="Отчет о посещаемости"
         breadcrumbs={[
-          { label: 'Dashboard', to: '/' },
-          { label: 'Report' },
-          { label: 'Attendance Report' }
+          { label: 'Панель управления', to: '/' },
+          { label: 'Отчеты' },
+          { label: 'Отчет о посещаемости' }
         ]}
         actions={
           <div className="flex gap-2">
@@ -36,7 +36,7 @@ export function AttendanceReportPage() {
              </button>
              <button className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-xl shadow-sm hover:opacity-90 transition-all flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                Export
+                Экспорт
              </button>
           </div>
         }
@@ -45,9 +45,9 @@ export function AttendanceReportPage() {
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-slate-100 overflow-x-auto no-scrollbar pb-px">
          {[
-           'Attendance Report', 'Students Attendance Type', 'Daily Attendance', 
-           'Student Day Wise', 'Teacher Day Wise', 'Teacher Report', 
-           'Staff Day Wise', 'Staff Report'
+           'Отчет о посещаемости', 'Типы посещаемости учащихся', 'Ежедневная посещаемость', 
+           'По дням (Ученики)', 'По дням (Учителя)', 'Отчет по учителям', 
+           'По дням (Персонал)', 'Отчет по персоналу'
          ].map((tabName) => (
            <button 
              key={tabName} 
@@ -69,11 +69,11 @@ export function AttendanceReportPage() {
               </div>
               <button className="flex items-center gap-2 px-4 py-2 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50">
                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-                 Filter
+                 Фильтр
               </button>
               <button className="flex items-center gap-2 px-4 py-2 border border-slate-100 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50">
                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
-                 Sort By A-Z
+                 Сортировка А-Я
               </button>
            </div>
            
@@ -88,7 +88,7 @@ export function AttendanceReportPage() {
                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                  <input 
                     className="h-10 w-48 rounded-xl bg-slate-50 border border-slate-100 pl-9 pr-3 text-xs outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder="Search"
+                    placeholder="Поиск"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                  />
@@ -101,16 +101,16 @@ export function AttendanceReportPage() {
           <table className="w-full text-left border-collapse">
             <thead className="bg-slate-50/50 border-b border-slate-100">
                <tr>
-                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Teacher / Date</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Учитель / Дата</th>
                   <th className="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">%</th>
-                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">P</th>
-                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">L</th>
-                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">A</th>
-                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">H</th>
-                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">F</th>
+                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">П</th>
+                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">О</th>
+                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Н</th>
+                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">ПД</th>
+                  <th className="px-2 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">В</th>
                   {Array.from({ length: 21 }).map((_, i) => (
                     <th key={i} className="px-1 py-4 text-[10px] font-extrabold text-slate-500 uppercase tracking-widest text-center w-8 text-center whitespace-pre-wrap">
-                       {(i + 1).toString().padStart(2, '0')}{"\n"}<span className="text-[9px] opacity-70">{"MTWTFSSMTWTFSSMTWTFSS"[i]}</span>
+                       {(i + 1).toString().padStart(2, '0')}{"\n"}<span className="text-[9px] opacity-70">{"ПВСРЧПСПВСРЧПСПВСРЧПС"[i]}</span>
                     </th>
                   ))}
                </tr>
@@ -151,10 +151,10 @@ export function AttendanceReportPage() {
         {/* Pagination Placeholder */}
         <div className="p-6 bg-slate-50/30 border-t border-slate-50 flex items-center justify-end gap-2">
            <div className="flex items-center gap-1">
-             <button className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-400">Pre</button>
+             <button className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-400">Пред.</button>
              <button className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold shadow-sm">1</button>
              <button className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-500">2</button>
-             <button className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-400">Next</button>
+             <button className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-400">След.</button>
            </div>
         </div>
       </div>

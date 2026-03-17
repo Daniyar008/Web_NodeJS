@@ -47,7 +47,9 @@ const NAV: NavGroup[] = [
   {
     group: 'Главное',
     items: [
-      { to: '/', label: 'Панель', icon: 'dashboard' },
+      { to: '/', label: 'Панель (Админ)', icon: 'dashboard' },
+      { to: '/student-dashboard', label: 'Панель (Ученик)', icon: 'dashboard' },
+      { to: '/kanban', label: 'Задачи (Канбан)', icon: 'routine' },
       {
         label: 'Приложения',
         icon: 'applications',
@@ -96,6 +98,7 @@ const NAV: NavGroup[] = [
       { to: '/syllabus', label: 'Силлабус', icon: 'syllabus' },
       { to: '/time-table', label: 'Расписание', icon: 'timetable' },
       { to: '/home-work', label: 'Домашние задания', icon: 'homework' },
+      { to: '/gradebook', label: 'Журнал оценок', icon: 'exams' },
       {
         label: 'Экзамены',
         icon: 'exams',
@@ -104,7 +107,6 @@ const NAV: NavGroup[] = [
           { to: '/exam-schedule', label: 'Расписание экзаменов' },
         ],
       },
-      { to: '/reasons', label: 'Причины', icon: 'routine' },
     ],
   },
   {
@@ -115,10 +117,13 @@ const NAV: NavGroup[] = [
         icon: 'fees',
         children: [{ to: '/fees-group', label: 'Группы оплаты' }],
       },
-      { to: '/library', label: 'Библиотека', icon: 'subject' },
-      { to: '/sports', label: 'Спорт', icon: 'dashboard' },
-      { to: '/hostel', label: 'Общежитие', icon: 'classroom' },
-      { to: '/transport', label: 'Транспорт', icon: 'routine' },
+      {
+        label: 'Персонал',
+        icon: 'teachers',
+        children: [{ to: '/staff', label: 'Список сотрудников' }],
+      },
+      { to: '/inventory', label: 'Инвентарь', icon: 'subject' },
+      { to: '/library', label: 'Библиотека', icon: 'syllabus' },
     ],
   },
   {
@@ -211,7 +216,7 @@ export function Sidebar() {
         </div>
         <div>
           <div className="font-bold text-slate-900 text-sm">PreSkool</div>
-          <div className="text-[10px] text-slate-400">Система управления школой</div>
+          <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Система управления</div>
         </div>
       </div>
 
@@ -239,7 +244,7 @@ export function Sidebar() {
           </div>
           <div className="min-w-0">
             <div className="text-xs font-semibold text-slate-900 truncate">Администратор</div>
-            <div className="text-[10px] text-slate-400 truncate">admin@edufuture.kz</div>
+            <div className="text-[10px] text-slate-400 truncate tracking-tight">admin@preskool.edu</div>
           </div>
         </div>
       </div>

@@ -60,13 +60,13 @@ export function AuthShell({
         ) : (
           <div className="relative z-10 w-full max-w-lg">
             <div className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[40px] p-10 shadow-2xl space-y-8">
-               <h2 className="text-2xl font-bold text-slate-900">What's New in Preskool !!!</h2>
+               <h2 className="text-2xl font-bold text-slate-900">Что нового в Preskool !!!</h2>
                <div className="space-y-4">
                  {[
-                   { title: 'Summer Homework', desc: 'The school will be closed from April 20 to June...' },
-                   { title: 'New Academic Year (2024-25)', desc: 'Academic term is part of the school year...' },
-                   { title: 'Exams Timetable Nursery to Sr.Kg', desc: 'Parents, the final exams for the session...' },
-                   { title: 'Annual Function Day', desc: 'Annual functions provide a platform...' },
+                   { title: 'Летнее домашнее задание', desc: 'Школа будет закрыта с 20 апреля по июнь...' },
+                   { title: 'Новый учебный год (2024-25)', desc: 'Учебный семестр является частью учебного года...' },
+                   { title: 'Расписание экзаменов (Ясли - Сад)', desc: 'Родители, финальные экзамены за сессию...' },
+                   { title: 'День ежегодного праздника', desc: 'Ежегодные мероприятия предоставляют платформу...' },
                  ].map((item, idx) => (
                    <div key={idx} className="group cursor-pointer bg-white/60 hover:bg-white rounded-2xl p-4 border border-transparent hover:border-primary/10 transition-all flex items-center justify-between shadow-sm hover:shadow-md">
                      <div className="pr-4">
@@ -101,7 +101,7 @@ export function AuthShell({
             {children}
           </div>
           <div className="mt-20 text-center lg:text-left text-[11px] text-slate-400 font-medium">
-            Copyright@2024 - Preskool
+            Авторские права @ 2024 - Preskool
           </div>
         </div>
       </div>

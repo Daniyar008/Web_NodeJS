@@ -9,10 +9,10 @@ type Row = {
 }
 
 const data: Row[] = [
-  { id: 'S001', section: 'A', className: 'I', status: true },
-  { id: 'S002', section: 'B', className: 'I', status: true },
-  { id: 'S003', section: 'A', className: 'II', status: true },
-  { id: 'S004', section: 'B', className: 'II', status: false },
+  { id: 'S001', section: 'А', className: '1', status: true },
+  { id: 'S002', section: 'Б', className: '1', status: true },
+  { id: 'S003', section: 'А', className: '2', status: true },
+  { id: 'S004', section: 'Б', className: '2', status: false },
 ]
 
 const columns: Column<Row>[] = [
@@ -21,12 +21,12 @@ const columns: Column<Row>[] = [
     label: 'ID',
     render: (r) => <span className="text-primary font-bold text-xs">{r.id}</span>,
   },
-  { key: 'section', label: 'Section', align: 'center' },
-  { key: 'className', label: 'Class', align: 'center' },
+  { key: 'section', label: 'Секция', align: 'center' },
+  { key: 'className', label: 'Класс', align: 'center' },
   {
     key: 'status',
-    label: 'Status',
-    render: (r) => <StatusBadge status={r.status} activeLabel="Active" inactiveLabel="Inactive" />,
+    label: 'Статус',
+    render: (r) => <StatusBadge status={r.status} activeLabel="Активна" inactiveLabel="Неактивна" />,
   },
 ]
 
@@ -34,24 +34,24 @@ export function SectionPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Sections"
+        title="Секции"
         breadcrumbs={[
-          { label: 'Dashboard', to: '/' },
-          { label: 'Academic' },
-          { label: 'Sections' },
+          { label: 'Панель управления', to: '/' },
+          { label: 'Академическое' },
+          { label: 'Секции' },
         ]}
         actions={
           <div className="flex gap-2">
             <ExportButton />
-            <AddButton label="Add Section" />
+            <AddButton label="Добавить секцию" />
           </div>
         }
       />
       <DataTable
-        title="Sections List"
+        title="Список секций"
         data={data as unknown as Record<string, unknown>[]}
         columns={columns as Column<Record<string, unknown>>[]}
-        searchKeys={['id', 'section', 'className'] as never[]}
+        searchKeys={['id', 'section', 'className']}
         rowKey="id"
       />
     </div>

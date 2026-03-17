@@ -13,18 +13,18 @@ type Row = {
 }
 
 const data: Row[] = [
-  { id: 'CR001', className: 'VIII', section: 'A', subject: 'Mathematics', teacher: 'Ivanov A.V.', day: 'Monday', startTime: '09:00', endTime: '09:45' },
-  { id: 'CR002', className: 'VIII', section: 'A', subject: 'Physics', teacher: 'Petrov V.I.', day: 'Monday', startTime: '10:00', endTime: '10:45' },
-  { id: 'CR003', className: 'VIII', section: 'A', subject: 'Chemistry', teacher: 'Sidorov K.M.', day: 'Tuesday', startTime: '09:00', endTime: '09:45' },
-  { id: 'CR004', className: 'VIII', section: 'B', subject: 'History', teacher: 'Morozov D.S.', day: 'Tuesday', startTime: '10:00', endTime: '10:45' },
+  { id: 'CR001', className: '8', section: 'А', subject: 'Математика', teacher: 'Иванов А.В.', day: 'Понедельник', startTime: '09:00', endTime: '09:45' },
+  { id: 'CR002', className: '8', section: 'А', subject: 'Физика', teacher: 'Петров В.И.', day: 'Понедельник', startTime: '10:00', endTime: '10:45' },
+  { id: 'CR003', className: '8', section: 'А', subject: 'Химия', teacher: 'Сидоров К.М.', day: 'Вторник', startTime: '09:00', endTime: '09:45' },
+  { id: 'CR004', className: '8', section: 'Б', subject: 'История', teacher: 'Морозов Д.С.', day: 'Вторник', startTime: '10:00', endTime: '10:45' },
 ]
 
 const dayColors: Record<string, string> = {
-  Monday: 'bg-blue-50 text-blue-700',
-  Tuesday: 'bg-purple-50 text-purple-700',
-  Wednesday: 'bg-teal-50 text-teal-700',
-  Thursday: 'bg-amber-50 text-amber-700',
-  Friday: 'bg-rose-50 text-rose-700',
+  'Понедельник': 'bg-blue-50 text-blue-700',
+  'Вторник': 'bg-purple-50 text-purple-700',
+  'Среда': 'bg-teal-50 text-teal-700',
+  'Четверг': 'bg-amber-50 text-amber-700',
+  'Пятница': 'bg-rose-50 text-rose-700',
 }
 
 const columns: Column<Row>[] = [
@@ -33,45 +33,45 @@ const columns: Column<Row>[] = [
     label: 'ID',
     render: (r) => <span className="text-primary font-bold text-xs">{r.id}</span>,
   },
-  { key: 'className', label: 'Class', align: 'center' },
-  { key: 'section', label: 'Section', align: 'center' },
-  { key: 'subject', label: 'Subject' },
-  { key: 'teacher', label: 'Teacher' },
+  { key: 'className', label: 'Класс', align: 'center' },
+  { key: 'section', label: 'Секция', align: 'center' },
+  { key: 'subject', label: 'Предмет' },
+  { key: 'teacher', label: 'Учитель' },
   {
     key: 'day',
-    label: 'Day',
+    label: 'День',
     render: (r) => (
       <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${dayColors[r.day] ?? 'bg-gray-50 text-gray-700'}`}>
         {r.day}
       </span>
     ),
   },
-  { key: 'startTime', label: 'Start Time' },
-  { key: 'endTime', label: 'End Time' },
+  { key: 'startTime', label: 'Начало' },
+  { key: 'endTime', label: 'Конец' },
 ]
 
 export function ClassRoutinePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Class Routine"
+        title="Расписание классов"
         breadcrumbs={[
-          { label: 'Dashboard', to: '/' },
-          { label: 'Academic' },
-          { label: 'Class Routine' },
+          { label: 'Панель управления', to: '/' },
+          { label: 'Академическое' },
+          { label: 'Расписание классов' },
         ]}
         actions={
           <div className="flex gap-2">
             <ExportButton />
-            <AddButton label="Add Routine" />
+            <AddButton label="Добавить расписание" />
           </div>
         }
       />
       <DataTable
-        title="Routine List"
+        title="Список расписаний"
         data={data as unknown as Record<string, unknown>[]}
         columns={columns as Column<Record<string, unknown>>[]}
-        searchKeys={['id', 'className', 'subject', 'teacher', 'day'] as never[]}
+        searchKeys={['id', 'className', 'subject', 'teacher', 'day']}
         rowKey="id"
       />
     </div>

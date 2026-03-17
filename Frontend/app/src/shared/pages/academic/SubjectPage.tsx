@@ -4,24 +4,24 @@ import { PageHeader, ExportButton, AddButton, StatusBadge } from '../../ui/PageH
 type Row = {
   id: string
   name: string
-  type: 'Mandatory' | 'Optional' | 'Elective'
+  type: 'Обязательный' | 'Факультативный' | 'Элективный'
   status: boolean
 }
 
 const data: Row[] = [
-  { id: 'SUB001', name: 'Mathematics', type: 'Mandatory', status: true },
-  { id: 'SUB002', name: 'Physics', type: 'Mandatory', status: true },
-  { id: 'SUB003', name: 'Chemistry', type: 'Mandatory', status: true },
-  { id: 'SUB004', name: 'Biology', type: 'Mandatory', status: true },
-  { id: 'SUB005', name: 'History', type: 'Mandatory', status: true },
-  { id: 'SUB011', name: 'Drawing', type: 'Optional', status: true },
-  { id: 'SUB014', name: 'Programming', type: 'Elective', status: false },
+  { id: 'SUB001', name: 'Математика', type: 'Обязательный', status: true },
+  { id: 'SUB002', name: 'Физика', type: 'Обязательный', status: true },
+  { id: 'SUB003', name: 'Химия', type: 'Обязательный', status: true },
+  { id: 'SUB004', name: 'Биология', type: 'Обязательный', status: true },
+  { id: 'SUB005', name: 'История', type: 'Обязательный', status: true },
+  { id: 'SUB011', name: 'Рисование', type: 'Факультативный', status: true },
+  { id: 'SUB014', name: 'Программирование', type: 'Элективный', status: false },
 ]
 
 const typeColors: Record<string, string> = {
-  Mandatory: 'bg-blue-50 text-blue-700',
-  Optional: 'bg-amber-50 text-amber-700',
-  Elective: 'bg-purple-50 text-purple-700',
+  'Обязательный': 'bg-blue-50 text-blue-700',
+  'Факультативный': 'bg-amber-50 text-amber-700',
+  'Элективный': 'bg-purple-50 text-purple-700',
 }
 
 const columns: Column<Row>[] = [
@@ -30,10 +30,10 @@ const columns: Column<Row>[] = [
     label: 'ID',
     render: (r) => <span className="text-primary font-bold text-xs">{r.id}</span>,
   },
-  { key: 'name', label: 'Subject Name' },
+  { key: 'name', label: 'Название предмета' },
   {
     key: 'type',
-    label: 'Type',
+    label: 'Тип',
     render: (r) => (
       <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${typeColors[r.type]}`}>
         {r.type}
@@ -42,8 +42,8 @@ const columns: Column<Row>[] = [
   },
   {
     key: 'status',
-    label: 'Status',
-    render: (r) => <StatusBadge status={r.status} activeLabel="Active" inactiveLabel="Inactive" />,
+    label: 'Статус',
+    render: (r) => <StatusBadge status={r.status} activeLabel="Активен" inactiveLabel="Неактивен" />,
   },
 ]
 
@@ -51,24 +51,24 @@ export function SubjectPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Subjects"
+        title="Предметы"
         breadcrumbs={[
-          { label: 'Dashboard', to: '/' },
-          { label: 'Academic' },
-          { label: 'Subjects' },
+          { label: 'Панель управления', to: '/' },
+          { label: 'Академическое' },
+          { label: 'Предметы' },
         ]}
         actions={
           <div className="flex gap-2">
             <ExportButton />
-            <AddButton label="Add Subject" />
+            <AddButton label="Добавить предмет" />
           </div>
         }
       />
       <DataTable
-        title="Subjects List"
+        title="Список предметов"
         data={data as unknown as Record<string, unknown>[]}
         columns={columns as Column<Record<string, unknown>>[]}
-        searchKeys={['id', 'name', 'type'] as never[]}
+        searchKeys={['id', 'name', 'type']}
         rowKey="id"
       />
     </div>

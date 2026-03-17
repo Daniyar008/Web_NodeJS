@@ -9,59 +9,57 @@ type Row = {
 }
 
 const data: Row[] = [
-  { id: 'FG80482', feesGroup: 'Tuition Fees', description: 'The money that you pay to be taught', status: true },
-  { id: 'FG80481', feesGroup: 'Monthly Fees', description: 'The money that you pay to be taught', status: true },
-  { id: 'FG80480', feesGroup: 'Class 1 General', description: 'The money that you pay to be taught', status: true },
-  { id: 'FG80479', feesGroup: 'Class 1 Lump Sum', description: 'The money that you pay to be taught', status: true },
-  { id: 'FG80478', feesGroup: 'Class 1-I Installment', description: 'The money that you pay to be taught', status: false },
-  { id: 'FG80477', feesGroup: 'Class 1-II Installment', description: 'The money that you pay to be taught', status: true },
-  { id: 'FG80476', feesGroup: 'Class 1-III Installment', description: 'The money that you pay to be taught', status: true },
-  { id: 'FG80475', feesGroup: 'Discount', description: 'The money that you pay to be taught', status: false },
-  { id: 'FG80474', feesGroup: 'Class 3-I Installment', description: 'The money that you pay to be taught', status: true },
-  { id: 'FG80473', feesGroup: 'Class 4-I Installment', description: 'The money that you pay to be taught', status: true },
+  { id: 'FG80482', feesGroup: 'Tuition Fees', description: 'Monthly school fee for education', status: true },
+  { id: 'FG80481', feesGroup: 'Transportation', description: 'School bus service monthly fee', status: true },
+  { id: 'FG80480', feesGroup: 'Hostel Fees', description: 'Accommodation and food charges', status: true },
+  { id: 'FG80479', feesGroup: 'Sports Club', description: 'Annual membership for sports club', status: true },
+  { id: 'FG80478', feesGroup: 'Library Fee', description: 'Annual maintenance fee for library', status: false },
+  { id: 'FG80477', feesGroup: 'Exam Fees', description: 'Fee for internal semester exams', status: true },
+  { id: 'FG80476', feesGroup: 'Admission Fee', description: 'One-time registration fee', status: true },
+  { id: 'FG80475', feesGroup: 'Development Fund', description: 'Welfare fund for infrastructure', status: false },
 ]
 
 const columns: Column<Row>[] = [
   {
     key: 'id',
     label: 'ID',
-    render: (r) => <span className="text-primary font-semibold text-xs">{r.id}</span>,
+    render: (r) => <span className="text-primary font-bold text-[11px] tracking-tight">{r.id}</span>,
   },
-  { key: 'feesGroup', label: 'Группа оплаты' },
+  { key: 'feesGroup', label: 'Fees Group' },
   {
     key: 'description',
-    label: 'Описание',
-    render: (r) => <span className="text-slate-500 text-xs">{r.description}</span>,
+    label: 'Description',
+    render: (r) => <span className="text-slate-500 text-xs font-medium">{r.description}</span>,
   },
   {
     key: 'status',
-    label: 'Статус',
+    label: 'Status',
     render: (r) => <StatusBadge status={r.status} />,
   },
 ]
 
 export function FeesGroupPage() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <PageHeader
-        title="Группы оплаты"
+        title="Fees Group"
         breadcrumbs={[
-          { label: 'Панель', to: '/' },
-          { label: 'Управление' },
-          { label: 'Группы оплаты' },
+          { label: 'Dashboard', to: '/' },
+          { label: 'Management' },
+          { label: 'Fees Group' },
         ]}
         actions={
-          <>
+          <div className="flex gap-2">
             <ExportButton />
-            <AddButton label="Добавить группу" />
-          </>
+            <AddButton label="New Group" />
+          </div>
         }
       />
       <DataTable
-        title="Список групп оплаты"
+        title="Fees Group List"
         data={data as unknown as Record<string, unknown>[]}
         columns={columns as Column<Record<string, unknown>>[]}
-        searchKeys={['id', 'feesGroup'] as never[]}
+        searchKeys={['id', 'feesGroup']}
         rowKey="id"
       />
     </div>

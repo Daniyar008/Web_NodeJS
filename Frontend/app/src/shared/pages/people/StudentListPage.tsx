@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { DataTable, type Column } from '../../ui/DataTable'
 import { PageHeader, ExportButton, AddButton, StatusBadge } from '../../ui/PageHeader'
 
@@ -12,41 +13,72 @@ type Row = {
 }
 
 const data: Row[] = [
-  { id: 'STU001', name: 'Alexander Ivanov', className: 'VIII', section: 'A', parent: 'Ivanov A.P.', phone: '+7 777 111 22 33', status: true },
-  { id: 'STU002', name: 'Maria Petrova', className: 'VIII', section: 'A', parent: 'Petrova I.S.', phone: '+7 777 222 33 44', status: true },
-  { id: 'STU003', name: 'Dmitry Sidorov', className: 'VIII', section: 'B', parent: 'Sidorov K.M.', phone: '+7 777 333 44 55', status: true },
-  { id: 'STU004', name: 'Anna Kozlova', className: 'IX', section: 'A', parent: 'Kozlova N.A.', phone: '+7 777 444 55 66', status: true },
-  { id: 'STU005', name: 'Sergey Morozov', className: 'IX', section: 'B', parent: 'Morozov D.S.', phone: '+7 777 555 66 77', status: false },
-  { id: 'STU006', name: 'Ekaterina Novikova', className: 'X', section: 'A', parent: 'Novikova P.R.', phone: '+7 777 666 77 88', status: true },
-  { id: 'STU007', name: 'Andrey Orlov', className: 'X', section: 'A', parent: 'Orlova V.A.', phone: '+7 777 777 88 99', status: true },
+  { id: 'STU001', name: 'Александр Иванов', className: '8', section: 'А', parent: 'Иванов А.П.', phone: '+7 777 111 22 33', status: true },
+  { id: 'STU002', name: 'Мария Петрова', className: '8', section: 'А', parent: 'Петрова И.С.', phone: '+7 777 222 33 44', status: true },
+  { id: 'STU003', name: 'Дмитрий Сидоров', className: '8', section: 'Б', parent: 'Сидоров К.М.', phone: '+7 777 333 44 55', status: true },
+  { id: 'STU004', name: 'Анна Козлова', className: '9', section: 'А', parent: 'Козлова Н.А.', phone: '+7 777 444 55 66', status: true },
+  { id: 'STU005', name: 'Сергей Морозов', className: '9', section: 'Б', parent: 'Морозов Д.С.', phone: '+7 777 555 66 77', status: false },
+  { id: 'STU006', name: 'Екатерина Новикова', className: '10', section: 'А', parent: 'Новикова П.Р.', phone: '+7 777 666 77 88', status: true },
+  { id: 'STU007', name: 'Андрей Орлов', className: '10', section: 'А', parent: 'Орлова В.А.', phone: '+7 777 777 88 99', status: true },
 ]
 
 const columns: Column<Row>[] = [
   {
     key: 'id',
     label: 'ID',
-    render: (r) => <span className="text-primary font-bold text-xs">{r.id}</span>,
+    render: (r) => <span className="text-primary font-bold text-[11px] uppercase tracking-tight">{r.id}</span>,
   },
   {
     key: 'name',
-    label: 'Student Name',
+    label: 'Имя ученика',
     render: (r) => (
-      <div className="flex items-center gap-2.5">
-        <div className="h-9 w-9 rounded-full bg-slate-50 border border-slate-100 text-slate-400 grid place-items-center text-xs font-bold flex-shrink-0">
+      <div className="flex items-center gap-3">
+        <div className="h-9 w-9 rounded-2xl bg-slate-50 border border-slate-100 text-slate-400 grid place-items-center text-[11px] font-black flex-shrink-0 group-hover:scale-110 transition-transform">
           {r.name.charAt(0)}
         </div>
-        <span className="font-bold text-slate-900">{r.name}</span>
+        <div className="flex flex-col">
+          <Link to={`/students/${r.id}`} className="font-bold text-slate-900 tracking-tight leading-none mb-1 hover:text-primary transition-colors">
+            {r.name}
+          </Link>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{r.phone}</span>
+        </div>
       </div>
     ),
   },
-  { key: 'className', label: 'Class', align: 'center' },
-  { key: 'section', label: 'Section', align: 'center' },
-  { key: 'parent', label: 'Parent' },
-  { key: 'phone', label: 'Phone' },
+  { 
+    key: 'className', 
+    label: 'Класс', 
+    align: 'center',
+    render: (r) => (
+      <div className="flex flex-col items-center">
+        <span className="font-black text-slate-800 text-sm">{r.className}</span>
+        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">класс</span>
+      </div>
+    )
+  },
+  { 
+    key: 'section', 
+    label: 'Секция', 
+    align: 'center',
+    render: (r) => (
+      <span className="h-7 w-7 rounded-lg bg-primary/5 text-primary text-xs font-black flex items-center justify-center border border-primary/10">
+        {r.section}
+      </span>
+    )
+  },
+  { 
+    key: 'parent', 
+    label: 'Родитель',
+    render: (r) => (
+      <div className="flex flex-col">
+        <span className="text-xs font-bold text-slate-700">{r.parent}</span>
+      </div>
+    )
+  },
   {
     key: 'status',
-    label: 'Status',
-    render: (r) => <StatusBadge status={r.status} activeLabel="Active" inactiveLabel="Inactive" />,
+    label: 'Статус',
+    render: (r) => <StatusBadge status={r.status} activeLabel="Активен" inactiveLabel="Исключен" />,
   },
 ]
 
@@ -54,21 +86,21 @@ export function StudentListPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Students"
+        title="Ученики"
         breadcrumbs={[
-          { label: 'Dashboard', to: '/' },
-          { label: 'People' },
-          { label: 'Students' },
+          { label: 'Панель', to: '/' },
+          { label: 'Люди' },
+          { label: 'Ученики' },
         ]}
         actions={
           <div className="flex gap-2">
             <ExportButton />
-            <AddButton label="Add Student" />
+            <AddButton label="Добавить ученика" />
           </div>
         }
       />
       <DataTable
-        title="Students List"
+        title="Список учеников"
         data={data as unknown as Record<string, unknown>[]}
         columns={columns as Column<Record<string, unknown>>[]}
         searchKeys={['id', 'name', 'className', 'section', 'parent'] as never[]}
