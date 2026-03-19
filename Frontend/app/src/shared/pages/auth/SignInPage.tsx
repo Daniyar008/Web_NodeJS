@@ -1,30 +1,51 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthShell } from './AuthShell'
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks'
+import { loginUser } from '../../../redux/slices/authSlice'
 
 export function SignInPage() {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const { isLoading, error } = useAppSelector((state) => state.auth)
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const result = await dispatch(loginUser({ email, password }))
+    if (loginUser.fulfilled.match(result)) {
+      navigate('/dashboard/platform') // Temporary route logic based on actual role
+    }
+  }
 
   return (
     <AuthShell variant="split-notices">
       <div className="text-center lg:text-left mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Login with your Email Address</h1>
         <p className="mt-3 text-sm text-slate-500">
-          We sent a verification code to your email. Enter the code from the email in the field below
+          Enter your credentials to access the platform.
         </p>
       </div>
 
         <form
           className="space-y-5"
-          onSubmit={(e) => {
-            e.preventDefault()
-            navigate('/')
-          }}
+          onSubmit={handleLogin}
         >
+          {error && (
+            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-xl border border-red-100">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Электронная почта</label>
             <input
               type="email"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/40 transition-all shadow-sm"
               placeholder="admin@example.com"
             />
@@ -35,6 +56,8 @@ export function SignInPage() {
             <input
               type="password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/40 transition-all shadow-sm"
               placeholder="••••••••"
             />
@@ -52,10 +75,12 @@ export function SignInPage() {
 
           <button
             type="submit"
-            className="w-full h-12 rounded-2xl bg-[#5d73e7] text-white text-sm font-bold hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98]"
+            disabled={isLoading}
+            className="w-full h-12 rounded-2xl bg-[#5d73e7] text-white text-sm font-bold hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
           >
-            Войти
+            {isLoading ? 'Загрузка...' : 'Войти'}
           </button>
+
 
           <div className="relative py-2">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100"></div></div>

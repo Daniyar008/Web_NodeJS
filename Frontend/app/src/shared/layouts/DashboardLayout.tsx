@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from '../ui/Sidebar'
 import { Topbar } from '../ui/Topbar'
+import { EduBuddyWidget } from '../ui/EduBuddyWidget'
 
 export function DashboardLayout() {
   return (
@@ -12,6 +13,7 @@ export function DashboardLayout() {
           <Outlet />
         </main>
       </div>
+      <EduBuddyWidget />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { Navigate, Outlet, createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AuthLayout } from '../shared/layouts/AuthLayout'
 import { DashboardLayout } from '../shared/layouts/DashboardLayout'
+import { ProtectedRoute } from '../shared/components/ProtectedRoute'
 
 // Auth pages
 import { SignInPage } from '../shared/pages/auth/SignInPage'
@@ -14,7 +15,13 @@ import { ResetSuccessPage } from '../shared/pages/auth/ResetSuccessPage'
 // Dashboard
 import { AdminDashboardPage } from '../shared/pages/dashboard/AdminDashboardPage'
 import { StudentDashboardPage } from '../shared/pages/dashboard/StudentDashboardPage'
+import { TeacherDashboardPage } from '../shared/pages/dashboard/TeacherDashboardPage'
+import { ParentDashboardPage } from '../shared/pages/dashboard/ParentDashboardPage'
+import { InstitutionDashboardPage } from '../shared/pages/management/InstitutionDashboardPage'
+import { MessengerPage } from '../shared/pages/communication/MessengerPage'
+import { NotificationsPage } from '../shared/pages/communication/NotificationsPage'
 import { ApplicationListPage } from '../shared/pages/applications/ApplicationListPage'
+import { LandingPage } from '../shared/pages/LandingPage'
 import { SettingsPage } from '../shared/pages/settings/SettingsPage'
 
 // Academic pages
@@ -29,6 +36,8 @@ import { HomeWorkPage } from '../shared/pages/academic/HomeWorkPage'
 import { KanbanPage } from '../shared/pages/academic/KanbanPage'
 import { ExamListPage } from '../shared/pages/academic/ExamListPage'
 import { ExamSchedulePage } from '../shared/pages/academic/ExamSchedulePage'
+import { CoursePlayerPage } from '../shared/pages/academic/CoursePlayerPage'
+import { AchievementsPage } from '../shared/pages/academic/AchievementsPage'
 import { GradebookPage } from '../shared/pages/academic/GradebookPage'
 
 // Management pages
@@ -66,12 +75,18 @@ const router = createBrowserRouter([
     ],
   },
   {
-    element: <DashboardLayout />,
+    element: <ProtectedRoute><DashboardLayout /></ProtectedRoute>,
     children: [
       // Main
       { path: '/', element: <AdminDashboardPage /> },
+      { path: '/landing', element: <LandingPage /> },
+      { path: '/institution-dashboard', element: <InstitutionDashboardPage /> },
+      { path: '/teacher-dashboard', element: <TeacherDashboardPage /> },
+      { path: '/parent-dashboard', element: <ParentDashboardPage /> },
       { path: '/student-dashboard', element: <StudentDashboardPage /> },
       { path: '/applications', element: <ApplicationListPage /> },
+      { path: '/messenger', element: <MessengerPage /> },
+      { path: '/notifications', element: <NotificationsPage /> },
       { path: '/settings', element: <SettingsPage /> },
 
       // Academic
@@ -81,11 +96,13 @@ const router = createBrowserRouter([
       { path: '/section', element: <SectionPage /> },
       { path: '/subject', element: <SubjectPage /> },
       { path: '/syllabus', element: <SyllabusPage /> },
+      { path: '/course-player', element: <CoursePlayerPage /> },
       { path: '/time-table', element: <TimeTablePage /> },
       { path: '/home-work', element: <HomeWorkPage /> },
       { path: '/kanban', element: <KanbanPage /> },
       { path: '/exams', element: <ExamListPage /> },
       { path: '/exam-schedule', element: <ExamSchedulePage /> },
+      { path: '/achievements', element: <AchievementsPage /> },
       { path: '/gradebook', element: <GradebookPage /> },
 
       // Management

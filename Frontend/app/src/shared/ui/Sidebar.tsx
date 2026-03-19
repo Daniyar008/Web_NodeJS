@@ -48,8 +48,13 @@ const NAV: NavGroup[] = [
     group: 'Главное',
     items: [
       { to: '/', label: 'Панель (Админ)', icon: 'dashboard' },
+      { to: '/institution-dashboard', label: 'Панель (Учреждение)', icon: 'dashboard' },
+      { to: '/teacher-dashboard', label: 'Панель (Учитель)', icon: 'dashboard' },
+      { to: '/parent-dashboard', label: 'Панель (Родитель)', icon: 'dashboard' },
       { to: '/student-dashboard', label: 'Панель (Ученик)', icon: 'dashboard' },
-      { to: '/kanban', label: 'Задачи (Канбан)', icon: 'routine' },
+      { to: '/kanban', label: 'Мои задачи', icon: 'kanban' },
+      { to: '/messenger', label: 'Мессенджер', icon: 'chat' },
+      { to: '/notifications', label: 'Уведомления', icon: 'notifications' },
       {
         label: 'Приложения',
         icon: 'applications',
@@ -99,6 +104,7 @@ const NAV: NavGroup[] = [
       { to: '/time-table', label: 'Расписание', icon: 'timetable' },
       { to: '/home-work', label: 'Домашние задания', icon: 'homework' },
       { to: '/gradebook', label: 'Журнал оценок', icon: 'exams' },
+      { to: '/achievements', label: 'Достижения', icon: 'star' },
       {
         label: 'Экзамены',
         icon: 'exams',
