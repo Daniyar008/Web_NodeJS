@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { AuthShell } from './AuthShell'
 
 export function VerifyEmailPage({ variant = 'centered' }: { variant?: 'centered' | 'split-illustration' }) {

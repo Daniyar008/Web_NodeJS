@@ -1,5 +1,5 @@
 import { DataTable, type Column } from '../../ui/DataTable'
-import { PageHeader, ExportButton, StatusBadge } from '../../ui/PageHeader'
+import { PageHeader, ExportButton } from '../../ui/PageHeader'
 
 type Row = {
   id: string

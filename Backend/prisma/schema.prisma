@@ -6,7 +6,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:postgres@localhost:5432/edufuture?schema=public"
 }
 
 // ==================== ПОЛЬЗОВАТЕЛИ И РОЛИ ====================
@@ -137,7 +136,7 @@ model TeacherProfile {
   
   courses         Course[]
   classes         Class[]   // Классное руководство
-  subjects        SubjectTeacher[]
+  taughtSubjects  SubjectTeacher[]
   tournamentOrganizers TournamentOrganizer[]
   
   createdAt       DateTime  @default(now())
@@ -284,7 +283,6 @@ model Class {
   // Связи
   students        StudentProfile[]
   subjects        ClassSubject[]
-  timetable       TimetableEntry[]
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -910,7 +908,7 @@ enum ChatType {
 model ChatParticipant {
   id              String    @id @default(cuid())
   chatId          String
-  chat      @relation(fields: [chatId], references: [id])
+  chat            Chat      @relation(fields: [chatId], references: [id])
   userId          String
   user            User      @relation(fields: [userId], references: [id])
   
