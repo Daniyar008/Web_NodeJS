@@ -28,7 +28,7 @@ export const createTest = async (req: Request, res: Response): Promise<void> => 
 
 export const addQuestion = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { testId } = req.params;
+    const { testId } = req.params as { testId: string };
     const { text, type, points, options, correctAnswer, explanation, order } = req.body;
 
     const question = await prisma.testQuestion.create({

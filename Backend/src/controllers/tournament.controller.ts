@@ -43,8 +43,8 @@ export const createTournament = async (req: Request, res: Response): Promise<voi
 
 export const registerParticipant = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { tournamentId } = req.params;
-    
+    const { tournamentId } = req.params as { tournamentId: string };
+
     const studentProfile = await prisma.studentProfile.findFirst({ where: { userId: req.user?.userId } });
     if (!studentProfile) {
       res.status(404).json({ message: 'Student profile not found' });
@@ -66,7 +66,7 @@ export const registerParticipant = async (req: Request, res: Response): Promise<
 
 export const submitResult = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { tournamentId, studentId } = req.params;
+    const { tournamentId, studentId } = req.params as { tournamentId: string; studentId: string };
     const { place, prize, pointsEarned } = req.body;
 
     const result = await prisma.tournamentResult.create({

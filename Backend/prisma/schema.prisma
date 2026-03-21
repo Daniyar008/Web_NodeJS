@@ -11,34 +11,38 @@ datasource db {
 // ==================== ПОЛЬЗОВАТЕЛИ И РОЛИ ====================
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  password        String
-  firstName       String
-  lastName        String
-  patronymic      String?
-  phone           String?
-  birthDate       DateTime?
-  avatar          String?   @default("default-avatar.png")
-  role            Role      @default(STUDENT)
-  isActive        Boolean   @default(true)
-  lastLogin       DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  id         String    @id @default(cuid())
+  email      String    @unique
+  password   String
+  firstName  String
+  lastName   String
+  patronymic String?
+  phone      String?
+  birthDate  DateTime?
+  avatar     String?   @default("default-avatar.png")
+  role       Role      @default(STUDENT)
+  isActive   Boolean   @default(true)
+  lastLogin  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
   // Связи с профилями
   studentProfile  StudentProfile?
   teacherProfile  TeacherProfile?
   parentProfile   ParentProfile?
   institutionUser InstitutionUser[]
-  
+
   // Уведомления и сообщения
-  sentMessages    Message[]     @relation("sender")
-  receivedMessages Message[]    @relation("receiver")
-  notifications   Notification[]
-  
+  sentMessages     Message[]      @relation("sender")
+  receivedMessages Message[]      @relation("receiver")
+  notifications    Notification[]
+
+  // Чаты и вложения
+  chatParticipants    ChatParticipant[]
+  uploadedAttachments Attachment[]
+
   // Настройки
-  settings        UserSettings?
+  settings UserSettings?
 }
 
 enum Role {
@@ -51,147 +55,153 @@ enum Role {
 }
 
 model UserSettings {
-  id              String    @id @default(cuid())
-  userId          String    @unique
-  user            User      @relation(fields: [userId], references: [id])
-  
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
   // Настройки уведомлений
-  emailNotifications Boolean  @default(true)
-  pushNotifications  Boolean  @default(true)
+  emailNotifications    Boolean @default(true)
+  pushNotifications     Boolean @default(true)
   telegramNotifications Boolean @default(false)
-  telegramChatId     String?
-  
+  telegramChatId        String?
+
   // Язык и тема
-  language        String    @default("ru")
-  theme           String    @default("light") // light/dark/system
-  
+  language String @default("ru")
+  theme    String @default("light") // light/dark/system
+
   // Конфиденциальность
-  showOnline      Boolean   @default(true)
-  showProgress    Boolean   @default(true)
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  showOnline   Boolean @default(true)
+  showProgress Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ==================== ПРОФИЛИ ПО РОЛЯМ ====================
 
 model StudentProfile {
-  id              String    @id @default(cuid())
-  userId          String    @unique
-  user            User      @relation(fields: [userId], references: [id])
-  
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
   // Учебная информация
-  grade           Int?      // Класс/курс
-  studentId       String?   @unique // Номер студенческого билета
-  enrollmentYear  Int?
-  
+  grade          Int? // Класс/курс
+  studentId      String? @unique // Номер студенческого билета
+  enrollmentYear Int?
+
   // Геймификация
-  totalXP         Int       @default(0)
-  level           Int       @default(1)
-  currentStreak   Int       @default(0)
-  maxStreak       Int       @default(0)
-  coins           Int       @default(0) // Внутренняя валюта
-  
+  totalXP       Int @default(0)
+  level         Int @default(1)
+  currentStreak Int @default(0)
+  maxStreak     Int @default(0)
+  coins         Int @default(0) // Внутренняя валюта
+
   // Связи
-  class           Class?     @relation(fields: [classId], references: [id])
-  classId         String?
-  
-  enrollments     Enrollment[]
-  achievements    StudentAchievement[]
-  todos           Todo[]
-  parentLinks     ParentStudent[]
-  attendance      Attendance[]
+  class   Class?  @relation(fields: [classId], references: [id])
+  classId String?
+
+  enrollments            Enrollment[]
+  achievements           StudentAchievement[]
+  todos                  Todo[]
+  parentLinks            ParentStudent[]
+  attendance             Attendance[]
   tournamentParticipants TournamentParticipant[]
-  tournamentResults TournamentResult[]
-  submissions     Submission[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  tournamentResults      TournamentResult[]
+  submissions            Submission[]
+
+  lessonCompletions LessonCompletion[]
+  testAttempts      TestAttempt[]
+  courseReviews     CourseReview[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model TeacherProfile {
-  id              String    @id @default(cuid())
-  userId          String    @unique
-  user            User      @relation(fields: [userId], references: [id])
-  
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
   // Профессиональная информация
-  bio             String?   @db.Text
-  qualifications  String?   // Квалификация
-  experience      Int?      // Лет опыта
-  employeeId      String?   @unique // Табельный номер
-  
+  bio            String? @db.Text
+  qualifications String? // Квалификация
+  experience     Int? // Лет опыта
+  employeeId     String? @unique // Табельный номер
+
   // Для публичного профиля (репетиторство)
-  isPublic        Boolean   @default(false)
-  hourlyRate      Float?
-  subjects        String[]  // Предметы
-  
+  isPublic   Boolean  @default(false)
+  hourlyRate Float?
+  subjects   String[] // Предметы
+
   // Статистика
-  rating          Float     @default(0.0)
-  totalStudents   Int       @default(0)
-  totalCourses    Int       @default(0)
-  
+  rating        Float @default(0.0)
+  totalStudents Int   @default(0)
+  totalCourses  Int   @default(0)
+
   // Связи
-  institution     Institution? @relation(fields: [institutionId], references: [id])
-  institutionId   String?
-  
-  courses         Course[]
-  classes         Class[]   // Классное руководство
-  taughtSubjects  SubjectTeacher[]
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+  institutionId String?
+
+  courses              Course[]
+  classes              Class[] // Классное руководство
+  taughtSubjects       SubjectTeacher[]
   tournamentOrganizers TournamentOrganizer[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ParentProfile {
-  id              String    @id @default(cuid())
-  userId          String    @unique
-  user            User      @relation(fields: [userId], references: [id])
-  
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
   // Информация о родителе
-  occupation      String?
-  workPhone       String?
-  
+  occupation String?
+  workPhone  String?
+
   // Связи
-  children        ParentStudent[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  children ParentStudent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ==================== УЧРЕЖДЕНИЯ ====================
 
 model Institution {
-  id              String    @id @default(cuid())
-  name            String
-  shortName       String?
-  type            InstitutionType
-  logo            String?   @default("default-institution.png")
-  
+  id        String          @id @default(cuid())
+  name      String
+  shortName String?
+  type      InstitutionType
+  logo      String?         @default("default-institution.png")
+
   // Юридическая информация
-  inn             String?   @unique // ИНН/БИН
-  address         String?
-  phone           String?
-  email           String?
-  website         String?
-  
+  inn     String? @unique // ИНН/БИН
+  address String?
+  phone   String?
+  email   String?
+  website String?
+
   // Подписка
   subscription    SubscriptionPlan @default(BASIC)
   subscriptionEnd DateTime?
-  maxStudents     Int?      // Максимум учеников по тарифу
-  maxTeachers     Int?      // Максимум учителей по тарифу
-  
+  maxStudents     Int? // Максимум учеников по тарифу
+  maxTeachers     Int? // Максимум учителей по тарифу
+
   // Настройки
-  settings        Json?     @default("{}")
-  
+  settings Json? @default("{}")
+
   // Связи
-  users           InstitutionUser[]
-  classes         Class[]
-  tournaments     Tournament[]
-  departments     Department[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  users       InstitutionUser[]
+  classes     Class[]
+  tournaments Tournament[]
+  departments Department[]
+  teachers    TeacherProfile[]
+  courses     Course[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum InstitutionType {
@@ -205,32 +215,35 @@ enum InstitutionType {
 }
 
 enum SubscriptionPlan {
-  BASIC      // Бесплатный (до 30 учеников)
+  BASIC // Бесплатный (до 30 учеников)
   PROFESSIONAL // Платный (до 300 учеников)
-  ENTERPRISE   // Индивидуальный
+  ENTERPRISE // Индивидуальный
 }
 
 model InstitutionUser {
-  id              String    @id @default(cuid())
-  userId          String
-  user            User      @relation(fields: [userId], references: [id])
-  institutionId   String
-  institution     Institution @relation(fields: [institutionId], references: [id])
-  
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id])
+
   // Должность внутри учреждения
-  position        String?
-  departmentId    String?
-  department      Department? @relation(fields: [departmentId], references: [id])
-  
+  position     String?
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
   // Права доступа
-  role            InstitutionRole @default(TEACHER)
-  permissions     Json?      // Доп. разрешения
-  
+  role        InstitutionRole @default(TEACHER)
+  permissions Json? // Доп. разрешения
+
+  // Связи
+  departmentsAsHead Department[] @relation("departmentHead")
+
   // Статус
-  isActive        Boolean   @default(true)
-  joinedAt        DateTime  @default(now())
-  leftAt          DateTime?
-  
+  isActive Boolean   @default(true)
+  joinedAt DateTime  @default(now())
+  leftAt   DateTime?
+
   @@unique([userId, institutionId])
   @@index([institutionId])
   @@index([userId])
@@ -247,141 +260,144 @@ enum InstitutionRole {
 }
 
 model Department {
-  id              String    @id @default(cuid())
-  name            String
-  description     String?
-  institutionId   String
-  institution     Institution @relation(fields: [institutionId], references: [id])
-  
-  headId          String?   // ID руководителя (InstitutionUser)
-  head            InstitutionUser? @relation("departmentHead", fields: [headId], references: [id])
-  
-  members         InstitutionUser[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id            String      @id @default(cuid())
+  name          String
+  description   String?
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id])
+
+  headId String? // ID руководителя (InstitutionUser)
+  head   InstitutionUser? @relation("departmentHead", fields: [headId], references: [id])
+
+  members InstitutionUser[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ==================== УЧЕБНЫЙ ПРОЦЕСС ====================
 
 model Class {
-  id              String    @id @default(cuid())
-  name            String    // Например "8 А"
-  grade           Int
-  letter          String?
-  
-  institutionId   String
-  institution     Institution @relation(fields: [institutionId], references: [id])
-  
+  id     String  @id @default(cuid())
+  name   String // Например "8 А"
+  grade  Int
+  letter String?
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id])
+
   // Классный руководитель
   homeroomTeacherId String?
   homeroomTeacher   TeacherProfile? @relation(fields: [homeroomTeacherId], references: [id])
-  
+
   // Учебный год
-  academicYear    String    // "2024-2025"
-  
+  academicYear String // "2024-2025"
+
   // Связи
   students        StudentProfile[]
   subjects        ClassSubject[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  subjectTeachers SubjectTeacher[]
+  attendances     Attendance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([name, institutionId, academicYear])
 }
 
 model Subject {
-  id              String    @id @default(cuid())
-  name            String
-  code            String?   // Предметный код
-  description     String?
-  
+  id          String  @id @default(cuid())
+  name        String
+  code        String? // Предметный код
+  description String?
+
   // Связи
-  teachers        SubjectTeacher[]
-  classes         ClassSubject[]
-  courses         Course[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  teachers SubjectTeacher[]
+  classes  ClassSubject[]
+  courses  Course[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model SubjectTeacher {
-  id              String    @id @default(cuid())
-  subjectId       String
-  subject         Subject   @relation(fields: [subjectId], references: [id])
-  teacherId       String
-  teacher         TeacherProfile @relation(fields: [teacherId], references: [id])
-  classId         String?
-  class           Class?    @relation(fields: [classId], references: [id])
-  
+  id        String         @id @default(cuid())
+  subjectId String
+  subject   Subject        @relation(fields: [subjectId], references: [id])
+  teacherId String
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id])
+  classId   String?
+  class     Class?         @relation(fields: [classId], references: [id])
+
   // Период преподавания
-  startDate       DateTime  @default(now())
-  endDate         DateTime?
-  
+  startDate DateTime  @default(now())
+  endDate   DateTime?
+
   @@unique([subjectId, teacherId, classId])
 }
 
 model ClassSubject {
-  id              String    @id @default(cuid())
-  classId         String
-  class           Class     @relation(fields: [classId], references: [id])
-  subjectId       String
-  subject         Subject   @relation(fields: [subjectId], references: [id])
-  
+  id        String  @id @default(cuid())
+  classId   String
+  class     Class   @relation(fields: [classId], references: [id])
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
   // Часы в неделю
-  hoursPerWeek    Int       @default(1)
-  
+  hoursPerWeek Int @default(1)
+
   @@unique([classId, subjectId])
 }
 
 // ==================== КУРСЫ И ОБУЧЕНИЕ ====================
 
 model Course {
-  id              String    @id @default(cuid())
-  title           String
-  description     String?   @db.Text
+  id               String  @id @default(cuid())
+  title            String
+  description      String? @db.Text
   shortDescription String?
-  thumbnail       String?   @default("default-course.png")
-  
+  thumbnail        String? @default("default-course.png")
+
   // Владелец курса
-  teacherId       String
-  teacher         TeacherProfile @relation(fields: [teacherId], references: [id])
-  institutionId   String?
-  institution     Institution? @relation(fields: [institutionId], references: [id])
-  
+  teacherId     String
+  teacher       TeacherProfile @relation(fields: [teacherId], references: [id])
+  institutionId String?
+  institution   Institution?   @relation(fields: [institutionId], references: [id])
+
   // Предмет
-  subjectId       String?
-  subject         Subject?  @relation(fields: [subjectId], references: [id])
-  
+  subjectId String?
+  subject   Subject? @relation(fields: [subjectId], references: [id])
+
   // Настройки
-  isPublished     Boolean   @default(false)
-  isFree          Boolean   @default(true)
-  price           Float?    @default(0)
-  difficulty      Difficulty @default(BEGINNER)
-  
+  isPublished Boolean    @default(false)
+  isFree      Boolean    @default(true)
+  price       Float?     @default(0)
+  difficulty  Difficulty @default(BEGINNER)
+
   // Оценивание
-  gradingSystem   GradingSystem @default(FIVE_POINT)
-  passingScore    Int       @default(60) // Проходной балл в %
-  gradeWeights    Json?     // Веса разных типов работ
-  
+  gradingSystem GradingSystem @default(FIVE_POINT)
+  passingScore  Int           @default(60) // Проходной балл в %
+  gradeWeights  Json? // Веса разных типов работ
+
   // Доступ
-  availableFrom   DateTime?
-  availableUntil  DateTime?
-  previewLessons  Int       @default(0) // Сколько уроков доступно бесплатно
-  
+  availableFrom  DateTime?
+  availableUntil DateTime?
+  previewLessons Int       @default(0) // Сколько уроков доступно бесплатно
+
   // Статистика
-  totalStudents   Int       @default(0)
-  averageRating   Float     @default(0.0)
-  totalDuration   Int?      // Общая длительность в минутах
-  
+  totalStudents Int   @default(0)
+  averageRating Float @default(0.0)
+  totalDuration Int? // Общая длительность в минутах
+
   // Связи
-  modules         CourseModule[]
-  enrollments     Enrollment[]
-  reviews         CourseReview[]
-  assignments     Assignment[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  modules     CourseModule[]
+  enrollments Enrollment[]
+  reviews     CourseReview[]
+  assignments Assignment[]
+  todos       Todo[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum Difficulty {
@@ -392,151 +408,154 @@ enum Difficulty {
 }
 
 enum GradingSystem {
-  FIVE_POINT   // 5-балльная
-  TEN_POINT    // 10-балльная
+  FIVE_POINT // 5-балльная
+  TEN_POINT // 10-балльная
   HUNDRED_POINT // 100-балльная
-  PASS_FAIL    // Зачет/незачет
+  PASS_FAIL // Зачет/незачет
 }
 
 model CourseModule {
-  id              String    @id @default(cuid())
-  title           String
-  description     String?
-  order           Int       // Порядковый номер модуля
-  
-  courseId        String
-  course          Course    @relation(fields: [courseId], references: [id])
-  
+  id          String  @id @default(cuid())
+  title       String
+  description String?
+  order       Int // Порядковый номер модуля
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
+
   // Связи
-  lessons         Lesson[]
-  tests           Test[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  lessons Lesson[]
+  tests   Test[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Lesson {
-  id              String    @id @default(cuid())
-  title           String
-  content         String?   @db.Text
-  videoUrl        String?
-  duration        Int?      // Длительность в минутах
-  order           Int
-  
-  moduleId        String
-  module          CourseModule @relation(fields: [moduleId], references: [id])
-  
+  id       String  @id @default(cuid())
+  title    String
+  content  String? @db.Text
+  videoUrl String?
+  duration Int? // Длительность в минутах
+  order    Int
+
+  moduleId String
+  module   CourseModule @relation(fields: [moduleId], references: [id])
+
   // Материалы
-  attachments     Attachment[]
-  
+  attachments Attachment[]
+
   // Доступ
-  isPreview       Boolean   @default(false) // Доступно без записи
-  
+  isPreview Boolean @default(false) // Доступно без записи
+
   // Прогресс учеников
-  completions     LessonCompletion[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  completions LessonCompletion[]
+  assignments Assignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Test {
-  id              String    @id @default(cuid())
-  title           String
-  description     String?
-  type            TestType  @default(QUIZ)
-  
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        TestType @default(QUIZ)
+
   // Настройки
-  timeLimit       Int?      // В минутах, null = без ограничения
-  attemptsAllowed Int       @default(1)
-  passingScore    Int       @default(70) // Процент правильных ответов
-  shuffleQuestions Boolean  @default(false)
-  showAnswers     Boolean   @default(false) // Показывать правильные ответы после
-  
-  moduleId        String
-  module          CourseModule @relation(fields: [moduleId], references: [id])
-  
+  timeLimit        Int? // В минутах, null = без ограничения
+  attemptsAllowed  Int     @default(1)
+  passingScore     Int     @default(70) // Процент правильных ответов
+  shuffleQuestions Boolean @default(false)
+  showAnswers      Boolean @default(false) // Показывать правильные ответы после
+
+  moduleId String
+  module   CourseModule @relation(fields: [moduleId], references: [id])
+
   // Вопросы
-  questions       TestQuestion[]
-  
+  questions TestQuestion[]
+
   // Результаты
-  attempts        TestAttempt[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  attempts    TestAttempt[]
+  assignments Assignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum TestType {
-  QUIZ          // Тест с вариантами
-  EXAM          // Экзамен (строже)
-  HOMEWORK      // Домашнее задание
-  FINAL         // Итоговый тест
+  QUIZ // Тест с вариантами
+  EXAM // Экзамен (строже)
+  HOMEWORK // Домашнее задание
+  FINAL // Итоговый тест
 }
 
 model TestQuestion {
-  id              String    @id @default(cuid())
-  text            String    @db.Text
-  type            QuestionType @default(SINGLE_CHOICE)
-  points          Int       @default(1)
-  
-  testId          String
-  test            Test      @relation(fields: [testId], references: [id])
-  
+  id     String       @id @default(cuid())
+  text   String       @db.Text
+  type   QuestionType @default(SINGLE_CHOICE)
+  points Int          @default(1)
+
+  testId String
+  test   Test   @relation(fields: [testId], references: [id])
+
   // Варианты ответов (для тестов)
-  options         Json?     // Массив вариантов
-  
+  options Json? // Массив вариантов
+
   // Правильный ответ
-  correctAnswer   Json?     // Может быть массивом для множественного выбора
-  
+  correctAnswer Json? // Может быть массивом для множественного выбора
+
   // Пояснение
-  explanation     String?   @db.Text
-  
-  order           Int
-  
+  explanation String? @db.Text
+
+  order Int
+
   // Ответы учеников
-  answers         TestAnswer[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  answers TestAnswer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum QuestionType {
-  SINGLE_CHOICE   // Один вариант
+  SINGLE_CHOICE // Один вариант
   MULTIPLE_CHOICE // Несколько вариантов
-  TEXT            // Текстовый ответ
-  TRUE_FALSE      // Правда/ложь
-  MATCHING        // Сопоставление
+  TEXT // Текстовый ответ
+  TRUE_FALSE // Правда/ложь
+  MATCHING // Сопоставление
 }
 
 model Assignment {
-  id              String    @id @default(cuid())
-  title           String
-  description     String?   @db.Text
-  type            AssignmentType
-  maxScore        Int       @default(100)
-  
-  courseId        String
-  course          Course    @relation(fields: [courseId], references: [id])
-  
+  id          String         @id @default(cuid())
+  title       String
+  description String?        @db.Text
+  type        AssignmentType
+  maxScore    Int            @default(100)
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
+
   // Для привязки к конкретному уроку/тесту
-  lessonId        String?
-  lesson          Lesson?   @relation(fields: [lessonId], references: [id])
-  testId          String?
-  test            Test?     @relation(fields: [testId], references: [id])
-  
+  lessonId String?
+  lesson   Lesson? @relation(fields: [lessonId], references: [id])
+  testId   String?
+  test     Test?   @relation(fields: [testId], references: [id])
+
   // Сроки
-  dueDate         DateTime?
-  availableFrom   DateTime?
-  availableUntil  DateTime?
-  
+  dueDate        DateTime?
+  availableFrom  DateTime?
+  availableUntil DateTime?
+
   // Настройки
   allowLateSubmission Boolean @default(false)
-  latePenalty     Int?      // Штраф в процентах
-  
+  latePenalty         Int? // Штраф в процентах
+
   // Связи
-  submissions     Submission[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  submissions Submission[]
+  todos       Todo[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum AssignmentType {
@@ -548,26 +567,26 @@ enum AssignmentType {
 }
 
 model Submission {
-  id              String    @id @default(cuid())
-  assignmentId    String
-  assignment      Assignment @relation(fields: [assignmentId], references: [id])
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  
+  id           String         @id @default(cuid())
+  assignmentId String
+  assignment   Assignment     @relation(fields: [assignmentId], references: [id])
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [id])
+
   // Содержание
-  content         String?   @db.Text
-  attachments     Attachment[]
-  
+  content     String?      @db.Text
+  attachments Attachment[]
+
   // Оценка
-  score           Int?
-  feedback        String?   @db.Text
-  gradedBy        String?   // ID учителя
-  gradedAt        DateTime?
-  
+  score    Int?
+  feedback String?   @db.Text
+  gradedBy String? // ID учителя
+  gradedAt DateTime?
+
   // Статус
-  status          SubmissionStatus @default(SUBMITTED)
-  submittedAt     DateTime  @default(now())
-  
+  status      SubmissionStatus @default(SUBMITTED)
+  submittedAt DateTime         @default(now())
+
   @@unique([assignmentId, studentId])
 }
 
@@ -579,25 +598,25 @@ enum SubmissionStatus {
 }
 
 model Enrollment {
-  id              String    @id @default(cuid())
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  courseId        String
-  course          Course    @relation(fields: [courseId], references: [id])
-  
+  id        String         @id @default(cuid())
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+  courseId  String
+  course    Course         @relation(fields: [courseId], references: [id])
+
   // Прогресс
-  progress        Int       @default(0) // Процент завершения
-  status          EnrollmentStatus @default(ACTIVE)
-  
+  progress Int              @default(0) // Процент завершения
+  status   EnrollmentStatus @default(ACTIVE)
+
   // Даты
-  enrolledAt      DateTime  @default(now())
-  completedAt     DateTime?
-  lastAccessedAt  DateTime?
-  
+  enrolledAt     DateTime  @default(now())
+  completedAt    DateTime?
+  lastAccessedAt DateTime?
+
   // Результаты
-  finalScore      Float?
-  certificateId   String?
-  
+  finalScore    Float?
+  certificateId String?
+
   @@unique([studentId, courseId])
 }
 
@@ -609,138 +628,138 @@ enum EnrollmentStatus {
 }
 
 model LessonCompletion {
-  id              String    @id @default(cuid())
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  lessonId        String
-  lesson          Lesson    @relation(fields: [lessonId], references: [id])
-  
-  completedAt     DateTime  @default(now())
-  
+  id        String         @id @default(cuid())
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+  lessonId  String
+  lesson    Lesson         @relation(fields: [lessonId], references: [id])
+
+  completedAt DateTime @default(now())
+
   @@unique([studentId, lessonId])
 }
 
 model TestAttempt {
-  id              String    @id @default(cuid())
-  testId          String
-  test            Test      @relation(fields: [testId], references: [id])
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  
+  id        String         @id @default(cuid())
+  testId    String
+  test      Test           @relation(fields: [testId], references: [id])
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+
   // Результаты
-  score           Int       // Набранные баллы
-  maxScore        Int       // Максимальные баллы
-  percentage      Float     // Процент правильных
-  passed          Boolean
-  
+  score      Int // Набранные баллы
+  maxScore   Int // Максимальные баллы
+  percentage Float // Процент правильных
+  passed     Boolean
+
   // Время
-  startedAt       DateTime  @default(now())
-  finishedAt      DateTime?
-  timeSpent       Int?      // В секундах
-  
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  timeSpent  Int? // В секундах
+
   // Ответы
-  answers         TestAnswer[]
-  
+  answers TestAnswer[]
+
   @@unique([testId, studentId, startedAt]) // Учитываем попытки
 }
 
 model TestAnswer {
-  id              String    @id @default(cuid())
-  attemptId       String
-  attempt         TestAttempt @relation(fields: [attemptId], references: [id])
-  questionId      String
-  question        TestQuestion @relation(fields: [questionId], references: [id])
-  
-  answer          Json      // Ответ ученика
-  isCorrect       Boolean
-  pointsEarned    Int
-  
-  createdAt       DateTime  @default(now())
+  id         String       @id @default(cuid())
+  attemptId  String
+  attempt    TestAttempt  @relation(fields: [attemptId], references: [id])
+  questionId String
+  question   TestQuestion @relation(fields: [questionId], references: [id])
+
+  answer       Json // Ответ ученика
+  isCorrect    Boolean
+  pointsEarned Int
+
+  createdAt DateTime @default(now())
 }
 
 // ==================== ГЕЙМИФИКАЦИЯ ====================
 
 model Achievement {
-  id              String    @id @default(cuid())
-  name            String
-  description     String
-  icon            String
-  category        AchievementCategory
-  points          Int       @default(10) // Опыт за получение
-  
+  id          String              @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  category    AchievementCategory
+  points      Int                 @default(10) // Опыт за получение
+
   // Условия получения
-  condition       Json      // Условие в JSON формате
-  
+  condition Json // Условие в JSON формате
+
   // Связи
   studentAchievements StudentAchievement[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum AchievementCategory {
-  ACADEMIC        // Учебные
-  ATTENDANCE      // Посещаемость
-  TOURNAMENT      // Турнирные
-  STREAK          // Streak-достижения
-  SOCIAL          // Социальные
-  SPECIAL         // Особые
+  ACADEMIC // Учебные
+  ATTENDANCE // Посещаемость
+  TOURNAMENT // Турнирные
+  STREAK // Streak-достижения
+  SOCIAL // Социальные
+  SPECIAL // Особые
 }
 
 model StudentAchievement {
-  id              String    @id @default(cuid())
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  achievementId   String
-  achievement     Achievement @relation(fields: [achievementId], references: [id])
-  
-  earnedAt        DateTime  @default(now())
-  
+  id            String         @id @default(cuid())
+  studentId     String
+  student       StudentProfile @relation(fields: [studentId], references: [id])
+  achievementId String
+  achievement   Achievement    @relation(fields: [achievementId], references: [id])
+
+  earnedAt DateTime @default(now())
+
   @@unique([studentId, achievementId])
 }
 
 model Tournament {
-  id              String    @id @default(cuid())
-  name            String
-  description     String?   @db.Text
-  type            TournamentType
-  status          TournamentStatus @default(UPCOMING)
-  
+  id          String           @id @default(cuid())
+  name        String
+  description String?          @db.Text
+  type        TournamentType
+  status      TournamentStatus @default(UPCOMING)
+
   // Даты
-  startDate       DateTime
-  endDate         DateTime
+  startDate            DateTime
+  endDate              DateTime
   registrationDeadline DateTime?
-  
+
   // Участники
   maxParticipants Int?
   minParticipants Int?
-  
+
   // Для институциональных турниров
-  institutionId   String?
-  institution     Institution? @relation(fields: [institutionId], references: [id])
-  
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+
   // Организаторы
-  organizers      TournamentOrganizer[]
-  
+  organizers TournamentOrganizer[]
+
   // Участники
-  participants    TournamentParticipant[]
-  results         TournamentResult[]
-  
+  participants TournamentParticipant[]
+  results      TournamentResult[]
+
   // Призы
-  prizes          Json?     // Призы за места
-  
+  prizes Json? // Призы за места
+
   // Настройки
-  settings        Json?     @default("{}")
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  settings Json? @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum TournamentType {
-  INDIVIDUAL      // Личный зачет
-  TEAM            // Командный (классы)
-  INSTITUTION     // Между учреждениями
-  GLOBAL          // Глобальный турнир платформы
+  INDIVIDUAL // Личный зачет
+  TEAM // Командный (классы)
+  INSTITUTION // Между учреждениями
+  GLOBAL // Глобальный турнир платформы
 }
 
 enum TournamentStatus {
@@ -752,85 +771,85 @@ enum TournamentStatus {
 }
 
 model TournamentOrganizer {
-  id              String    @id @default(cuid())
-  tournamentId    String
-  tournament      Tournament @relation(fields: [tournamentId], references: [id])
-  teacherId       String
-  teacher         TeacherProfile @relation(fields: [teacherId], references: [id])
-  
-  role            String    // Главный организатор, помощник и т.д.
-  
+  id           String         @id @default(cuid())
+  tournamentId String
+  tournament   Tournament     @relation(fields: [tournamentId], references: [id])
+  teacherId    String
+  teacher      TeacherProfile @relation(fields: [teacherId], references: [id])
+
+  role String // Главный организатор, помощник и т.д.
+
   @@unique([tournamentId, teacherId])
 }
 
 model TournamentParticipant {
-  id              String    @id @default(cuid())
-  tournamentId    String
-  tournament      Tournament @relation(fields: [tournamentId], references: [id])
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  
+  id           String         @id @default(cuid())
+  tournamentId String
+  tournament   Tournament     @relation(fields: [tournamentId], references: [id])
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [id])
+
   // Для командных турниров
-  teamId          String?
-  teamName        String?
-  
+  teamId   String?
+  teamName String?
+
   // Статистика
-  score           Int       @default(0)
-  rank            Int?
-  
-  registeredAt    DateTime  @default(now())
-  
+  score Int  @default(0)
+  rank  Int?
+
+  registeredAt DateTime @default(now())
+
   @@unique([tournamentId, studentId])
 }
 
 model TournamentResult {
-  id              String    @id @default(cuid())
-  tournamentId    String
-  tournament      Tournament @relation(fields: [tournamentId], references: [id])
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  
-  place           Int
-  prize           String?
-  pointsEarned    Int       // XP полученные за турнир
-  
-  createdAt       DateTime  @default(now())
-  
+  id           String         @id @default(cuid())
+  tournamentId String
+  tournament   Tournament     @relation(fields: [tournamentId], references: [id])
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [id])
+
+  place        Int
+  prize        String?
+  pointsEarned Int // XP полученные за турнир
+
+  createdAt DateTime @default(now())
+
   @@unique([tournamentId, studentId])
 }
 
 // ==================== ЗАДАЧИ И ПЛАНИРОВАНИЕ ====================
 
 model Todo {
-  id              String    @id @default(cuid())
-  title           String
-  description     String?   @db.Text
-  status          TodoStatus @default(TODO)
-  priority        Priority  @default(MEDIUM)
-  
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  
+  id          String     @id @default(cuid())
+  title       String
+  description String?    @db.Text
+  status      TodoStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+
   // Связанные сущности
-  courseId        String?
-  course          Course?   @relation(fields: [courseId], references: [id])
-  assignmentId    String?
-  assignment      Assignment? @relation(fields: [assignmentId], references: [id])
-  
+  courseId     String?
+  course       Course?     @relation(fields: [courseId], references: [id])
+  assignmentId String?
+  assignment   Assignment? @relation(fields: [assignmentId], references: [id])
+
   // Сроки
-  dueDate         DateTime?
-  reminderDate    DateTime?
-  
+  dueDate      DateTime?
+  reminderDate DateTime?
+
   // Повторение
-  isRecurring     Boolean   @default(false)
-  recurrenceRule  String?   // Правило повторения (RRule)
-  
+  isRecurring    Boolean @default(false)
+  recurrenceRule String? // Правило повторения (RRule)
+
   // Порядок для drag-and-drop
-  order           Int
-  
-  completedAt     DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  order Int
+
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 enum TodoStatus {
@@ -850,27 +869,27 @@ enum Priority {
 // ==================== КОММУНИКАЦИЯ ====================
 
 model Message {
-  id              String    @id @default(cuid())
-  content         String    @db.Text
-  type            MessageType @default(TEXT)
-  
-  senderId        String
-  sender          User      @relation("sender", fields: [senderId], references: [id])
-  receiverId      String
-  receiver        User      @relation("receiver", fields: [receiverId], references: [id])
-  
+  id      String      @id @default(cuid())
+  content String      @db.Text
+  type    MessageType @default(TEXT)
+
+  senderId   String
+  sender     User   @relation("sender", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User   @relation("receiver", fields: [receiverId], references: [id])
+
   // Для групповых чатов
-  chatId          String?
-  chat            Chat?     @relation(fields: [chatId], references: [id])
-  
+  chatId String?
+  chat   Chat?   @relation(fields: [chatId], references: [id])
+
   // Вложения
-  attachments     Attachment[]
-  
-  isRead          Boolean   @default(false)
-  readAt          DateTime?
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  attachments Attachment[]
+
+  isRead Boolean   @default(false)
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum MessageType {
@@ -881,70 +900,70 @@ enum MessageType {
 }
 
 model Chat {
-  id              String    @id @default(cuid())
-  name            String?
-  type            ChatType  @default(PERSONAL)
-  
+  id   String   @id @default(cuid())
+  name String?
+  type ChatType @default(PERSONAL)
+
   // Для групповых чатов
-  avatar          String?
-  description     String?
-  
+  avatar      String?
+  description String?
+
   // Участники
-  participants    ChatParticipant[]
-  messages        Message[]
-  
-  lastMessageAt   DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  participants ChatParticipant[]
+  messages     Message[]
+
+  lastMessageAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 enum ChatType {
-  PERSONAL        // Личный чат
-  GROUP           // Групповой чат (класс)
-  COURSE          // Чат курса
-  INSTITUTION     // Чат учреждения
+  PERSONAL // Личный чат
+  GROUP // Групповой чат (класс)
+  COURSE // Чат курса
+  INSTITUTION // Чат учреждения
 }
 
 model ChatParticipant {
-  id              String    @id @default(cuid())
-  chatId          String
-  chat            Chat      @relation(fields: [chatId], references: [id])
-  userId          String
-  user            User      @relation(fields: [userId], references: [id])
-  
-  role            String    @default("MEMBER") // ADMIN, MODERATOR, MEMBER
-  joinedAt        DateTime  @default(now())
-  lastReadAt      DateTime?
-  
+  id     String @id @default(cuid())
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  role       String    @default("MEMBER") // ADMIN, MODERATOR, MEMBER
+  joinedAt   DateTime  @default(now())
+  lastReadAt DateTime?
+
   @@unique([chatId, userId])
 }
 
 model Notification {
-  id              String    @id @default(cuid())
-  title           String
-  content         String
-  type            NotificationType
-  priority        NotificationPriority @default(NORMAL)
-  
-  userId          String
-  user            User      @relation(fields: [userId], references: [id])
-  
+  id       String               @id @default(cuid())
+  title    String
+  content  String
+  type     NotificationType
+  priority NotificationPriority @default(NORMAL)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
   // Дополнительные данные
-  data            Json?
-  
-  isRead          Boolean   @default(false)
-  readAt          DateTime?
-  
-  createdAt       DateTime  @default(now())
+  data Json?
+
+  isRead Boolean   @default(false)
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
 }
 
 enum NotificationType {
-  GRADE           // Новая оценка
-  MESSAGE         // Новое сообщение
-  ACHIEVEMENT     // Получено достижение
-  TOURNAMENT      // Событие турнира
-  DEADLINE        // Приближающийся дедлайн
-  SYSTEM          // Системное уведомление
+  GRADE // Новая оценка
+  MESSAGE // Новое сообщение
+  ACHIEVEMENT // Получено достижение
+  TOURNAMENT // Событие турнира
+  DEADLINE // Приближающийся дедлайн
+  SYSTEM // Системное уведомление
 }
 
 enum NotificationPriority {
@@ -957,20 +976,20 @@ enum NotificationPriority {
 // ==================== ПОСЕЩАЕМОСТЬ ====================
 
 model Attendance {
-  id              String    @id @default(cuid())
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  classId         String
-  class           Class      @relation(fields: [classId], references: [id])
-  
-  date            DateTime
-  status          AttendanceStatus
-  reason          String?   // Причина отсутствия
-  
+  id        String         @id @default(cuid())
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+  classId   String
+  class     Class          @relation(fields: [classId], references: [id])
+
+  date   DateTime
+  status AttendanceStatus
+  reason String? // Причина отсутствия
+
   // Кто отметил
-  markedBy        String    // ID учителя
-  markedAt        DateTime  @default(now())
-  
+  markedBy String // ID учителя
+  markedAt DateTime @default(now())
+
   @@unique([studentId, date])
 }
 
@@ -985,57 +1004,62 @@ enum AttendanceStatus {
 // ==================== РОДИТЕЛИ И ДЕТИ ====================
 
 model ParentStudent {
-  id              String    @id @default(cuid())
-  parentId        String
-  parent          ParentProfile @relation(fields: [parentId], references: [id])
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  
-  relationship    String?   // Мать, отец, опекун
-  
+  id        String         @id @default(cuid())
+  parentId  String
+  parent    ParentProfile  @relation(fields: [parentId], references: [id])
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+
+  relationship String? // Мать, отец, опекун
+
   // Настройки уведомлений для этого ребенка
-  notifyGrades    Boolean   @default(true)
-  notifyAttendance Boolean  @default(true)
-  notifyMessages  Boolean   @default(true)
-  
-  createdAt       DateTime  @default(now())
-  
+  notifyGrades     Boolean @default(true)
+  notifyAttendance Boolean @default(true)
+  notifyMessages   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
   @@unique([parentId, studentId])
 }
 
 // ==================== ВЛОЖЕНИЯ ====================
 
 model Attachment {
-  id              String    @id @default(cuid())
-  fileName        String
-  fileUrl         String
-  fileSize        Int
-  mimeType        String
-  
+  id       String @id @default(cuid())
+  fileName String
+  fileUrl  String
+  fileSize Int
+  mimeType String
+
   // Полиморфная связь
-  attachableType  String    // lesson, submission, message
-  attachableId    String
-  
-  uploadedById    String
-  uploadedBy      User      @relation(fields: [uploadedById], references: [id])
-  
-  createdAt       DateTime  @default(now())
+  attachableType String // lesson, submission, message
+  attachableId   String
+
+  uploadedById String
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+
+  // Обратные связи для полиморфных отношений
+  lessons     Lesson[]
+  submissions Submission[]
+  messages    Message[]
+
+  createdAt DateTime @default(now())
 }
 
 // ==================== ОТЗЫВЫ И РЕЙТИНГИ ====================
 
 model CourseReview {
-  id              String    @id @default(cuid())
-  courseId        String
-  course          Course    @relation(fields: [courseId], references: [id])
-  studentId       String
-  student         StudentProfile @relation(fields: [studentId], references: [id])
-  
-  rating          Int       // 1-5
-  comment         String?   @db.Text
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  id        String         @id @default(cuid())
+  courseId  String
+  course    Course         @relation(fields: [courseId], references: [id])
+  studentId String
+  student   StudentProfile @relation(fields: [studentId], references: [id])
+
+  rating  Int // 1-5
+  comment String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([courseId, studentId])
 }

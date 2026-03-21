@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Client } from 'pg';
 
 import authRoutes from './routes/auth.routes';
 import institutionRoutes from './routes/institution.routes';
@@ -20,7 +22,14 @@ import paymentRoutes from './routes/payment.routes';
 dotenv.config();
 
 const app = express();
-export const prisma = new PrismaClient();
+
+// Initialize Prisma with PG adapter
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+});
+const adapter = new PrismaPg(client);
+export const prisma = new PrismaClient({ adapter });
+
 const port = process.env.PORT || 5000;
 
 app.use(cors());

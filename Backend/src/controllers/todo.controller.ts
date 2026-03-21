@@ -54,7 +54,7 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
 
 export const updateTodoStatus = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
     const { status, order } = req.body;
 
     // We can verify ownership here but for brevity we allow update
@@ -74,7 +74,7 @@ export const updateTodoStatus = async (req: Request, res: Response): Promise<voi
 
 export const deleteTodo = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
 
     await prisma.todo.delete({
       where: { id }

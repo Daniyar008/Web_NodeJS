@@ -4,8 +4,8 @@ import { EnrollmentStatus, SubmissionStatus } from '@prisma/client';
 
 export const enrollInCourse = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { courseId } = req.params;
-    
+    const { courseId } = req.params as { courseId: string };
+
     // Fallback if not authenticated fully
     const studentProfile = await prisma.studentProfile.findFirst({ where: { userId: req.user?.userId } });
     if (!studentProfile) {
@@ -29,8 +29,8 @@ export const enrollInCourse = async (req: Request, res: Response): Promise<void>
 
 export const completeLesson = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { lessonId } = req.params;
-    
+    const { lessonId } = req.params as { lessonId: string };
+
     const studentProfile = await prisma.studentProfile.findFirst({ where: { userId: req.user?.userId } });
     if (!studentProfile) {
       res.status(404).json({ message: 'Student profile not found' });
@@ -52,9 +52,9 @@ export const completeLesson = async (req: Request, res: Response): Promise<void>
 
 export const submitAssignment = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { assignmentId } = req.params;
+    const { assignmentId } = req.params as { assignmentId: string };
     const { content } = req.body;
-    
+
     const studentProfile = await prisma.studentProfile.findFirst({ where: { userId: req.user?.userId } });
     if (!studentProfile) {
       res.status(404).json({ message: 'Student profile not found' });

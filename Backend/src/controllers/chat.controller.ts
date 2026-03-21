@@ -5,7 +5,7 @@ import { MessageType } from '@prisma/client';
 export const getUserChats = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
-    
+
     const chats = await prisma.chatParticipant.findMany({
       where: { userId },
       include: {
@@ -28,8 +28,8 @@ export const getUserChats = async (req: Request, res: Response): Promise<void> =
 
 export const getMessages = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { chatId } = req.params;
-    
+    const { chatId } = req.params as { chatId: string };
+
     const messages = await prisma.message.findMany({
       where: { chatId },
       orderBy: { createdAt: 'asc' },
@@ -48,10 +48,10 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
   try {
     const { chatId, receiverId, content, type } = req.body;
     const senderId = req.user?.userId;
-    
+
     if (!senderId) {
-       res.status(401).json({ message: 'Unauthorized' });
-       return;
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
     }
 
     const message = await prisma.message.create({

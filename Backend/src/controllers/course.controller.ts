@@ -20,7 +20,7 @@ export const getCourses = async (req: Request, res: Response): Promise<void> => 
 
 export const getCourseById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as { id: string };
     const course = await prisma.course.findUnique({
       where: { id },
       include: {
@@ -46,7 +46,7 @@ export const createCourse = async (req: Request, res: Response): Promise<void> =
   try {
     // Expected req.user to have teacher profile ID or we find it
     const { title, description, shortDescription, isFree, price, difficulty, teacherId, institutionId } = req.body;
-    
+
     // Fallback: If no teacherId, assume the logged in user is the teacher
     let tId = teacherId;
     if (!tId && req.user) {
@@ -80,7 +80,7 @@ export const createCourse = async (req: Request, res: Response): Promise<void> =
 
 export const addModule = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { courseId } = req.params;
+    const { courseId } = req.params as { courseId: string };
     const { title, description, order } = req.body;
 
     const courseModule = await prisma.courseModule.create({
@@ -100,7 +100,7 @@ export const addModule = async (req: Request, res: Response): Promise<void> => {
 
 export const addLesson = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { moduleId } = req.params;
+    const { moduleId } = req.params as { moduleId: string };
     const { title, content, videoUrl, duration, order, isPreview } = req.body;
 
     const lesson = await prisma.lesson.create({
