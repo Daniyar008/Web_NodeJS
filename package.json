@@ -1,0 +1,23 @@
+{
+  "name": "edufuture",
+  "version": "1.0.0",
+  "description": "EduFuture - Educational platform with gamification",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=server & npm run dev --workspace=client",
+    "build": "npm run build --workspace=server && npm run build --workspace=client",
+    "start": "npm start --workspace=server",
+    "lint": "npm run lint --workspace=server && npm run lint --workspace=client",
+    "format": "npm run format --workspace=server && npm run format --workspace=client",
+    "db:up": "docker-compose up -d",
+    "db:down": "docker-compose down",
+    "db:reset": "docker-compose down -v && docker-compose up -d"
+  },
+  "keywords": ["education", "gamification", "platform", "edtech"],
+  "author": "EduFuture Dev Team",
+  "license": "MIT"
+}

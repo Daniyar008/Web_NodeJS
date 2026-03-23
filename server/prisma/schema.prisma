@@ -1,0 +1,235 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+    SUPER_ADMIN
+    INSTITUTION_ADMIN
+    DIRECTOR
+    ASSISTANT_DIRECTOR
+    DEPARTMENT_HEAD
+    TEACHER
+    STUDENT
+    PARENT
+    GUEST
+}
+
+enum UserStatus {
+    ACTIVE
+    INACTIVE
+    SUSPENDED
+    ARCHIVED
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+}
+
+enum InstitutionType {
+    SCHOOL
+    COLLEGE
+    UNIVERSITY
+    COURSES
+    OTHER
+}
+
+// Core Models
+
+model User {
+    id           String     @id @default(cuid())
+    email        String     @unique
+    phone        String?    @unique
+    firstName    String
+    lastName     String
+    middleName   String?
+    avatar       String?
+    bio          String?
+    dateOfBirth  DateTime?
+    gender       Gender?
+    passwordHash String
+    role         UserRole   @default(GUEST)
+    status       UserStatus @default(ACTIVE)
+
+    // Authentication
+    emailVerified   Boolean   @default(false)
+    emailVerifiedAt DateTime?
+    phoneVerified   Boolean   @default(false)
+    lastLogin       DateTime?
+
+    // Relations
+    institution Institution? @relation("AdminUsers")
+    profile     Profile?
+    teacher     Teacher?
+    student     Student?
+    parent      Parent?
+
+    // Metadata
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([email])
+    @@index([role])
+    @@index([status])
+}
+
+model Profile {
+    id     String @id @default(cuid())
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    bio         String?
+    socialLinks Json? // { linkedin, twitter, github, website }
+    preferences Json? // { theme, notifications, language }
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Institution {
+    id          String          @id @default(cuid())
+    name        String
+    type        InstitutionType @default(SCHOOL)
+    description String?
+    logo        String?
+
+    // Contact
+    email   String? @unique
+    phone   String?
+    website String?
+
+    // Address
+    address String?
+    city    String?
+    state   String?
+    zipCode String?
+    country String?
+
+    // Administrative
+    registrationNumber String? @unique
+    taxId              String?
+
+    // Relations
+    adminId     String?
+    admin       User?        @relation("AdminUsers", fields: [adminId], references: [id])
+    departments Department[]
+    classes     Class[]
+    teachers    Teacher[]
+    students    Student[]
+
+    status    UserStatus @default(ACTIVE)
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+
+    @@index([name])
+    @@index([type])
+    @@index([status])
+}
+
+model Department {
+    id            String      @id @default(cuid())
+    name          String
+    description   String?
+    institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+    institutionId String
+
+    // Relations
+    classes  Class[]
+    teachers Teacher[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([institutionId])
+    @@index([name])
+}
+
+model Class {
+    id            String      @id @default(cuid())
+    name          String
+    grade         String
+    institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+    institutionId String
+    department    Department? @relation(fields: [departmentId], references: [id])
+    departmentId  String?
+
+    classTeacher   Teacher? @relation("ClassTeacher", fields: [classTeacherId], references: [id])
+    classTeacherId String?
+
+    students Student[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([institutionId])
+    @@index([departmentId])
+    @@index([name])
+}
+
+model Teacher {
+    id     String @id @default(cuid())
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+    institutionId String
+
+    department   Department? @relation(fields: [departmentId], references: [id])
+    departmentId String?
+
+    specialization String?
+    qualifications String?
+    experience     Int? // years of experience
+
+    classesTeaching Class[] @relation("ClassTeacher")
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([institutionId])
+    @@index([userId])
+}
+
+model Student {
+    id     String @id @default(cuid())
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+    institutionId String
+
+    class   Class  @relation(fields: [classId], references: [id])
+    classId String
+
+    rollNumber      String? @unique
+    admissionNumber String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([institutionId])
+    @@index([classId])
+    @@index([userId])
+}
+
+model Parent {
+    id     String @id @default(cuid())
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    relation   String? // Father, Mother, Guardian, etc.
+    occupation String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
