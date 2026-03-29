@@ -1,6 +1,6 @@
-# EduFuture — Образовательная платформа с геймификацией
+# EduFuture — образовательная платформа с геймификацией
 
-> **MVP Этап 1** — Инфраструктура / Спринт 1: Настройка монорепо, Backend API (Express + Prisma + PostgreSQL), Frontend (React + Vite + Tailwind + Redux).
+> Текущее состояние: реализованы спринты 1-11 (auth, роли, курсы, ученик/родитель, planner, турниры, AI, чат/уведомления, платежи), плюс инфраструктурные задачи Sprint 12 (тесты, OpenAPI docs, seed, Docker, CI).
 
 ## Структура проекта
 
@@ -94,6 +94,36 @@ npm run dev:frontend
 | `npm run dev:backend` | Backend в dev-режиме с hot-reload |
 | `npm run build:backend` | Сборка TS → JS в `backend/dist/` |
 | `npm run dev:frontend` | Frontend dev-сервер Vite |
+| `npm run build:frontend` | Production build frontend |
+| `npm run build` | Сборка backend + frontend |
+| `npm run test` | Backend тесты (Jest + Supertest) |
+| `npm run seed` | Заполнение БД демо-данными |
+
+### Backend scripts
+
+| Команда | Описание |
+|---------|----------|
+| `npm run test --workspace backend` | Интеграционные тесты API |
+| `npm run docs:openapi --workspace backend` | Вывод OpenAPI JSON |
+| `npm run prisma:seed --workspace backend` | Демо-данные (пользователи, курс, тариф) |
+
+## API документация
+
+- Swagger UI: `GET /api/docs`
+- Health check: `GET /api/health`
+
+## Docker запуск
+
+```bash
+docker compose up --build
+```
+
+Сервисы после запуска:
+- frontend: `http://localhost:5173`
+- backend: `http://localhost:4000`
+- swagger: `http://localhost:4000/api/docs`
+- postgres: `localhost:5432`
+- redis: `localhost:6379`
 
 ## Стек технологий
 
@@ -125,18 +155,22 @@ npm run dev:frontend
 
 > Следующий спринт: добавим `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh`.
 
-## Roadmap по спринтам
+## Прогресс по спринтам
 
 | Спринт | Состояние | Описание |
 |--------|-----------|---------|
-| 1 | ✅ Готово | Инфраструктура, Prisma, монорепо, Tailwind |
-| 2 | 🔜 Следующий | JWT авторизация, ролевая модель |
-| 3 | 📋 Планируется | Учреждение: структура, классы, импорт |
-| 4 | 📋 Планируется | Учитель: курсы, уроки, тесты |
-| 5 | 📋 Планируется | Ученик: запись, прогресс, геймификация |
-| 6 | 📋 Планируется | Kanban-планировщик задач |
-| 7 | 📋 Планируется | Турниры + Redis real-time |
-| 8+ | 📋 Планируется | Родитель, AI, чаты, платежи |
+| 1 | ✅ | Инфраструктура, Prisma, монорепо, Tailwind |
+| 2 | ✅ | JWT авторизация, ролевая модель |
+| 3 | ✅ | Учреждение: структура и управление |
+| 4 | ✅ | Учитель: курсы, уроки, тесты, задания |
+| 5 | ✅ | Ученик: запись, прогресс, геймификация |
+| 6 | ✅ | Planner / Kanban задачи |
+| 7 | ✅ | Турниры + real-time leaderboard |
+| 8 | ✅ | Родительский модуль + мотивация + сообщения |
+| 9 | ✅ | AI ассистент |
+| 10 | ✅ | Чат и уведомления |
+| 11 | ✅ | Платежи, подписки, комиссия |
+| 12 | 🔄 | Тестирование, оптимизация, документация, seed, deploy |
 
 ## Безопасность
 
