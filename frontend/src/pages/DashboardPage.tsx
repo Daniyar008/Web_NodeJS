@@ -13,12 +13,145 @@ const roleTitles: Record<string, string> = {
     parent: "Кабинет родителя",
 };
 
-const modules = [
-    { name: "Курсы", status: "В разработке (Спринт 4)", color: "bg-emerald-100 text-emerald-800" },
-    { name: "Планировщик задач", status: "В разработке (Спринт 6)", color: "bg-amber-100 text-amber-800" },
-    { name: "Турниры", status: "В разработке (Спринт 7)", color: "bg-sky-100 text-sky-800" },
-    { name: "Уведомления", status: "В разработке (Спринт 10)", color: "bg-rose-100 text-rose-800" },
-];
+type ModuleCard = {
+    name: string;
+    status: string;
+    color: string;
+    path?: string;
+    action?: string;
+};
+
+function getModulesByRole(role?: string): ModuleCard[] {
+    const common: ModuleCard[] = [
+        {
+            name: "AI-ассистент",
+            status: "Готово (Спринт 9)",
+            color: "bg-indigo-100 text-indigo-800",
+            path: "/assistant",
+            action: "Открыть",
+        },
+        {
+            name: "Чаты",
+            status: "Готово (Спринт 10)",
+            color: "bg-cyan-100 text-cyan-800",
+            path: "/messages",
+            action: "Перейти",
+        },
+        {
+            name: "Уведомления",
+            status: "Готово (Спринт 10)",
+            color: "bg-rose-100 text-rose-800",
+            path: "/notifications",
+            action: "Открыть",
+        },
+        {
+            name: "Платежи и подписки",
+            status: "Готово (Спринт 11)",
+            color: "bg-fuchsia-100 text-fuchsia-800",
+            path: "/billing",
+            action: "Открыть",
+        },
+    ];
+
+    if (role === "teacher") {
+        return [
+            {
+                name: "Курсы",
+                status: "Готово (Спринт 4)",
+                color: "bg-emerald-100 text-emerald-800",
+                path: "/dashboard/teacher",
+                action: "Мой кабинет",
+            },
+            {
+                name: "Планировщик задач",
+                status: "Готово (Спринт 6)",
+                color: "bg-amber-100 text-amber-800",
+                path: "/planner",
+                action: "Открыть",
+            },
+            {
+                name: "Турниры",
+                status: "Готово (Спринт 7)",
+                color: "bg-sky-100 text-sky-800",
+                path: "/tournaments",
+                action: "Открыть",
+            },
+            ...common,
+        ];
+    }
+
+    if (role === "student") {
+        return [
+            {
+                name: "Обучение",
+                status: "Готово (Спринт 5)",
+                color: "bg-emerald-100 text-emerald-800",
+                path: "/dashboard/student",
+                action: "Мой кабинет",
+            },
+            {
+                name: "Планировщик задач",
+                status: "Готово (Спринт 6)",
+                color: "bg-amber-100 text-amber-800",
+                path: "/planner",
+                action: "Открыть",
+            },
+            {
+                name: "Турниры",
+                status: "Готово (Спринт 7)",
+                color: "bg-sky-100 text-sky-800",
+                path: "/tournaments",
+                action: "Открыть",
+            },
+            ...common,
+        ];
+    }
+
+    if (role === "parent") {
+        return [
+            {
+                name: "Дашборд родителя",
+                status: "Готово (Спринт 8)",
+                color: "bg-emerald-100 text-emerald-800",
+                path: "/dashboard/parent",
+                action: "Мой кабинет",
+            },
+            {
+                name: "Планировщик задач",
+                status: "Готово (Спринт 6)",
+                color: "bg-amber-100 text-amber-800",
+                path: "/planner",
+                action: "Открыть",
+            },
+            ...common,
+        ];
+    }
+
+    return [
+        {
+            name: "Учреждение",
+            status: "Готово (Спринт 3)",
+            color: "bg-emerald-100 text-emerald-800",
+            path: "/dashboard/institution_admin",
+            action: "Открыть",
+        },
+        {
+            name: "Планировщик задач",
+            status: "Готово (Спринт 6)",
+            color: "bg-amber-100 text-amber-800",
+            path: "/planner",
+            action: "Открыть",
+        },
+        {
+            name: "Турниры",
+            status: "Готово (Спринт 7)",
+            color: "bg-sky-100 text-sky-800",
+            path: "/tournaments",
+            action: "Открыть",
+        },
+        ...common,
+    ];
+}
 
 export function DashboardPage() {
     const { role } = useParams();
@@ -28,6 +161,7 @@ export function DashboardPage() {
     const refreshToken = useSelector((s: RootState) => s.auth.refreshToken);
 
     const title = useMemo(() => roleTitles[role ?? ""] ?? "Личный кабинет", [role]);
+    const modules = useMemo(() => getModulesByRole(role), [role]);
 
     const handleLogout = async () => {
         if (refreshToken) await authApi.logout(refreshToken).catch(() => null);
@@ -60,7 +194,7 @@ export function DashboardPage() {
                     </button>
                 </div>
                 <p className="mt-4 max-w-2xl text-sm text-[color:var(--ink-700)]">
-                    Авторизация работает через PostgreSQL + JWT. Ниже — модули следующих спринтов.
+                    Авторизация работает через PostgreSQL + JWT. Ниже — быстрый доступ к готовым модулям платформы.
                 </p>
             </div>
 
@@ -75,6 +209,14 @@ export function DashboardPage() {
                         <span className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${module.color}`}>
                             {module.status}
                         </span>
+                        {module.path && (
+                            <button
+                                onClick={() => navigate(module.path!)}
+                                className="mt-4 rounded-xl border border-[color:var(--line)] bg-white px-3 py-1.5 text-xs font-semibold text-[color:var(--ink-900)] transition hover:border-[color:var(--brand)] hover:text-[color:var(--brand)]"
+                            >
+                                {module.action ?? "Открыть"}
+                            </button>
+                        )}
                     </article>
                 ))}
             </div>
