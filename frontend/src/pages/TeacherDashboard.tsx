@@ -143,11 +143,10 @@ export function TeacherDashboard() {
                 </div>
             ) : (
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {courses.map((course, idx) => (
+                    {courses.map((course) => (
                         <article
                             key={course.id}
                             className="reveal flex flex-col rounded-2xl border border-[color:var(--line)] bg-white/80 p-5 shadow-sm"
-                            style={{ animationDelay: `${idx * 80}ms` }}
                         >
                             <div className="flex items-start justify-between gap-2">
                                 <h2 className="heading-font flex-1 text-base font-bold leading-snug">{course.title}</h2>

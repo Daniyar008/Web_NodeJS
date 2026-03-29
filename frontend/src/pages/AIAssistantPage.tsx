@@ -253,8 +253,8 @@ export function AIAssistantPage() {
                                 <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                                     <article
                                         className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ${message.role === "user"
-                                                ? "bg-[color:var(--brand)] text-white"
-                                                : "bg-white text-[color:var(--ink-900)]"
+                                            ? "bg-[color:var(--brand)] text-white"
+                                            : "bg-white text-[color:var(--ink-900)]"
                                             }`}
                                     >
                                         <p className="whitespace-pre-wrap">{message.text}</p>

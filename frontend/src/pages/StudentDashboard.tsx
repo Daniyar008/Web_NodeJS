@@ -4,9 +4,11 @@ import { studentApi, type StudentProfile, type AvailableCourse, type EnrolledCou
 
 function ProgressBar({ value }: { value: number }) {
     return (
-        <div className="h-2 rounded-full bg-gray-100">
-            <div className="h-2 rounded-full bg-[color:var(--brand)] transition-all" style={{ width: `${value}%` }} />
-        </div>
+        <progress
+            className="h-2 w-full overflow-hidden rounded-full [appearance:none] [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-value]:bg-[color:var(--brand)] [&::-webkit-progress-value]:transition-all [&::-moz-progress-bar]:bg-[color:var(--brand)]"
+            max={100}
+            value={Math.max(0, Math.min(100, value))}
+        />
     )
 }
 

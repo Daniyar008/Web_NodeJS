@@ -50,11 +50,10 @@ export function LandingPage() {
             </div>
 
             <div className="card-grid">
-                {features.map((feature, idx) => (
+                {features.map((feature) => (
                     <article
                         key={feature.title}
                         className="reveal rounded-2xl border border-[color:var(--line)] bg-white/80 p-5 shadow-sm"
-                        style={{ animationDelay: `${idx * 90}ms` }}
                     >
                         <h2 className="heading-font text-lg font-bold">{feature.title}</h2>
                         <p className="mt-2 text-sm text-[color:var(--ink-700)]">{feature.text}</p>

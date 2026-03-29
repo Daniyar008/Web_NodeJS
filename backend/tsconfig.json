@@ -13,6 +13,7 @@
     ],
     "sourceMap": true,
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "isolatedModules": true,

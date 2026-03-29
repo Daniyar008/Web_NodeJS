@@ -68,12 +68,12 @@ function LeaderboardPanel({ tournamentId, initial }: LeaderboardPanelProps) {
                 <div key={e.user.id} className="flex items-center gap-3 px-4 py-2 bg-white hover:bg-gray-50">
                     <span
                         className={`w-7 h-7 flex items-center justify-center rounded-full text-sm font-bold ${e.rank === 1
-                                ? "bg-yellow-400 text-white"
-                                : e.rank === 2
-                                    ? "bg-gray-300 text-gray-700"
-                                    : e.rank === 3
-                                        ? "bg-amber-600 text-white"
-                                        : "bg-gray-100 text-gray-500"
+                            ? "bg-yellow-400 text-white"
+                            : e.rank === 2
+                                ? "bg-gray-300 text-gray-700"
+                                : e.rank === 3
+                                    ? "bg-amber-600 text-white"
+                                    : "bg-gray-100 text-gray-500"
                             }`}
                     >
                         {e.rank}

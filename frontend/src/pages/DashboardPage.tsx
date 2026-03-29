@@ -199,11 +199,10 @@ export function DashboardPage() {
             </div>
 
             <div className="card-grid">
-                {modules.map((module, idx) => (
+                {modules.map((module) => (
                     <article
                         key={module.name}
                         className="reveal rounded-2xl border border-[color:var(--line)] bg-white/80 p-5 shadow-sm"
-                        style={{ animationDelay: `${idx * 100}ms` }}
                     >
                         <h2 className="heading-font text-lg font-bold">{module.name}</h2>
                         <span className={`mt-3 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${module.color}`}>

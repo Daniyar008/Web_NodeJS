@@ -189,9 +189,10 @@ function ProgressPanel({ studentId }: { studentId: string }) {
                                     <span className="text-gray-400 text-xs">{c.lessonsDone}/{c.lessonsTotal}</span>
                                 </div>
                                 <div className="w-full bg-gray-100 rounded-full h-2">
-                                    <div
-                                        className="bg-indigo-500 h-2 rounded-full transition-all"
-                                        style={{ width: `${c.percent}%` }}
+                                    <progress
+                                        className="h-2 w-full overflow-hidden rounded-full [appearance:none] [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-value]:bg-indigo-500 [&::-webkit-progress-value]:transition-all [&::-moz-progress-bar]:bg-indigo-500"
+                                        max={100}
+                                        value={Math.max(0, Math.min(100, c.percent))}
                                     />
                                 </div>
                             </li>

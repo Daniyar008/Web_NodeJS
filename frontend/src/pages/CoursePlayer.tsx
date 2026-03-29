@@ -54,9 +54,11 @@ export function CoursePlayer() {
                 <p className="mt-2 text-sm text-[color:var(--ink-700)]">
                     Прогресс: {data.completedLessons}/{data.totalLessons} ({data.percent}%)
                 </p>
-                <div className="mt-2 h-2 rounded-full bg-gray-100">
-                    <div className="h-2 rounded-full bg-[color:var(--brand)]" style={{ width: `${data.percent}%` }} />
-                </div>
+                <progress
+                    className="mt-2 h-2 w-full overflow-hidden rounded-full [appearance:none] [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-value]:bg-[color:var(--brand)] [&::-moz-progress-bar]:bg-[color:var(--brand)]"
+                    max={100}
+                    value={Math.max(0, Math.min(100, data.percent))}
+                />
             </div>
 
             {data.course.modules.map((module) => (
@@ -75,8 +77,8 @@ export function CoursePlayer() {
                                         disabled={done}
                                         onClick={() => { void completeLesson(lesson.id) }}
                                         className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${done
-                                                ? 'bg-emerald-100 text-emerald-800 cursor-default'
-                                                : 'bg-[color:var(--brand)] text-white hover:opacity-90'
+                                            ? 'bg-emerald-100 text-emerald-800 cursor-default'
+                                            : 'bg-[color:var(--brand)] text-white hover:opacity-90'
                                             }`}
                                     >
                                         {done ? 'Выполнено' : 'Отметить выполненным'}
