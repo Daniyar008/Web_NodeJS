@@ -35,6 +35,10 @@ model User {
   updatedAt          DateTime            @updatedAt
   refreshTokens      RefreshToken[]
   institutionMembers InstitutionMember[]
+  coursesAuthored    Course[]            @relation("CourseAuthor")
+  enrollments        Enrollment[]        @relation("StudentEnrollments")
+  submissions        AssignmentSubmission[] @relation("StudentSubmissions")
+  testAttempts       TestAttempt[]       @relation("StudentAttempts")
 
   @@index([roleId])
 }
@@ -115,4 +119,183 @@ model InstitutionMember {
   @@unique([userId, institutionId])
   @@index([institutionId])
   @@index([userId])
+}
+
+// ─── Sprint 4: Teacher / Course Module ───────────────────────────────────────
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LessonType {
+  VIDEO
+  TEXT
+  QUIZ
+  ASSIGNMENT
+}
+
+enum QuestionType {
+  SINGLE
+  MULTIPLE
+  TEXT
+}
+
+model Course {
+  id           String       @id @default(cuid())
+  title        String
+  description  String?
+  coverUrl     String?
+  status       CourseStatus @default(DRAFT)
+  authorId     String
+  author       User         @relation("CourseAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  institutionId String?
+  modules      CourseModule[]
+  enrollments  Enrollment[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([authorId])
+  @@index([institutionId])
+}
+
+model CourseModule {
+  id        String   @id @default(cuid())
+  title     String
+  order     Int      @default(0)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model Lesson {
+  id          String     @id @default(cuid())
+  title       String
+  type        LessonType @default(TEXT)
+  content     String?
+  videoUrl    String?
+  order       Int        @default(0)
+  moduleId    String
+  module      CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  test        Test?
+  assignment  Assignment?
+  progress    LessonProgress[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([moduleId])
+}
+
+model Test {
+  id           String     @id @default(cuid())
+  title        String
+  timeLimit    Int?
+  passingScore Int        @default(70)
+  lessonId     String     @unique
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questions    Question[]
+  attempts     TestAttempt[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Question {
+  id       String       @id @default(cuid())
+  text     String
+  type     QuestionType @default(SINGLE)
+  order    Int          @default(0)
+  points   Int          @default(1)
+  testId   String
+  test     Test         @relation(fields: [testId], references: [id], onDelete: Cascade)
+  options  QuestionOption[]
+
+  @@index([testId])
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  text       String
+  isCorrect  Boolean  @default(false)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model Assignment {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  maxScore      Int      @default(100)
+  dueDate       DateTime?
+  lessonId      String   @unique
+  lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  submissions   AssignmentSubmission[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model AssignmentSubmission {
+  id           String     @id @default(cuid())
+  fileUrl      String?
+  textContent  String?
+  score        Int?
+  feedback     String?
+  studentId    String
+  student      User       @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+  assignmentId String
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  submittedAt  DateTime   @default(now())
+  gradedAt     DateTime?
+
+  @@unique([studentId, assignmentId])
+  @@index([assignmentId])
+}
+
+model TestAttempt {
+  id          String    @id @default(cuid())
+  score       Int
+  passed      Boolean
+  answers     Json
+  studentId   String
+  student     User      @relation("StudentAttempts", fields: [studentId], references: [id], onDelete: Cascade)
+  testId      String
+  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  completedAt DateTime  @default(now())
+
+  @@index([studentId])
+  @@index([testId])
+}
+
+// ─── Sprint 5: Enrollment & Progress (placeholder models) ────────────────────
+
+model Enrollment {
+  id         String    @id @default(cuid())
+  studentId  String
+  student    User      @relation("StudentEnrollments", fields: [studentId], references: [id], onDelete: Cascade)
+  courseId   String
+  course     Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolledAt DateTime  @default(now())
+  progress   LessonProgress[]
+
+  @@unique([studentId, courseId])
+  @@index([courseId])
+}
+
+model LessonProgress {
+  id           String     @id @default(cuid())
+  completed    Boolean    @default(false)
+  completedAt  DateTime?
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lessonId     String
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, lessonId])
+  @@index([enrollmentId])
 }
