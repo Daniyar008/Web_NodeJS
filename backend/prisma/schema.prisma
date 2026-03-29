@@ -23,35 +23,38 @@ model Role {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  email         String         @unique
-  passwordHash  String
-  firstName     String
-  lastName      String
-  isActive           Boolean             @default(true)
-  roleId             String
-  role               Role                @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  refreshTokens      RefreshToken[]
-  institutionMembers InstitutionMember[]
-  coursesAuthored    Course[]            @relation("CourseAuthor")
-  enrollments        Enrollment[]        @relation("StudentEnrollments")
-  submissions        AssignmentSubmission[] @relation("StudentSubmissions")
-  testAttempts       TestAttempt[]       @relation("StudentAttempts")
+  id                  String                  @id @default(cuid())
+  email               String                  @unique
+  passwordHash        String
+  firstName           String
+  lastName            String
+  isActive            Boolean                 @default(true)
+  roleId              String
+  role                Role                    @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  refreshTokens       RefreshToken[]
+  institutionMembers  InstitutionMember[]
+  coursesAuthored     Course[]                @relation("CourseAuthor")
+  enrollments         Enrollment[]            @relation("StudentEnrollments")
+  submissions         AssignmentSubmission[]  @relation("StudentSubmissions")
+  testAttempts        TestAttempt[]           @relation("StudentAttempts")
   gamificationProfile GamificationProfile?
-  xpTransactions     XPTransaction[]
-  achievements            StudentAchievement[]
-  todos                   Todo[]
-  tournamentsCreated      Tournament[]            @relation("TournamentCreator")
-  participations          TournamentParticipant[]
-  tournamentResults       TournamentResult[]      @relation("TournamentResultUser")
-  childLinks              ParentStudent[]         @relation("ParentLinks")
-  parentLinks             ParentStudent[]         @relation("StudentLinks")
-  goalsAsParent           ParentGoal[]            @relation("ParentGoals")
-  goalsAsStudent          ParentGoal[]            @relation("StudentGoals")
-  sentMessages            Message[]               @relation("SentMessages")
-  receivedMessages        Message[]               @relation("ReceivedMessages")
+  xpTransactions      XPTransaction[]
+  achievements        StudentAchievement[]
+  todos               Todo[]
+  tournamentsCreated  Tournament[]            @relation("TournamentCreator")
+  participations      TournamentParticipant[]
+  tournamentResults   TournamentResult[]      @relation("TournamentResultUser")
+  childLinks          ParentStudent[]         @relation("ParentLinks")
+  parentLinks         ParentStudent[]         @relation("StudentLinks")
+  goalsAsParent       ParentGoal[]            @relation("ParentGoals")
+  goalsAsStudent      ParentGoal[]            @relation("StudentGoals")
+  chatParticipants    ChatParticipant[]
+  notifications       Notification[]
+  notificationPreference NotificationPreference?
+  sentMessages        Message[]               @relation("SentMessages")
+  receivedMessages    Message[]               @relation("ReceivedMessages")
 
   @@index([roleId])
 }
@@ -70,20 +73,20 @@ model RefreshToken {
 // ─── Sprint 3: Institution Module ───────────────────────────────────────────
 
 model Institution {
-  id          String       @id @default(cuid())
+  id          String              @id @default(cuid())
   name        String
-  slug        String       @unique
+  slug        String              @unique
   description String?
   address     String?
   phone       String?
   email       String?
   website     String?
   logoUrl     String?
-  isActive    Boolean      @default(true)
+  isActive    Boolean             @default(true)
   departments Department[]
   memberships InstitutionMember[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 }
 
 model Department {
@@ -99,14 +102,14 @@ model Department {
 }
 
 model Class {
-  id           String     @id @default(cuid())
+  id           String              @id @default(cuid())
   name         String
   year         Int
   departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  department   Department          @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   memberships  InstitutionMember[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
   @@index([departmentId])
 }
@@ -156,19 +159,19 @@ enum QuestionType {
 }
 
 model Course {
-  id           String       @id @default(cuid())
-  title        String
-  description  String?
-  coverUrl     String?
-  status       CourseStatus @default(DRAFT)
-  authorId     String
-  author       User         @relation("CourseAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  id            String         @id @default(cuid())
+  title         String
+  description   String?
+  coverUrl      String?
+  status        CourseStatus   @default(DRAFT)
+  authorId      String
+  author        User           @relation("CourseAuthor", fields: [authorId], references: [id], onDelete: Restrict)
   institutionId String?
-  modules      CourseModule[]
-  enrollments  Enrollment[]
-  todos        Todo[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  modules       CourseModule[]
+  enrollments   Enrollment[]
+  todos         Todo[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@index([authorId])
   @@index([institutionId])
@@ -188,45 +191,45 @@ model CourseModule {
 }
 
 model Lesson {
-  id          String     @id @default(cuid())
-  title       String
-  type        LessonType @default(TEXT)
-  content     String?
-  videoUrl    String?
-  order       Int        @default(0)
-  moduleId    String
-  module      CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  test        Test?
-  assignment  Assignment?
-  progress    LessonProgress[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id         String           @id @default(cuid())
+  title      String
+  type       LessonType       @default(TEXT)
+  content    String?
+  videoUrl   String?
+  order      Int              @default(0)
+  moduleId   String
+  module     CourseModule     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  test       Test?
+  assignment Assignment?
+  progress   LessonProgress[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   @@index([moduleId])
 }
 
 model Test {
-  id           String     @id @default(cuid())
+  id           String        @id @default(cuid())
   title        String
   timeLimit    Int?
-  passingScore Int        @default(70)
-  lessonId     String     @unique
-  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  passingScore Int           @default(70)
+  lessonId     String        @unique
+  lesson       Lesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   questions    Question[]
   attempts     TestAttempt[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Question {
-  id       String       @id @default(cuid())
-  text     String
-  type     QuestionType @default(SINGLE)
-  order    Int          @default(0)
-  points   Int          @default(1)
-  testId   String
-  test     Test         @relation(fields: [testId], references: [id], onDelete: Cascade)
-  options  QuestionOption[]
+  id      String           @id @default(cuid())
+  text    String
+  type    QuestionType     @default(SINGLE)
+  order   Int              @default(0)
+  points  Int              @default(1)
+  testId  String
+  test    Test             @relation(fields: [testId], references: [id], onDelete: Cascade)
+  options QuestionOption[]
 
   @@index([testId])
 }
@@ -242,17 +245,17 @@ model QuestionOption {
 }
 
 model Assignment {
-  id            String   @id @default(cuid())
-  title         String
-  description   String?
-  maxScore      Int      @default(100)
-  dueDate       DateTime?
-  lessonId      String   @unique
-  lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  submissions   AssignmentSubmission[]
-  todos         Todo[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String                 @id @default(cuid())
+  title       String
+  description String?
+  maxScore    Int                    @default(100)
+  dueDate     DateTime?
+  lessonId    String                 @unique
+  lesson      Lesson                 @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  submissions AssignmentSubmission[]
+  todos       Todo[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
 }
 
 model AssignmentSubmission {
@@ -273,15 +276,15 @@ model AssignmentSubmission {
 }
 
 model TestAttempt {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   score       Int
   passed      Boolean
   answers     Json
   studentId   String
-  student     User      @relation("StudentAttempts", fields: [studentId], references: [id], onDelete: Cascade)
+  student     User     @relation("StudentAttempts", fields: [studentId], references: [id], onDelete: Cascade)
   testId      String
-  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
-  completedAt DateTime  @default(now())
+  test        Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  completedAt DateTime @default(now())
 
   @@index([studentId])
   @@index([testId])
@@ -290,12 +293,12 @@ model TestAttempt {
 // ─── Sprint 5: Enrollment & Progress (placeholder models) ────────────────────
 
 model Enrollment {
-  id         String    @id @default(cuid())
+  id         String           @id @default(cuid())
   studentId  String
-  student    User      @relation("StudentEnrollments", fields: [studentId], references: [id], onDelete: Cascade)
+  student    User             @relation("StudentEnrollments", fields: [studentId], references: [id], onDelete: Cascade)
   courseId   String
-  course     Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  enrolledAt DateTime  @default(now())
+  course     Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolledAt DateTime         @default(now())
   progress   LessonProgress[]
 
   @@unique([studentId, courseId])
@@ -389,15 +392,15 @@ model XPTransaction {
 }
 
 model Achievement {
-  id          String              @id @default(cuid())
-  code        String              @unique
+  id          String               @id @default(cuid())
+  code        String               @unique
   title       String
   description String
   icon        String?
-  category    AchievementCategory @default(LEARNING)
-  xpReward    Int                 @default(0)
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  category    AchievementCategory  @default(LEARNING)
+  xpReward    Int                  @default(0)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
   unlocks     StudentAchievement[]
 }
 
@@ -422,19 +425,19 @@ enum TournamentStatus {
 }
 
 model Tournament {
-  id           String                 @id @default(cuid())
+  id           String                  @id @default(cuid())
   title        String
   description  String?
-  status       TournamentStatus       @default(UPCOMING)
+  status       TournamentStatus        @default(UPCOMING)
   startsAt     DateTime
   endsAt       DateTime
-  maxScore     Int                    @default(100)
+  maxScore     Int                     @default(100)
   createdById  String
-  createdBy    User                   @relation("TournamentCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  createdBy    User                    @relation("TournamentCreator", fields: [createdById], references: [id], onDelete: Restrict)
   participants TournamentParticipant[]
   results      TournamentResult[]
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
 
   @@index([status])
   @@index([createdById])
@@ -474,7 +477,7 @@ model TournamentResult {
 model ParentStudent {
   id        String   @id @default(cuid())
   parentId  String
-  parent    User     @relation("ParentLinks",  fields: [parentId],  references: [id], onDelete: Cascade)
+  parent    User     @relation("ParentLinks", fields: [parentId], references: [id], onDelete: Cascade)
   studentId String
   student   User     @relation("StudentLinks", fields: [studentId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -493,7 +496,7 @@ model ParentGoal {
   achieved    Boolean   @default(false)
   achievedAt  DateTime?
   parentId    String
-  parent      User      @relation("ParentGoals",  fields: [parentId],  references: [id], onDelete: Cascade)
+  parent      User      @relation("ParentGoals", fields: [parentId], references: [id], onDelete: Cascade)
   studentId   String
   student     User      @relation("StudentGoals", fields: [studentId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
@@ -503,17 +506,87 @@ model ParentGoal {
   @@index([studentId])
 }
 
-model Message {
-  id         String    @id @default(cuid())
-  content    String
-  senderId   String
-  sender     User      @relation("SentMessages",     fields: [senderId],   references: [id], onDelete: Cascade)
-  receiverId String
-  receiver   User      @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
-  readAt     DateTime?
-  createdAt  DateTime  @default(now())
+enum ChatType {
+  DIRECT
+  GROUP
+}
 
+model Chat {
+  id           String            @id @default(cuid())
+  title        String?
+  type         ChatType          @default(DIRECT)
+  participants ChatParticipant[]
+  messages     Message[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model ChatParticipant {
+  id         String   @id @default(cuid())
+  chatId     String
+  chat       Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt   DateTime @default(now())
+  lastReadAt DateTime?
+
+  @@unique([chatId, userId])
+  @@index([chatId])
+  @@index([userId])
+}
+
+model Message {
+  id            String    @id @default(cuid())
+  content       String
+  attachmentUrl String?
+  chatId        String?
+  chat          Chat?     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId      String
+  sender        User      @relation("SentMessages",     fields: [senderId],   references: [id], onDelete: Cascade)
+  receiverId    String
+  receiver      User      @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  readAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([chatId])
   @@index([senderId])
   @@index([receiverId])
   @@index([senderId, receiverId])
+}
+
+enum NotificationType {
+  CHAT_MESSAGE
+  ASSIGNMENT
+  TOURNAMENT
+  SYSTEM
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType @default(SYSTEM)
+  title       String
+  body        String
+  link        String?
+  isRead      Boolean          @default(false)
+  deliveredAt DateTime?
+  createdAt   DateTime         @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model NotificationPreference {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inAppEnabled Boolean  @default(true)
+  emailEnabled Boolean  @default(false)
+  pushEnabled  Boolean  @default(false)
+  chatEnabled  Boolean  @default(true)
+  courseEnabled Boolean @default(true)
+  systemEnabled Boolean @default(true)
+  updatedAt    DateTime @updatedAt
 }

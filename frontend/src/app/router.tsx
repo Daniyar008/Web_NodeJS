@@ -2,6 +2,7 @@
 
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { AIAssistantPage } from "../pages/AIAssistantPage";
+import { ChatPage } from "../pages/ChatPage";
 import { CourseEditor } from "../pages/CourseEditor";
 import { CoursePlayer } from "../pages/CoursePlayer";
 import { DashboardPage } from "../pages/DashboardPage";
@@ -10,6 +11,7 @@ import { LandingPage } from "../pages/LandingPage";
 import { LoginPage } from "../pages/LoginPage";
 import { MainLayout } from "../layouts/MainLayout";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { NotificationsPage } from "../pages/NotificationsPage";
 import { ParentDashboard } from "../pages/ParentDashboard";
 import { PlannerPage } from "../pages/PlannerPage";
 import { StudentDashboard } from "../pages/StudentDashboard";
@@ -86,6 +88,22 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <AIAssistantPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "messages",
+                element: (
+                    <ProtectedRoute>
+                        <ChatPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "notifications",
+                element: (
+                    <ProtectedRoute>
+                        <NotificationsPage />
                     </ProtectedRoute>
                 ),
             },
