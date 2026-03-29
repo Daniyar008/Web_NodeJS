@@ -4,6 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import { authRouter } from "./features/auth/auth.routes.js";
+import { institutionRouter } from "./features/institution/institution.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { healthRouter } from "./routes/health.routes.js";
 
@@ -16,6 +17,7 @@ app.use(express.json({ limit: "1mb" }));
 
 app.use("/api", healthRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/institutions", institutionRouter);
 
 // Must be last — catches all errors from route handlers.
 app.use(errorHandler);

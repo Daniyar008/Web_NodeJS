@@ -28,12 +28,13 @@ model User {
   passwordHash  String
   firstName     String
   lastName      String
-  isActive      Boolean        @default(true)
-  roleId        String
-  role          Role           @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  refreshTokens RefreshToken[]
+  isActive           Boolean             @default(true)
+  roleId             String
+  role               Role                @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  refreshTokens      RefreshToken[]
+  institutionMembers InstitutionMember[]
 
   @@index([roleId])
 }
@@ -46,5 +47,72 @@ model RefreshToken {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
+  @@index([userId])
+}
+
+// ─── Sprint 3: Institution Module ───────────────────────────────────────────
+
+model Institution {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  description String?
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  logoUrl     String?
+  isActive    Boolean      @default(true)
+  departments Department[]
+  memberships InstitutionMember[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Department {
+  id            String      @id @default(cuid())
+  name          String
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  classes       Class[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([institutionId])
+}
+
+model Class {
+  id           String     @id @default(cuid())
+  name         String
+  year         Int
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  memberships  InstitutionMember[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([departmentId])
+}
+
+enum InstitutionRole {
+  ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+}
+
+model InstitutionMember {
+  id            String          @id @default(cuid())
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institutionId String
+  institution   Institution     @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  classId       String?
+  class         Class?          @relation(fields: [classId], references: [id], onDelete: SetNull)
+  role          InstitutionRole
+  joinedAt      DateTime        @default(now())
+
+  @@unique([userId, institutionId])
+  @@index([institutionId])
   @@index([userId])
 }
