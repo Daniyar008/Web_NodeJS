@@ -1,0 +1,19 @@
+{
+  "name": "edufuture-platform",
+  "version": "1.0.0",
+  "description": "EduFuture monorepo",
+  "main": "index.js",
+  "scripts": {
+    "dev:backend": "npm run dev --workspace backend",
+    "build:backend": "npm run build --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}
