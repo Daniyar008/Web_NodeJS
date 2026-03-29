@@ -41,8 +41,11 @@ model User {
   testAttempts       TestAttempt[]       @relation("StudentAttempts")
   gamificationProfile GamificationProfile?
   xpTransactions     XPTransaction[]
-  achievements       StudentAchievement[]
-  todos              Todo[]
+  achievements            StudentAchievement[]
+  todos                   Todo[]
+  tournamentsCreated      Tournament[]            @relation("TournamentCreator")
+  participations          TournamentParticipant[]
+  tournamentResults       TournamentResult[]      @relation("TournamentResultUser")
 
   @@index([roleId])
 }
@@ -401,5 +404,61 @@ model StudentAchievement {
   unlockedAt    DateTime    @default(now())
 
   @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+// ─── Sprint 7: Tournaments & Real-Time ───────────────────────────────────────
+
+enum TournamentStatus {
+  UPCOMING
+  ACTIVE
+  FINISHED
+}
+
+model Tournament {
+  id           String                 @id @default(cuid())
+  title        String
+  description  String?
+  status       TournamentStatus       @default(UPCOMING)
+  startsAt     DateTime
+  endsAt       DateTime
+  maxScore     Int                    @default(100)
+  createdById  String
+  createdBy    User                   @relation("TournamentCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  participants TournamentParticipant[]
+  results      TournamentResult[]
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  @@index([status])
+  @@index([createdById])
+}
+
+model TournamentParticipant {
+  id           String     @id @default(cuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt     DateTime   @default(now())
+
+  @@unique([tournamentId, userId])
+  @@index([tournamentId])
+  @@index([userId])
+}
+
+model TournamentResult {
+  id           String     @id @default(cuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation("TournamentResultUser", fields: [userId], references: [id], onDelete: Cascade)
+  score        Int        @default(0)
+  rank         Int?
+  submittedAt  DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([tournamentId, userId])
+  @@index([tournamentId])
   @@index([userId])
 }

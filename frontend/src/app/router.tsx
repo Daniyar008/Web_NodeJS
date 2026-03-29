@@ -12,6 +12,7 @@ import { NotFoundPage } from "../pages/NotFoundPage";
 import { PlannerPage } from "../pages/PlannerPage";
 import { StudentDashboard } from "../pages/StudentDashboard";
 import { TeacherDashboard } from "../pages/TeacherDashboard";
+import { TournamentsPage } from "../pages/TournamentsPage";
 import { UnauthorizedPage } from "../pages/UnauthorizedPage";
 
 export const router = createBrowserRouter([
@@ -59,6 +60,14 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <PlannerPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "tournaments",
+                element: (
+                    <ProtectedRoute>
+                        <TournamentsPage />
                     </ProtectedRoute>
                 ),
             },

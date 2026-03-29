@@ -1,7 +1,13 @@
+import { createServer } from "http";
 import { app } from "./app.js";
 import { env } from "./config/env.js";
+import { initRedis } from "./lib/redis.js";
+import { initSocket } from "./lib/socket.js";
 
-app.listen(env.PORT, () => {
-    // Keep startup log concise and deterministic for local debugging.
-    console.log(`Backend API started on http://localhost:${env.PORT}`);
+const httpServer = createServer(app);
+initSocket(httpServer);
+initRedis();
+
+httpServer.listen(env.PORT, () => {
+  console.log(`Backend API started on http://localhost:${env.PORT}`);
 });
