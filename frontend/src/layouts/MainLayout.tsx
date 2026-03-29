@@ -1,6 +1,8 @@
 import { Link, Outlet } from 'react-router-dom'
 
 export function MainLayout() {
+    const isAuthenticated = Boolean(localStorage.getItem('accessToken'))
+
     return (
         <div className="min-h-screen">
             <header className="sticky top-0 z-20 border-b border-[color:var(--line)] bg-[#f6f7f3]/90 backdrop-blur">
@@ -12,6 +14,14 @@ export function MainLayout() {
                         <Link to="/" className="rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--ink-700)] hover:bg-white">
                             Главная
                         </Link>
+                        {isAuthenticated && (
+                            <Link
+                                to="/assistant"
+                                className="rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--ink-700)] hover:bg-white"
+                            >
+                                AI-ассистент
+                            </Link>
+                        )}
                         <Link
                             to="/login"
                             className="rounded-full bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[color:var(--brand-deep)]"

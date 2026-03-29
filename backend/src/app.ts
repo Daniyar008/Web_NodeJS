@@ -3,6 +3,7 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
+import { aiRouter } from "./features/ai/ai.routes.js";
 import { authRouter } from "./features/auth/auth.routes.js";
 import { courseRouter } from "./features/course/course.routes.js";
 import { institutionRouter } from "./features/institution/institution.routes.js";
@@ -21,6 +22,7 @@ app.use(morgan("dev"));
 app.use(express.json({ limit: "1mb" }));
 
 app.use("/api", healthRouter);
+app.use("/api/ai", aiRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/institutions", institutionRouter);
 app.use("/api/courses", courseRouter);

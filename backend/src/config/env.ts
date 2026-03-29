@@ -8,6 +8,8 @@ const envSchema = z.object({
     JWT_ACCESS_SECRET: z.string().min(16).default("change-me-access-secret"),
     JWT_REFRESH_SECRET: z.string().min(16).default("change-me-refresh-secret"),
     FRONTEND_URL: z.string().default("http://localhost:5173"),
+    OPENAI_API_KEY: z.string().optional(),
+    OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
 });
 
 const parsed = envSchema.safeParse(process.env);

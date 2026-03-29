@@ -1,6 +1,7 @@
 ﻿import { createBrowserRouter } from "react-router-dom";
 
 import { ProtectedRoute } from "../components/ProtectedRoute";
+import { AIAssistantPage } from "../pages/AIAssistantPage";
 import { CourseEditor } from "../pages/CourseEditor";
 import { CoursePlayer } from "../pages/CoursePlayer";
 import { DashboardPage } from "../pages/DashboardPage";
@@ -77,6 +78,14 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <TournamentsPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "assistant",
+                element: (
+                    <ProtectedRoute>
+                        <AIAssistantPage />
                     </ProtectedRoute>
                 ),
             },
