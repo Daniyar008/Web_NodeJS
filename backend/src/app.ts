@@ -6,6 +6,7 @@ import morgan from "morgan";
 import { authRouter } from "./features/auth/auth.routes.js";
 import { courseRouter } from "./features/course/course.routes.js";
 import { institutionRouter } from "./features/institution/institution.routes.js";
+import { parentRouter } from "./features/parent/parent.routes.js";
 import { studentRouter } from "./features/student/student.routes.js";
 import { taskRouter } from "./features/task/task.routes.js";
 import { tournamentRouter } from "./features/tournament/tournament.routes.js";
@@ -26,6 +27,7 @@ app.use("/api/courses", courseRouter);
 app.use("/api/student", studentRouter);
 app.use("/api/tasks", taskRouter);
 app.use("/api/tournaments", tournamentRouter);
+app.use("/api/parent", parentRouter);
 
 // Must be last — catches all errors from route handlers.
 app.use(errorHandler);

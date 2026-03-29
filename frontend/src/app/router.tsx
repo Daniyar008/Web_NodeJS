@@ -9,6 +9,7 @@ import { LandingPage } from "../pages/LandingPage";
 import { LoginPage } from "../pages/LoginPage";
 import { MainLayout } from "../layouts/MainLayout";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { ParentDashboard } from "../pages/ParentDashboard";
 import { PlannerPage } from "../pages/PlannerPage";
 import { StudentDashboard } from "../pages/StudentDashboard";
 import { TeacherDashboard } from "../pages/TeacherDashboard";
@@ -44,6 +45,14 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute allowedRoles={["STUDENT", "PARENT"]}>
                         <StudentDashboard />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "dashboard/parent",
+                element: (
+                    <ProtectedRoute allowedRoles={["PARENT"]}>
+                        <ParentDashboard />
                     </ProtectedRoute>
                 ),
             },
