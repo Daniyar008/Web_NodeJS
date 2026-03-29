@@ -23,38 +23,41 @@ model Role {
 }
 
 model User {
-  id                  String                  @id @default(cuid())
-  email               String                  @unique
-  passwordHash        String
-  firstName           String
-  lastName            String
-  isActive            Boolean                 @default(true)
-  roleId              String
-  role                Role                    @relation(fields: [roleId], references: [id], onDelete: Restrict)
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime                @updatedAt
-  refreshTokens       RefreshToken[]
-  institutionMembers  InstitutionMember[]
-  coursesAuthored     Course[]                @relation("CourseAuthor")
-  enrollments         Enrollment[]            @relation("StudentEnrollments")
-  submissions         AssignmentSubmission[]  @relation("StudentSubmissions")
-  testAttempts        TestAttempt[]           @relation("StudentAttempts")
-  gamificationProfile GamificationProfile?
-  xpTransactions      XPTransaction[]
-  achievements        StudentAchievement[]
-  todos               Todo[]
-  tournamentsCreated  Tournament[]            @relation("TournamentCreator")
-  participations      TournamentParticipant[]
-  tournamentResults   TournamentResult[]      @relation("TournamentResultUser")
-  childLinks          ParentStudent[]         @relation("ParentLinks")
-  parentLinks         ParentStudent[]         @relation("StudentLinks")
-  goalsAsParent       ParentGoal[]            @relation("ParentGoals")
-  goalsAsStudent      ParentGoal[]            @relation("StudentGoals")
-  chatParticipants    ChatParticipant[]
-  notifications       Notification[]
+  id                     String                  @id @default(cuid())
+  email                  String                  @unique
+  passwordHash           String
+  firstName              String
+  lastName               String
+  isActive               Boolean                 @default(true)
+  roleId                 String
+  role                   Role                    @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  refreshTokens          RefreshToken[]
+  institutionMembers     InstitutionMember[]
+  coursesAuthored        Course[]                @relation("CourseAuthor")
+  enrollments            Enrollment[]            @relation("StudentEnrollments")
+  submissions            AssignmentSubmission[]  @relation("StudentSubmissions")
+  testAttempts           TestAttempt[]           @relation("StudentAttempts")
+  gamificationProfile    GamificationProfile?
+  xpTransactions         XPTransaction[]
+  achievements           StudentAchievement[]
+  todos                  Todo[]
+  tournamentsCreated     Tournament[]            @relation("TournamentCreator")
+  participations         TournamentParticipant[]
+  tournamentResults      TournamentResult[]      @relation("TournamentResultUser")
+  childLinks             ParentStudent[]         @relation("ParentLinks")
+  parentLinks            ParentStudent[]         @relation("StudentLinks")
+  goalsAsParent          ParentGoal[]            @relation("ParentGoals")
+  goalsAsStudent         ParentGoal[]            @relation("StudentGoals")
+  chatParticipants       ChatParticipant[]
+  notifications          Notification[]
   notificationPreference NotificationPreference?
-  sentMessages        Message[]               @relation("SentMessages")
-  receivedMessages    Message[]               @relation("ReceivedMessages")
+  subscriptions          Subscription[]
+  coursePurchases        CoursePurchase[]
+  teacherCommissions     CommissionTransaction[] @relation("TeacherCommissions")
+  sentMessages           Message[]               @relation("SentMessages")
+  receivedMessages       Message[]               @relation("ReceivedMessages")
 
   @@index([roleId])
 }
@@ -159,19 +162,24 @@ enum QuestionType {
 }
 
 model Course {
-  id            String         @id @default(cuid())
+  id            String                  @id @default(cuid())
   title         String
   description   String?
   coverUrl      String?
-  status        CourseStatus   @default(DRAFT)
+  status        CourseStatus            @default(DRAFT)
+  isPaid        Boolean                 @default(false)
+  priceCents    Int                     @default(0)
+  currency      String                  @default("USD")
   authorId      String
-  author        User           @relation("CourseAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  author        User                    @relation("CourseAuthor", fields: [authorId], references: [id], onDelete: Restrict)
   institutionId String?
   modules       CourseModule[]
   enrollments   Enrollment[]
+  purchases     CoursePurchase[]
+  commissions   CommissionTransaction[]
   todos         Todo[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
 
   @@index([authorId])
   @@index([institutionId])
@@ -522,12 +530,12 @@ model Chat {
 }
 
 model ChatParticipant {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   chatId     String
-  chat       Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chat       Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  joinedAt   DateTime @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt   DateTime  @default(now())
   lastReadAt DateTime?
 
   @@unique([chatId, userId])
@@ -542,7 +550,7 @@ model Message {
   chatId        String?
   chat          Chat?     @relation(fields: [chatId], references: [id], onDelete: Cascade)
   senderId      String
-  sender        User      @relation("SentMessages",     fields: [senderId],   references: [id], onDelete: Cascade)
+  sender        User      @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
   receiverId    String
   receiver      User      @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
   readAt        DateTime?
@@ -579,14 +587,116 @@ model Notification {
 }
 
 model NotificationPreference {
-  id           String   @id @default(cuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  inAppEnabled Boolean  @default(true)
-  emailEnabled Boolean  @default(false)
-  pushEnabled  Boolean  @default(false)
-  chatEnabled  Boolean  @default(true)
-  courseEnabled Boolean @default(true)
-  systemEnabled Boolean @default(true)
-  updatedAt    DateTime @updatedAt
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inAppEnabled  Boolean  @default(true)
+  emailEnabled  Boolean  @default(false)
+  pushEnabled   Boolean  @default(false)
+  chatEnabled   Boolean  @default(true)
+  courseEnabled Boolean  @default(true)
+  systemEnabled Boolean  @default(true)
+  updatedAt     DateTime @updatedAt
+}
+
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+  ONE_TIME
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum CommissionStatus {
+  PENDING
+  PAID
+}
+
+model SubscriptionPlan {
+  id              String          @id @default(cuid())
+  name            String
+  description     String?
+  priceCents      Int
+  currency        String          @default("USD")
+  interval        BillingInterval
+  stripeProductId String?
+  stripePriceId   String?
+  isActive        Boolean         @default(true)
+  subscriptions   Subscription[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([isActive])
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId               String
+  plan                 SubscriptionPlan   @relation(fields: [planId], references: [id], onDelete: Restrict)
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([planId])
+  @@index([status])
+}
+
+model CoursePurchase {
+  id                      String                 @id @default(cuid())
+  userId                  String
+  user                    User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId                String
+  course                  Course                 @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  amountCents             Int
+  currency                String                 @default("USD")
+  status                  PaymentStatus          @default(PENDING)
+  stripeCheckoutSessionId String?
+  stripePaymentIntentId   String?
+  commission              CommissionTransaction?
+  createdAt               DateTime               @default(now())
+  updatedAt               DateTime               @updatedAt
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+}
+
+model CommissionTransaction {
+  id                 String           @id @default(cuid())
+  teacherId          String
+  teacher            User             @relation("TeacherCommissions", fields: [teacherId], references: [id], onDelete: Cascade)
+  courseId           String
+  course             Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  purchaseId         String           @unique
+  purchase           CoursePurchase   @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  grossAmountCents   Int
+  platformFeeCents   Int
+  teacherAmountCents Int
+  status             CommissionStatus @default(PENDING)
+  paidAt             DateTime?
+  createdAt          DateTime         @default(now())
+
+  @@index([teacherId])
+  @@index([status])
 }

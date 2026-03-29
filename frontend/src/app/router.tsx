@@ -10,10 +10,12 @@ import { InstitutionAdminDashboard } from "../pages/InstitutionAdminDashboard";
 import { LandingPage } from "../pages/LandingPage";
 import { LoginPage } from "../pages/LoginPage";
 import { MainLayout } from "../layouts/MainLayout";
+import { BillingPage } from "../pages/BillingPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { NotificationsPage } from "../pages/NotificationsPage";
 import { ParentDashboard } from "../pages/ParentDashboard";
 import { PlannerPage } from "../pages/PlannerPage";
+import { PricingPage } from "../pages/PricingPage";
 import { StudentDashboard } from "../pages/StudentDashboard";
 import { TeacherDashboard } from "../pages/TeacherDashboard";
 import { TournamentsPage } from "../pages/TournamentsPage";
@@ -104,6 +106,22 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute>
                         <NotificationsPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "pricing",
+                element: (
+                    <ProtectedRoute>
+                        <PricingPage />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "billing",
+                element: (
+                    <ProtectedRoute>
+                        <BillingPage />
                     </ProtectedRoute>
                 ),
             },

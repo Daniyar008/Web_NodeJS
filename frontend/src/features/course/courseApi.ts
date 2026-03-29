@@ -28,6 +28,9 @@ export type Course = {
     description: string | null
     coverUrl: string | null
     status: CourseStatus
+    isPaid: boolean
+    priceCents: number
+    currency: string
     authorId: string
     author: { id: string; email: string; firstName: string; lastName: string }
     modules: CourseModule[]

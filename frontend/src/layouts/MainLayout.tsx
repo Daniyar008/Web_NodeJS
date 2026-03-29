@@ -68,6 +68,22 @@ export function MainLayout() {
                             </Link>
                         )}
                         {isAuthenticated && (
+                            <Link
+                                to="/pricing"
+                                className="rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--ink-700)] hover:bg-white"
+                            >
+                                Тарифы
+                            </Link>
+                        )}
+                        {isAuthenticated && (
+                            <Link
+                                to="/billing"
+                                className="rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--ink-700)] hover:bg-white"
+                            >
+                                Платежи
+                            </Link>
+                        )}
+                        {isAuthenticated && (
                             <div className="relative">
                                 <button
                                     onClick={() => setIsOpen((value) => !value)}

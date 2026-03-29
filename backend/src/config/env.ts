@@ -10,6 +10,10 @@ const envSchema = z.object({
     FRONTEND_URL: z.string().default("http://localhost:5173"),
     OPENAI_API_KEY: z.string().optional(),
     OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
+    STRIPE_SECRET_KEY: z.string().optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+    STRIPE_DEFAULT_CURRENCY: z.string().default("usd"),
+    PLATFORM_FEE_BPS: z.coerce.number().int().min(0).max(10000).default(1500),
 });
 
 const parsed = envSchema.safeParse(process.env);
