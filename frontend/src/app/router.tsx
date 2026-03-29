@@ -2,12 +2,14 @@
 
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { CourseEditor } from "../pages/CourseEditor";
+import { CoursePlayer } from "../pages/CoursePlayer";
 import { DashboardPage } from "../pages/DashboardPage";
 import { InstitutionAdminDashboard } from "../pages/InstitutionAdminDashboard";
 import { LandingPage } from "../pages/LandingPage";
 import { LoginPage } from "../pages/LoginPage";
 import { MainLayout } from "../layouts/MainLayout";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { StudentDashboard } from "../pages/StudentDashboard";
 import { TeacherDashboard } from "../pages/TeacherDashboard";
 import { UnauthorizedPage } from "../pages/UnauthorizedPage";
 
@@ -32,6 +34,22 @@ export const router = createBrowserRouter([
                 element: (
                     <ProtectedRoute allowedRoles={["TEACHER", "INSTITUTION_ADMIN"]}>
                         <TeacherDashboard />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "dashboard/student",
+                element: (
+                    <ProtectedRoute allowedRoles={["STUDENT", "PARENT"]}>
+                        <StudentDashboard />
+                    </ProtectedRoute>
+                ),
+            },
+            {
+                path: "learn/:courseId",
+                element: (
+                    <ProtectedRoute allowedRoles={["STUDENT", "PARENT"]}>
+                        <CoursePlayer />
                     </ProtectedRoute>
                 ),
             },
