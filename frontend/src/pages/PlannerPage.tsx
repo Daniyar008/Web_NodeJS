@@ -302,6 +302,7 @@ export function PlannerPage() {
                                 <select
                                     value={form.status}
                                     onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as TaskStatus }))}
+                                    aria-label="Статус задачи"
                                     className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm"
                                 >
                                     {columns.map((c) => <option key={c.status} value={c.status}>{c.title}</option>)}
@@ -309,6 +310,7 @@ export function PlannerPage() {
                                 <select
                                     value={form.priority}
                                     onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value as TaskPriority }))}
+                                    aria-label="Приоритет задачи"
                                     className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm"
                                 >
                                     {(Object.keys(priorityLabel) as TaskPriority[]).map((p) => (
@@ -319,6 +321,7 @@ export function PlannerPage() {
                                     type="date"
                                     value={form.dueDate}
                                     onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
+                                    aria-label="Дата дедлайна"
                                     className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm"
                                 />
                             </div>

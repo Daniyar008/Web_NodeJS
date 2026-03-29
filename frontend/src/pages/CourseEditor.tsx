@@ -48,6 +48,7 @@ function LessonEditor({
                         <input
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
+                            aria-label="Название урока"
                             className="rounded-lg border border-[color:var(--line)] px-2 py-1 text-sm outline-none focus:border-[color:var(--brand)]"
                         />
                     ) : (
@@ -92,6 +93,7 @@ function LessonEditor({
                     onChange={(e) => setContent(e.target.value)}
                     rows={4}
                     placeholder="Содержание урока…"
+                    aria-label="Содержание урока"
                     className="mt-3 w-full rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
                 />
             )}
@@ -100,6 +102,7 @@ function LessonEditor({
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="URL видео"
+                    aria-label="URL видео"
                     className="mt-3 w-full rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
                 />
             )}
@@ -165,11 +168,13 @@ function ModuleCard({
                         placeholder="Название урока"
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
+                        aria-label="Название нового урока"
                         className="flex-1 rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
                     />
                     <select
                         value={newType}
                         onChange={(e) => setNewType(e.target.value as LessonType)}
+                        aria-label="Тип урока"
                         className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none"
                     >
                         {(Object.keys(lessonTypeLabel) as LessonType[]).map((t) => (

@@ -132,13 +132,14 @@ function GoalList({ studentId }: { studentId: string }) {
                     {goals.map((g) => (
                         <li key={g.id} className={`flex items-center gap-2 p-2 rounded-lg border ${g.achieved ? "bg-green-50 border-green-200" : "bg-white"}`}>
                             <button onClick={() => toggleAchieved(g)}
+                                aria-label={g.achieved ? "Отметить цель как не выполненную" : "Отметить цель как выполненную"}
                                 className={`w-5 h-5 rounded-full border-2 flex-shrink-0 ${g.achieved ? "bg-green-500 border-green-500" : "border-gray-300"}`}
                             />
                             <div className="flex-1 min-w-0">
                                 <p className={`text-sm font-medium truncate ${g.achieved ? "line-through text-gray-400" : ""}`}>{g.title}</p>
                                 <p className="text-xs text-gray-400">{g.targetXp} XP{g.reward ? ` · 🎁 ${g.reward}` : ""}</p>
                             </div>
-                            <button onClick={() => handleDelete(g.id)} className="text-gray-300 hover:text-red-400 text-sm">×</button>
+                            <button onClick={() => handleDelete(g.id)} aria-label="Удалить цель" className="text-gray-300 hover:text-red-400 text-sm">×</button>
                         </li>
                     ))}
                 </ul>

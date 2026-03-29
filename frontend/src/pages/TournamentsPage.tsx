@@ -159,6 +159,7 @@ function DetailModal({ tournament, userId, onClose, onJoin, onLeave }: DetailMod
                                 max={tournament.maxScore}
                                 value={score}
                                 onChange={(e) => setScore(Number(e.target.value))}
+                                aria-label="Ваш результат"
                                 className="w-24 border rounded px-2 py-1 text-sm"
                             />
                             <button
@@ -231,12 +232,14 @@ function CreateModal({ onClose, onCreate }: CreateModalProps) {
                         placeholder="Название *"
                         value={form.title}
                         onChange={(e) => set("title", e.target.value)}
+                        aria-label="Название турнира"
                         className="w-full border rounded px-3 py-2 text-sm"
                     />
                     <textarea
                         placeholder="Описание"
                         value={form.description}
                         onChange={(e) => set("description", e.target.value)}
+                        aria-label="Описание турнира"
                         className="w-full border rounded px-3 py-2 text-sm h-20 resize-none"
                     />
                     <div className="grid grid-cols-2 gap-2">
@@ -246,6 +249,7 @@ function CreateModal({ onClose, onCreate }: CreateModalProps) {
                                 type="datetime-local"
                                 value={form.startsAt}
                                 onChange={(e) => set("startsAt", e.target.value)}
+                                aria-label="Дата и время начала"
                                 className="w-full border rounded px-2 py-1 text-sm"
                             />
                         </div>
@@ -255,6 +259,7 @@ function CreateModal({ onClose, onCreate }: CreateModalProps) {
                                 type="datetime-local"
                                 value={form.endsAt}
                                 onChange={(e) => set("endsAt", e.target.value)}
+                                aria-label="Дата и время окончания"
                                 className="w-full border rounded px-2 py-1 text-sm"
                             />
                         </div>
@@ -266,6 +271,7 @@ function CreateModal({ onClose, onCreate }: CreateModalProps) {
                             min={1}
                             value={form.maxScore}
                             onChange={(e) => set("maxScore", Number(e.target.value))}
+                            aria-label="Максимальное количество баллов"
                             className="w-full border rounded px-3 py-2 text-sm"
                         />
                     </div>

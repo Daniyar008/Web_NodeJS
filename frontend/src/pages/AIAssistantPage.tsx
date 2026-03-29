@@ -181,6 +181,7 @@ export function AIAssistantPage() {
                                 <select
                                     value={testForm.difficulty}
                                     onChange={(event) => setTestForm((current) => ({ ...current, difficulty: event.target.value as "easy" | "medium" | "hard" }))}
+                                    aria-label="Сложность теста"
                                     className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
                                 >
                                     <option value="easy">easy</option>
@@ -193,6 +194,7 @@ export function AIAssistantPage() {
                                     max={10}
                                     value={testForm.questions}
                                     onChange={(event) => setTestForm((current) => ({ ...current, questions: Number(event.target.value) }))}
+                                    aria-label="Количество вопросов"
                                     className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)] sm:max-w-[120px]"
                                 />
                                 <button
