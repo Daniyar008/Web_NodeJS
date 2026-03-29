@@ -42,6 +42,7 @@ model User {
   gamificationProfile GamificationProfile?
   xpTransactions     XPTransaction[]
   achievements       StudentAchievement[]
+  todos              Todo[]
 
   @@index([roleId])
 }
@@ -156,6 +157,7 @@ model Course {
   institutionId String?
   modules      CourseModule[]
   enrollments  Enrollment[]
+  todos        Todo[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
@@ -239,6 +241,7 @@ model Assignment {
   lessonId      String   @unique
   lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   submissions   AssignmentSubmission[]
+  todos         Todo[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -309,6 +312,42 @@ enum XPSource {
   ASSIGNMENT_GRADED
   ACHIEVEMENT_UNLOCKED
   DAILY_STREAK
+}
+
+enum TodoStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+enum TodoPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Todo {
+  id           String       @id @default(cuid())
+  title        String
+  description  String?
+  status       TodoStatus   @default(TODO)
+  priority     TodoPriority @default(MEDIUM)
+  position     Int          @default(0)
+  dueDate      DateTime?
+  userId       String
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId     String?
+  course       Course?      @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  assignmentId String?
+  assignment   Assignment?  @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([dueDate])
 }
 
 enum AchievementCategory {

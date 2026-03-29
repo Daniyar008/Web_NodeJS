@@ -7,6 +7,7 @@ import { authRouter } from "./features/auth/auth.routes.js";
 import { courseRouter } from "./features/course/course.routes.js";
 import { institutionRouter } from "./features/institution/institution.routes.js";
 import { studentRouter } from "./features/student/student.routes.js";
+import { taskRouter } from "./features/task/task.routes.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { healthRouter } from "./routes/health.routes.js";
 
@@ -22,6 +23,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/institutions", institutionRouter);
 app.use("/api/courses", courseRouter);
 app.use("/api/student", studentRouter);
+app.use("/api/tasks", taskRouter);
 
 // Must be last — catches all errors from route handlers.
 app.use(errorHandler);
