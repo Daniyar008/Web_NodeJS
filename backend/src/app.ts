@@ -3,13 +3,19 @@ import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
-import { healthRouter } from "./routes/health.routes";
+import { authRouter } from "./features/auth/auth.routes.js";
+import { errorHandler } from "./middleware/error.middleware.js";
+import { healthRouter } from "./routes/health.routes.js";
 
 export const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: process.env["FRONTEND_URL"] ?? "http://localhost:5173", credentials: true }));
 app.use(morgan("dev"));
 app.use(express.json({ limit: "1mb" }));
 
 app.use("/api", healthRouter);
+app.use("/api/auth", authRouter);
+
+// Must be last — catches all errors from route handlers.
+app.use(errorHandler);

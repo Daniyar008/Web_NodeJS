@@ -1,7 +1,5 @@
-import dotenv from "dotenv";
+﻿import "dotenv/config";
 import { z } from "zod";
-
-dotenv.config();
 
 const envSchema = z.object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -9,6 +7,7 @@ const envSchema = z.object({
     DATABASE_URL: z.string().min(1),
     JWT_ACCESS_SECRET: z.string().min(16).default("change-me-access-secret"),
     JWT_REFRESH_SECRET: z.string().min(16).default("change-me-refresh-secret"),
+    FRONTEND_URL: z.string().default("http://localhost:5173"),
 });
 
 const parsed = envSchema.safeParse(process.env);

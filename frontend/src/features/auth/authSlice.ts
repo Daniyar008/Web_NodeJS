@@ -1,31 +1,47 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+﻿import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-type Role = 'student' | 'teacher' | 'parent' | 'institution'
+type AuthUser = {
+  userId: string;
+  email: string;
+  role: string;
+};
 
 type AuthState = {
-    token: string | null
-    role: Role | null
-}
+  accessToken: string | null;
+  refreshToken: string | null;
+  user: AuthUser | null;
+};
 
-const initialState: AuthState = {
-    token: null,
-    role: null,
+function loadFromStorage(): AuthState {
+  return {
+    accessToken: localStorage.getItem("accessToken"),
+    refreshToken: localStorage.getItem("refreshToken"),
+    user: null,
+  };
 }
 
 const authSlice = createSlice({
-    name: 'auth',
-    initialState,
-    reducers: {
-        signIn(state, action: PayloadAction<{ token: string; role: Role }>) {
-            state.token = action.payload.token
-            state.role = action.payload.role
-        },
-        signOut(state) {
-            state.token = null
-            state.role = null
-        },
+  name: "auth",
+  initialState: loadFromStorage,
+  reducers: {
+    signIn(state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) {
+      state.accessToken = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+      localStorage.setItem("accessToken", action.payload.accessToken);
+      localStorage.setItem("refreshToken", action.payload.refreshToken);
     },
-})
+    setUser(state, action: PayloadAction<AuthUser>) {
+      state.user = action.payload;
+    },
+    signOut(state) {
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.user = null;
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+    },
+  },
+});
 
-export const { signIn, signOut } = authSlice.actions
-export const authReducer = authSlice.reducer
+export const { signIn, setUser, signOut } = authSlice.actions;
+export const authReducer = authSlice.reducer;

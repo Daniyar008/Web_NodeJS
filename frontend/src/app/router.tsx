@@ -1,20 +1,30 @@
-import { createBrowserRouter } from 'react-router-dom'
+﻿import { createBrowserRouter } from "react-router-dom";
 
-import { MainLayout } from '../layouts/MainLayout'
-import { DashboardPage } from '../pages/DashboardPage'
-import { LandingPage } from '../pages/LandingPage'
-import { LoginPage } from '../pages/LoginPage'
-import { NotFoundPage } from '../pages/NotFoundPage'
+import { ProtectedRoute } from "../components/ProtectedRoute";
+import { MainLayout } from "../layouts/MainLayout";
+import { DashboardPage } from "../pages/DashboardPage";
+import { LandingPage } from "../pages/LandingPage";
+import { LoginPage } from "../pages/LoginPage";
+import { NotFoundPage } from "../pages/NotFoundPage";
+import { UnauthorizedPage } from "../pages/UnauthorizedPage";
 
 export const router = createBrowserRouter([
-    {
-        path: '/',
-        element: <MainLayout />,
-        children: [
-            { index: true, element: <LandingPage /> },
-            { path: 'login', element: <LoginPage /> },
-            { path: 'dashboard/:role', element: <DashboardPage /> },
-            { path: '*', element: <NotFoundPage /> },
-        ],
-    },
-])
+  {
+    path: "/",
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <LandingPage /> },
+      { path: "login", element: <LoginPage /> },
+      { path: "unauthorized", element: <UnauthorizedPage /> },
+      {
+        path: "dashboard/:role",
+        element: (
+          <ProtectedRoute>
+            <DashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      { path: "*", element: <NotFoundPage /> },
+    ],
+  },
+]);
