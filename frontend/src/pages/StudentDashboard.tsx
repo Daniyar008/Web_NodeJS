@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { studentApi, type StudentProfile, type AvailableCourse, type EnrolledCourse } from '../features/student/studentApi.ts'
 
 function ProgressBar({ value }: { value: number }) {
+    const clamped = Math.max(0, Math.min(100, value))
     return (
-        <progress
-            className="h-2 w-full overflow-hidden rounded-full [appearance:none] [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-value]:bg-[color:var(--brand)] [&::-webkit-progress-value]:transition-all [&::-moz-progress-bar]:bg-[color:var(--brand)]"
-            max={100}
-            value={Math.max(0, Math.min(100, value))}
-        />
+        <div className="progress-bar">
+            <div className="progress-bar-fill" style={{ width: `${clamped}%` }} />
+        </div>
     )
 }
 
@@ -47,83 +46,223 @@ export function StudentDashboard() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-20">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-[color:var(--brand)] border-t-transparent" />
+            <div className="flex flex-col items-center justify-center py-32 gap-4">
+                <div
+                    className="h-12 w-12 rounded-full border-4 border-t-transparent animate-spin"
+                    style={{ borderColor: 'var(--brand)', borderTopColor: 'transparent' }}
+                />
+                <p style={{ color: 'var(--ink-300)' }}>Загрузка данных…</p>
             </div>
         )
     }
 
     return (
-        <section className="space-y-6">
-            <div className="reveal rounded-3xl border border-[color:var(--line)] bg-white/85 p-6 shadow-sm sm:p-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--ink-700)]">Кабинет ученика</p>
-                <h1 className="heading-font mt-1 text-3xl font-bold sm:text-4xl">
-                    {profile ? `${profile.user.firstName}, продолжаем обучение` : 'Мой прогресс'}
-                </h1>
-                {profile && (
-                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                        <div className="rounded-xl border border-[color:var(--line)] bg-white p-4">
-                            <p className="text-xs text-[color:var(--ink-700)]">Уровень</p>
-                            <p className="heading-font text-2xl font-bold text-[color:var(--brand)]">{profile.gamification.level}</p>
-                        </div>
-                        <div className="rounded-xl border border-[color:var(--line)] bg-white p-4">
-                            <p className="text-xs text-[color:var(--ink-700)]">XP</p>
-                            <p className="heading-font text-2xl font-bold text-[color:var(--brand)]">{profile.gamification.xp}</p>
-                        </div>
-                        <div className="rounded-xl border border-[color:var(--line)] bg-white p-4">
-                            <p className="text-xs text-[color:var(--ink-700)]">Ачивок</p>
-                            <p className="heading-font text-2xl font-bold text-[color:var(--brand)]">{profile.achievements.length}</p>
-                        </div>
+        <section className="space-y-8">
+            {/* ── Header ────────────────────────────────────────────── */}
+            <div
+                className="reveal glass-bright rounded-3xl p-6 sm:p-8 relative overflow-hidden"
+                style={{ boxShadow: '0 0 60px rgba(20,184,166,0.08)' }}
+            >
+                <div
+                    className="absolute top-0 right-0 w-80 h-80 pointer-events-none"
+                    style={{
+                        background: 'radial-gradient(circle, rgba(20,184,166,0.10) 0%, transparent 70%)',
+                        transform: 'translate(20%, -20%)',
+                    }}
+                />
+                <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                        <span
+                            className="badge"
+                            style={{
+                                background: 'rgba(20,184,166,0.12)',
+                                color: 'var(--accent-teal)',
+                                border: '1px solid rgba(20,184,166,0.3)',
+                            }}
+                        >
+                            🎓 Кабинет ученика
+                        </span>
                     </div>
-                )}
+                    <h1 className="heading-font text-3xl sm:text-4xl font-bold" style={{ color: 'var(--ink-100)' }}>
+                        {profile
+                            ? <>{profile.user.firstName}, <span className="gradient-text">продолжаем!</span></>
+                            : 'Мой прогресс'
+                        }
+                    </h1>
+
+                    {/* Stats */}
+                    {profile && (
+                        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                            {[
+                                {
+                                    label: 'Уровень',
+                                    value: profile.gamification.level,
+                                    icon: '⚡',
+                                    style: 'stat-card-indigo',
+                                    color: 'var(--brand-light)',
+                                },
+                                {
+                                    label: 'Опыт (XP)',
+                                    value: profile.gamification.xp,
+                                    icon: '🏅',
+                                    style: 'stat-card-amber',
+                                    color: 'var(--accent)',
+                                },
+                                {
+                                    label: 'Ачивок',
+                                    value: profile.achievements.length,
+                                    icon: '🏆',
+                                    style: 'stat-card-teal',
+                                    color: 'var(--accent-teal)',
+                                },
+                            ].map((stat) => (
+                                <div
+                                    key={stat.label}
+                                    className={`rounded-2xl p-4 ${stat.style}`}
+                                    style={{ border: undefined }}
+                                >
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span>{stat.icon}</span>
+                                        <p className="text-xs font-medium" style={{ color: 'var(--ink-300)' }}>{stat.label}</p>
+                                    </div>
+                                    <p
+                                        className="heading-font text-3xl font-bold"
+                                        style={{ color: stat.color }}
+                                    >
+                                        {stat.value}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
-            {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+            {error && (
+                <div
+                    className="flex items-center gap-3 rounded-2xl px-5 py-4 text-sm"
+                    style={{
+                        background: 'rgba(244,63,94,0.08)',
+                        border: '1px solid rgba(244,63,94,0.25)',
+                        color: '#fb7185',
+                    }}
+                >
+                    <span>⚠️</span> {error}
+                </div>
+            )}
 
+            {/* ── Course Columns ─────────────────────────────────────── */}
             <div className="grid gap-6 lg:grid-cols-2">
-                <div className="reveal rounded-2xl border border-[color:var(--line)] bg-white/80 p-5 shadow-sm">
-                    <h2 className="heading-font text-lg font-bold">Мои курсы</h2>
-                    <div className="mt-3 space-y-3">
-                        {enrolled.length === 0 && <p className="text-sm text-[color:var(--ink-700)]">Вы пока не записаны на курсы</p>}
+                {/* My Courses */}
+                <div className="reveal glass rounded-2xl p-6">
+                    <div className="flex items-center gap-2 mb-5">
+                        <span className="text-xl">📚</span>
+                        <h2 className="heading-font text-xl font-bold" style={{ color: 'var(--ink-100)' }}>
+                            Мои курсы
+                        </h2>
+                        <span
+                            className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full"
+                            style={{
+                                background: 'rgba(99,102,241,0.12)',
+                                color: 'var(--brand-light)',
+                                border: '1px solid rgba(99,102,241,0.25)',
+                            }}
+                        >
+                            {enrolled.length}
+                        </span>
+                    </div>
+
+                    <div className="space-y-3">
+                        {enrolled.length === 0 && (
+                            <p className="text-sm py-6 text-center" style={{ color: 'var(--ink-500)' }}>
+                                Вы пока не записаны на курсы
+                            </p>
+                        )}
                         {enrolled.map((item) => {
                             const total = item.course.modules.flatMap((m) => m.lessons).length
                             const completed = item.progress.filter((p) => p.completed).length
                             const pct = total === 0 ? 0 : Math.round((completed / total) * 100)
                             return (
-                                <div key={item.id} className="rounded-xl border border-[color:var(--line)] p-4">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <p className="font-semibold">{item.course.title}</p>
+                                <div
+                                    key={item.id}
+                                    className="rounded-xl p-4 transition-all card-interactive"
+                                    style={{
+                                        background: 'rgba(255,255,255,0.03)',
+                                        border: '1px solid var(--line)',
+                                    }}
+                                >
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                        <p className="font-semibold text-sm" style={{ color: 'var(--ink-100)' }}>
+                                            {item.course.title}
+                                        </p>
                                         <button
                                             onClick={() => navigate(`/learn/${item.course.id}`)}
-                                            className="text-xs font-semibold text-[color:var(--brand)] hover:underline"
+                                            className="text-xs font-bold flex-shrink-0 transition-colors hover:underline"
+                                            style={{ color: 'var(--brand-light)' }}
                                         >
-                                            Открыть
+                                            Открыть →
                                         </button>
                                     </div>
-                                    <p className="mt-1 text-xs text-[color:var(--ink-700)]">{completed}/{total} уроков</p>
-                                    <div className="mt-2"><ProgressBar value={pct} /></div>
+                                    <p className="text-xs mb-2" style={{ color: 'var(--ink-500)' }}>
+                                        {completed}/{total} уроков · {pct}%
+                                    </p>
+                                    <ProgressBar value={pct} />
                                 </div>
                             )
                         })}
                     </div>
                 </div>
 
-                <div className="reveal rounded-2xl border border-[color:var(--line)] bg-white/80 p-5 shadow-sm">
-                    <h2 className="heading-font text-lg font-bold">Доступные курсы</h2>
-                    <div className="mt-3 space-y-3">
-                        {available.length === 0 && <p className="text-sm text-[color:var(--ink-700)]">Новых курсов пока нет</p>}
+                {/* Available Courses */}
+                <div className="reveal glass rounded-2xl p-6">
+                    <div className="flex items-center gap-2 mb-5">
+                        <span className="text-xl">🌟</span>
+                        <h2 className="heading-font text-xl font-bold" style={{ color: 'var(--ink-100)' }}>
+                            Доступные курсы
+                        </h2>
+                        <span
+                            className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full"
+                            style={{
+                                background: 'rgba(20,184,166,0.12)',
+                                color: 'var(--accent-teal)',
+                                border: '1px solid rgba(20,184,166,0.25)',
+                            }}
+                        >
+                            {available.length}
+                        </span>
+                    </div>
+
+                    <div className="space-y-3">
+                        {available.length === 0 && (
+                            <p className="text-sm py-6 text-center" style={{ color: 'var(--ink-500)' }}>
+                                Новых курсов пока нет
+                            </p>
+                        )}
                         {available.map((course) => (
-                            <div key={course.id} className="rounded-xl border border-[color:var(--line)] p-4">
-                                <p className="font-semibold">{course.title}</p>
-                                {course.description && <p className="mt-1 text-sm text-[color:var(--ink-700)]">{course.description}</p>}
-                                <p className="mt-1 text-xs text-[color:var(--ink-700)]">
+                            <div
+                                key={course.id}
+                                className="rounded-xl p-4 transition-all card-interactive"
+                                style={{
+                                    background: 'rgba(255,255,255,0.03)',
+                                    border: '1px solid var(--line)',
+                                }}
+                            >
+                                <p className="font-semibold text-sm mb-1" style={{ color: 'var(--ink-100)' }}>
+                                    {course.title}
+                                </p>
+                                {course.description && (
+                                    <p className="text-xs mb-1.5" style={{ color: 'var(--ink-300)' }}>
+                                        {course.description}
+                                    </p>
+                                )}
+                                <p className="text-xs mb-3" style={{ color: 'var(--ink-500)' }}>
                                     {course._count.modules} модулей · {course.author.firstName} {course.author.lastName}
                                 </p>
                                 <button
                                     onClick={() => { void handleEnroll(course.id) }}
-                                    className="mt-3 rounded-lg bg-[color:var(--brand)] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+                                    className="btn-primary text-xs py-2 px-4"
                                 >
-                                    Записаться
+                                    Записаться →
                                 </button>
                             </div>
                         ))}

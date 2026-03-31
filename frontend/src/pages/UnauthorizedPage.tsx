@@ -1,16 +1,43 @@
 import { Link } from 'react-router-dom'
 
 export function UnauthorizedPage() {
-    return (
-        <section className="mx-auto max-w-xl reveal rounded-3xl border border-[color:var(--line)] bg-white/80 p-8 text-center shadow-sm">
-            <h1 className="heading-font text-3xl font-bold">Доступ запрещён</h1>
-            <p className="mt-3 text-sm text-[color:var(--ink-700)]">У вас нет прав для просмотра этой страницы.</p>
-            <Link
-                to="/"
-                className="mt-6 inline-flex rounded-xl bg-[color:var(--brand)] px-5 py-3 text-sm font-bold text-white transition hover:bg-[color:var(--brand-deep)]"
-            >
-                На главную
-            </Link>
-        </section>
-    )
+  return (
+    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
+      <div
+        className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl mb-6"
+        style={{
+          background: 'rgba(244,63,94,0.10)',
+          border: '1px solid rgba(244,63,94,0.25)',
+          boxShadow: '0 0 40px rgba(244,63,94,0.15)',
+        }}
+      >
+        🔒
+      </div>
+      <h1
+        className="heading-font text-6xl font-bold mb-2"
+        style={{
+          background: 'linear-gradient(135deg, #fb7185 0%, #f43f5e 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}
+      >
+        403
+      </h1>
+      <p className="text-xl font-semibold mb-2" style={{ color: 'var(--ink-100)' }}>
+        Доступ запрещён
+      </p>
+      <p className="text-sm mb-8 max-w-sm" style={{ color: 'var(--ink-300)' }}>
+        У вас нет прав для просмотра этой страницы. Попробуйте войти с другим аккаунтом.
+      </p>
+      <div className="flex gap-3">
+        <Link to="/" className="btn-ghost px-6 py-2.5 text-sm">
+          ← Главная
+        </Link>
+        <Link to="/login" className="btn-primary px-6 py-2.5 text-sm">
+          Войти
+        </Link>
+      </div>
+    </div>
+  )
 }
