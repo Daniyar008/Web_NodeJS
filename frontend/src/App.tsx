@@ -33,6 +33,7 @@ import { ParentHomeworkPage } from './components/ParentHomeworkPage'
 import { ParentMotivationPage } from './components/ParentMotivationPage'
 import { ParentAchievementsPage } from './components/ParentAchievementsPage'
 import { StudentTaskPage } from './components/StudentTaskPage'
+import { StudentTournamentsPage } from './components/StudentTournamentsPage'
 import { RoleGuard } from './components/RoleGuard'
 import type { Language } from './i18n/translations'
 
@@ -66,6 +67,7 @@ function App() {
         <Route path="/resources" element={<ResourcesPage language={language} onLanguageChange={setLanguage} />} />
         <Route path="/settings" element={<SettingsPage language={language} onLanguageChange={setLanguage} />} />
         <Route path="/tasks" element={<StudentTaskPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/tournaments" element={<StudentTournamentsPage language={language} onLanguageChange={setLanguage} />} />
 
         {/* ── Teacher (role-guarded) ──────────────────────────────────── */}
         <Route path="/teacher" element={
