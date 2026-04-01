@@ -7,6 +7,7 @@ import {
     CircleUserRound,
     GraduationCap,
     KanbanSquare,
+    Library,
     MessageCircle,
     Search,
     Settings,
@@ -29,7 +30,7 @@ const NOTIFS = [
     { id: '5', icon: '💬', title: 'Новое сообщение', body: 'Учитель Иванов: "Хорошая работа!"', time: 'Вчера', read: true },
 ]
 
-type ActivePage = 'dashboard' | 'courses' | 'chat' | 'teacher' | 'profile' | 'schedule' | 'resources' | 'settings' | 'tasks' | 'tournaments' | 'other'
+type ActivePage = 'dashboard' | 'courses' | 'chat' | 'teacher' | 'profile' | 'schedule' | 'resources' | 'settings' | 'tasks' | 'tournaments' | 'library' | 'other'
 
 type CourseShellLayoutProps = {
     language: Language
@@ -82,6 +83,7 @@ export function CourseShellLayout({
                     <button type="button" className={activePage === 'schedule' ? 'active' : ''} onClick={() => navigate('/schedule')}><CalendarDays size={17} /> {t.schedule}</button>
                     <button type="button" className={activePage === 'tasks' ? 'active' : ''} onClick={() => navigate('/tasks')}><KanbanSquare size={17} /> Задачи</button>
                     <button type="button" className={activePage === 'tournaments' ? 'active' : ''} onClick={() => navigate('/tournaments')}><Trophy size={17} /> Турниры</button>
+                    <button type="button" className={activePage === 'library' ? 'active' : ''} onClick={() => navigate('/library')}><Library size={17} /> Библиотека</button>
                     <button type="button" className={activePage === 'profile' ? 'active' : ''} onClick={() => navigate('/profile')}><User size={17} /> {t.profile}</button>
                     <button type="button" className={activePage === 'settings' ? 'active' : ''} onClick={() => navigate('/settings')}><Settings size={17} /> {t.settings}</button>
                 </nav>

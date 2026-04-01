@@ -11,6 +11,7 @@ import { SchedulePage } from './components/SchedulePage'
 import { CourseDetailsPage } from './components/CourseDetailsPage'
 import { CoursesPage } from './components/CoursesPage'
 import { TeacherWorkspacePage } from './components/TeacherWorkspacePage'
+import { TeacherCourseBuilderPage } from './components/TeacherCourseBuilderPage'
 import { TeacherDashboardPage } from './components/TeacherDashboardPage'
 import { TeacherCoursesPage } from './components/TeacherCoursesPage'
 import { TeacherStudentsPage } from './components/TeacherStudentsPage'
@@ -34,6 +35,7 @@ import { ParentMotivationPage } from './components/ParentMotivationPage'
 import { ParentAchievementsPage } from './components/ParentAchievementsPage'
 import { StudentTaskPage } from './components/StudentTaskPage'
 import { StudentTournamentsPage } from './components/StudentTournamentsPage'
+import { ContentLibraryPage } from './components/ContentLibraryPage'
 import { RoleGuard } from './components/RoleGuard'
 import type { Language } from './i18n/translations'
 
@@ -68,6 +70,7 @@ function App() {
         <Route path="/settings" element={<SettingsPage language={language} onLanguageChange={setLanguage} />} />
         <Route path="/tasks" element={<StudentTaskPage language={language} onLanguageChange={setLanguage} />} />
         <Route path="/tournaments" element={<StudentTournamentsPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/library" element={<ContentLibraryPage language={language} onLanguageChange={setLanguage} />} />
 
         {/* ── Teacher (role-guarded) ──────────────────────────────────── */}
         <Route path="/teacher" element={
@@ -92,7 +95,7 @@ function App() {
         } />
         <Route path="/teacher/courses/new" element={
           <RoleGuard requiredRole="teacher" fallback="/login/teacher">
-            <TeacherWorkspacePage language={language} onLanguageChange={setLanguage} />
+            <TeacherCourseBuilderPage language={language} onLanguageChange={setLanguage} />
           </RoleGuard>
         } />
         <Route path="/teacher/students" element={

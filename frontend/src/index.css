@@ -15465,3 +15465,497 @@ progress.bar::-moz-progress-bar {
     position: static;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   CONTENT LIBRARY  (lib-*)
+   ════════════════════════════════════════════════════════════════ */
+.lib-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 4px 40px;
+}
+
+.lib-hero {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%);
+  border-radius: 22px;
+  padding: 36px 32px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.lib-hero-text h1 {
+  font-size: 28px;
+  font-weight: 900;
+  margin: 0 0 8px;
+}
+
+.lib-hero-text p {
+  font-size: 14px;
+  opacity: 0.78;
+  margin: 0;
+  max-width: 480px;
+}
+
+.lib-hero-stats {
+  display: flex;
+  gap: 18px;
+  flex-shrink: 0;
+}
+
+.lib-hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  padding: 12px 18px;
+}
+
+.lib-hero-stat strong {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.lib-hero-stat span {
+  font-size: 11px;
+  opacity: 0.72;
+  margin-top: 2px;
+}
+
+/* Search bar */
+.lib-search-bar {
+  position: relative;
+  margin-bottom: 22px;
+}
+
+.lib-search-bar input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 14px 14px 48px;
+  border-radius: 14px;
+  border: 1.5px solid var(--line, #e8eaf0);
+  font: inherit;
+  font-size: 14px;
+  color: #1f2937;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+
+.lib-search-bar input:focus {
+  border-color: #7c3aed;
+}
+
+.lib-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+/* Two-column layout */
+.lib-body {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Category tabs */
+.lib-cats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.lib-cat-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 22px;
+  border: 1.5px solid var(--line, #e8eaf0);
+  background: #fff;
+  color: #6b7280;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lib-cat-btn.active {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.28);
+}
+
+.lib-cat-btn:hover:not(.active) {
+  border-color: #a78bfa;
+  color: #7c3aed;
+}
+
+/* Resource cards grid */
+.lib-resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.lib-resource-card {
+  background: #fff;
+  border: 1.5px solid var(--line, #e8eaf0);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+
+.lib-resource-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.lib-resource-thumb {
+  position: relative;
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+}
+
+.lib-resource-type-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lib-resource-body {
+  padding: 12px 14px 14px;
+}
+
+.lib-resource-subject {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7c3aed;
+  margin-bottom: 5px;
+}
+
+.lib-resource-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+
+.lib-resource-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.lib-resource-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+.lib-resource-level {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ─── University section ───────────────────────────────────────── */
+.lib-section-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #1f2937;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lib-uni-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.lib-uni-card {
+  background: #fff;
+  border: 1.5px solid var(--line, #e8eaf0);
+  border-radius: 18px;
+  padding: 18px;
+  transition: transform 0.18s, box-shadow 0.18s;
+  cursor: pointer;
+}
+
+.lib-uni-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+}
+
+.lib-uni-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.lib-uni-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lib-uni-info h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.lib-uni-info span {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.lib-uni-match-bar {
+  margin-bottom: 10px;
+}
+
+.lib-uni-match-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.lib-uni-match-label span:last-child {
+  color: #7c3aed;
+}
+
+.lib-uni-bar-track {
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.lib-uni-bar-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #7c3aed, #4f46e5);
+  transition: width 0.6s ease;
+}
+
+.lib-uni-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.lib-uni-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.lib-uni-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.lib-uni-deadline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lib-uni-appl-btn {
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.lib-uni-appl-btn:hover {
+  opacity: 0.87;
+}
+
+/* ─── Right sidebar ────────────────────────────────────────────── */
+.lib-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 16px;
+}
+
+.lib-sidebar-card {
+  background: #fff;
+  border: 1.5px solid var(--line, #e8eaf0);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.lib-sidebar-card h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.lib-bookmarks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lib-bookmark-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.lib-bookmark-row:hover {
+  background: #f1f5f9;
+}
+
+.lib-bookmark-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lib-bookmark-row span {
+  flex: 1;
+  font-weight: 600;
+  color: #374151;
+}
+
+.lib-bookmark-type {
+  font-size: 10px !important;
+  color: #9ca3af !important;
+  font-weight: 600 !important;
+}
+
+.lib-progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.lib-progress-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.lib-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.lib-progress-pct {
+  color: #7c3aed;
+}
+
+.lib-progress-bar {
+  height: 5px;
+  background: #f1f5f9;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.lib-progress-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #7c3aed, #4f46e5);
+}
+
+@media (max-width: 1100px) {
+  .lib-body {
+    grid-template-columns: 1fr;
+  }
+  .lib-sidebar {
+    position: static;
+  }
+  .lib-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .lib-hero-stats {
+    flex-wrap: wrap;
+  }
+}
