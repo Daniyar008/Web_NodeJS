@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { institutionApi, type Institution, type Department, type Member } from '../features/institution/institutionApi.ts'
 
@@ -26,8 +26,16 @@ export function InstitutionAdminDashboard() {
 
     // New institution form
     const [showCreate, setShowCreate] = useState(false)
+    const [showEdit, setShowEdit] = useState(false)
+    const [showDepartmentForm, setShowDepartmentForm] = useState(false)
+    const [showClassForm, setShowClassForm] = useState(false)
     const [form, setForm] = useState({ name: '', slug: '', description: '' })
+    const [editForm, setEditForm] = useState({ name: '', description: '' })
+    const [departmentName, setDepartmentName] = useState('')
+    const [classForm, setClassForm] = useState({ name: '', year: '1', departmentId: '' })
     const [saving, setSaving] = useState(false)
+    const [memberSearch, setMemberSearch] = useState('')
+    const [memberRole, setMemberRole] = useState('ALL')
 
     const loadInstitutions = useCallback(async () => {
         try {
@@ -53,6 +61,8 @@ export function InstitutionAdminDashboard() {
         try {
             const full = await institutionApi.get(inst.id)
             setSelected(full)
+            setEditForm({ name: full.name, description: full.description ?? '' })
+            setClassForm((prev) => ({ ...prev, departmentId: full.departments[0]?.id ?? '' }))
             const mems = await institutionApi.listMembers(inst.id)
             setMembers(mems)
         } catch {
@@ -75,11 +85,96 @@ export function InstitutionAdminDashboard() {
         }
     }
 
+    const handleUpdateInstitution = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!selected) return
+        setSaving(true)
+        try {
+            await institutionApi.update(selected.id, {
+                name: editForm.name,
+                description: editForm.description,
+            })
+            await selectInstitution(selected)
+            const list = await institutionApi.list()
+            setInstitutions(list)
+            setShowEdit(false)
+        } catch {
+            setError('Ошибка при обновлении учреждения')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const handleCreateDepartment = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!selected || !departmentName.trim()) return
+        setSaving(true)
+        try {
+            await institutionApi.createDepartment(selected.id, departmentName.trim())
+            await selectInstitution(selected)
+            setDepartmentName('')
+            setShowDepartmentForm(false)
+        } catch {
+            setError('Не удалось создать отделение')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const handleDeleteDepartment = async (deptId: string) => {
+        if (!selected) return
+        try {
+            await institutionApi.deleteDepartment(selected.id, deptId)
+            await selectInstitution(selected)
+        } catch {
+            setError('Не удалось удалить отделение')
+        }
+    }
+
+    const handleCreateClass = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!selected || !classForm.name.trim() || !classForm.departmentId) return
+        setSaving(true)
+        try {
+            await institutionApi.createClass(selected.id, {
+                name: classForm.name.trim(),
+                year: Number.parseInt(classForm.year, 10),
+                departmentId: classForm.departmentId,
+            })
+            await selectInstitution(selected)
+            setClassForm((prev) => ({ ...prev, name: '', year: '1' }))
+            setShowClassForm(false)
+        } catch {
+            setError('Не удалось создать класс')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const handleDeleteClass = async (classId: string) => {
+        if (!selected) return
+        try {
+            await institutionApi.deleteClass(selected.id, classId)
+            await selectInstitution(selected)
+        } catch {
+            setError('Не удалось удалить класс')
+        }
+    }
+
     const handleRemoveMember = async (memberId: string) => {
         if (!selected) return
         await institutionApi.removeMember(selected.id, memberId)
         setMembers((prev) => prev.filter((m) => m.id !== memberId))
     }
+
+    const filteredMembers = useMemo(() => {
+        return members.filter((member) => {
+            const fullName = `${member.user.firstName} ${member.user.lastName}`.toLowerCase()
+            const matchesSearch = `${fullName} ${member.user.email} ${member.class?.name ?? ''}`.includes(memberSearch.toLowerCase())
+            const matchesRole = memberRole === 'ALL' || member.role === memberRole
+            return matchesSearch && matchesRole
+        })
+    }, [members, memberRole, memberSearch])
 
     if (loading) {
         return (
@@ -101,8 +196,19 @@ export function InstitutionAdminDashboard() {
                         <h1 className="heading-font mt-1 text-3xl font-bold sm:text-4xl">
                             {selected ? selected.name : 'Нет учреждений'}
                         </h1>
+                        {selected?.description && (
+                            <p className="mt-2 max-w-2xl text-sm text-[color:var(--ink-700)]">{selected.description}</p>
+                        )}
                     </div>
                     <div className="flex gap-2">
+                        {selected && (
+                            <button
+                                onClick={() => setShowEdit((v) => !v)}
+                                className="rounded-xl border border-[color:var(--line)] bg-white px-4 py-2 text-sm font-semibold transition hover:bg-gray-50"
+                            >
+                                {showEdit ? 'Скрыть редактирование' : 'Редактировать'}
+                            </button>
+                        )}
                         <button
                             onClick={() => setShowCreate((v) => !v)}
                             className="rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
@@ -150,6 +256,31 @@ export function InstitutionAdminDashboard() {
                         </button>
                     </form>
                 )}
+
+                {showEdit && selected && (
+                    <form onSubmit={(e) => { void handleUpdateInstitution(e) }} className="mt-4 grid gap-3 rounded-2xl border border-[color:var(--line)] bg-[color:var(--soft)]/30 p-4 sm:grid-cols-2">
+                        <input
+                            required
+                            placeholder="Название учреждения"
+                            value={editForm.name}
+                            onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                            className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                        />
+                        <input
+                            placeholder="Описание"
+                            value={editForm.description}
+                            onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+                            className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                        />
+                        <button
+                            type="submit"
+                            disabled={saving}
+                            className="rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50 sm:col-span-1"
+                        >
+                            {saving ? 'Сохранение…' : 'Сохранить изменения'}
+                        </button>
+                    </form>
+                )}
             </div>
 
             {error && (
@@ -164,8 +295,8 @@ export function InstitutionAdminDashboard() {
                             key={inst.id}
                             onClick={() => { void selectInstitution(inst) }}
                             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${selected?.id === inst.id
-                                    ? 'bg-[color:var(--brand)] text-white'
-                                    : 'border border-[color:var(--line)] bg-white hover:bg-gray-50'
+                                ? 'bg-[color:var(--brand)] text-white'
+                                : 'border border-[color:var(--line)] bg-white hover:bg-gray-50'
                                 }`}
                         >
                             {inst.name}
@@ -184,6 +315,76 @@ export function InstitutionAdminDashboard() {
                         <StatCard label="Статус" value={selected.isActive ? 'Активно' : 'Неактивно'} />
                     </div>
 
+                    <div className="grid gap-4 lg:grid-cols-2">
+                        <div className="reveal rounded-2xl border border-[color:var(--line)] bg-white/80 p-6 shadow-sm">
+                            <div className="flex items-center justify-between gap-3">
+                                <SectionTitle>Новые отделения</SectionTitle>
+                                <button
+                                    onClick={() => setShowDepartmentForm((v) => !v)}
+                                    className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-xs font-semibold transition hover:bg-gray-50"
+                                >
+                                    {showDepartmentForm ? 'Скрыть' : '+ Отделение'}
+                                </button>
+                            </div>
+                            {showDepartmentForm && (
+                                <form onSubmit={(e) => { void handleCreateDepartment(e) }} className="mt-4 flex gap-2">
+                                    <input
+                                        value={departmentName}
+                                        onChange={(e) => setDepartmentName(e.target.value)}
+                                        placeholder="Например: МО математики"
+                                        className="flex-1 rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                                    />
+                                    <button type="submit" disabled={saving} className="rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+                                        Добавить
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+
+                        <div className="reveal rounded-2xl border border-[color:var(--line)] bg-white/80 p-6 shadow-sm">
+                            <div className="flex items-center justify-between gap-3">
+                                <SectionTitle>Новые классы</SectionTitle>
+                                <button
+                                    onClick={() => setShowClassForm((v) => !v)}
+                                    className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-xs font-semibold transition hover:bg-gray-50"
+                                >
+                                    {showClassForm ? 'Скрыть' : '+ Класс'}
+                                </button>
+                            </div>
+                            {showClassForm && (
+                                <form onSubmit={(e) => { void handleCreateClass(e) }} className="mt-4 grid gap-2 sm:grid-cols-3">
+                                    <input
+                                        value={classForm.name}
+                                        onChange={(e) => setClassForm((prev) => ({ ...prev, name: e.target.value }))}
+                                        placeholder="Например: 8А"
+                                        className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                                    />
+                                    <input
+                                        value={classForm.year}
+                                        type="number"
+                                        min={1}
+                                        max={12}
+                                        onChange={(e) => setClassForm((prev) => ({ ...prev, year: e.target.value }))}
+                                        placeholder="Год"
+                                        className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                                    />
+                                    <select
+                                        value={classForm.departmentId}
+                                        onChange={(e) => setClassForm((prev) => ({ ...prev, departmentId: e.target.value }))}
+                                        className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                                    >
+                                        {selected.departments.map((dept) => (
+                                            <option key={dept.id} value={dept.id}>{dept.name}</option>
+                                        ))}
+                                    </select>
+                                    <button type="submit" disabled={saving} className="rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 sm:col-span-1">
+                                        Создать класс
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Departments tree */}
                     <div className="reveal rounded-2xl border border-[color:var(--line)] bg-white/80 p-6 shadow-sm">
                         <SectionTitle>Структура учреждения</SectionTitle>
@@ -193,16 +394,27 @@ export function InstitutionAdminDashboard() {
                             <ul className="mt-4 space-y-3">
                                 {selected.departments.map((dept) => (
                                     <li key={dept.id} className="rounded-xl border border-[color:var(--line)] p-4">
-                                        <p className="font-semibold">{dept.name}</p>
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="font-semibold">{dept.name}</p>
+                                            <button
+                                                onClick={() => { void handleDeleteDepartment(dept.id) }}
+                                                className="text-xs font-semibold text-red-600 hover:underline"
+                                            >
+                                                Удалить отделение
+                                            </button>
+                                        </div>
                                         {dept.classes.length > 0 && (
                                             <div className="mt-2 flex flex-wrap gap-2">
                                                 {dept.classes.map((cls) => (
-                                                    <span
-                                                        key={cls.id}
-                                                        className="rounded-full bg-emerald-100 px-3 py-0.5 text-xs font-semibold text-emerald-800"
-                                                    >
-                                                        {cls.name} ({cls.year})
-                                                    </span>
+                                                    <div key={cls.id} className="flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-0.5 text-xs font-semibold text-emerald-800">
+                                                        <span>{cls.name} ({cls.year})</span>
+                                                        <button
+                                                            onClick={() => { void handleDeleteClass(cls.id) }}
+                                                            className="text-emerald-900/80 transition hover:text-red-600"
+                                                        >
+                                                            x
+                                                        </button>
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}
@@ -215,6 +427,24 @@ export function InstitutionAdminDashboard() {
                     {/* Members table */}
                     <div className="reveal rounded-2xl border border-[color:var(--line)] bg-white/80 p-6 shadow-sm">
                         <SectionTitle>Участники</SectionTitle>
+                        <div className="mt-4 grid gap-3 sm:grid-cols-[1fr,220px]">
+                            <input
+                                value={memberSearch}
+                                onChange={(e) => setMemberSearch(e.target.value)}
+                                placeholder="Поиск по имени, email, классу"
+                                className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                            />
+                            <select
+                                value={memberRole}
+                                onChange={(e) => setMemberRole(e.target.value)}
+                                className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                            >
+                                <option value="ALL">Все роли</option>
+                                {Array.from(new Set(members.map((member) => member.role))).map((role) => (
+                                    <option key={role} value={role}>{role}</option>
+                                ))}
+                            </select>
+                        </div>
                         {members.length === 0 ? (
                             <p className="mt-3 text-sm text-[color:var(--ink-700)]">Участников нет</p>
                         ) : (
@@ -230,7 +460,7 @@ export function InstitutionAdminDashboard() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {members.map((m) => (
+                                        {filteredMembers.map((m) => (
                                             <tr key={m.id} className="border-b border-[color:var(--line)] last:border-0">
                                                 <td className="py-2 pr-4">{m.user.firstName} {m.user.lastName}</td>
                                                 <td className="py-2 pr-4 text-[color:var(--ink-700)]">{m.user.email}</td>
