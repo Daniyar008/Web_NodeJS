@@ -554,6 +554,7 @@ body {
   .inst-grid-4 {
     grid-template-columns: 1fr 1fr;
   }
+
   .inst-grid-3 {
     grid-template-columns: 1fr 1fr;
   }

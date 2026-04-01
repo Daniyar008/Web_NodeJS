@@ -224,13 +224,13 @@ export function AuthPage({ mode = 'register', role = 'student' }: AuthPageProps)
                     )}
                 </div>
 
-                    {!isLogin && (
-                        <div className="auth-role-points">
-                            {roleMeta.points.map((point) => (
-                                <span key={point} className="auth-role-point">{point}</span>
-                            ))}
-                        </div>
-                    )}
+                {!isLogin && (
+                    <div className="auth-role-points">
+                        {roleMeta.points.map((point) => (
+                            <span key={point} className="auth-role-point">{point}</span>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* ── Right panel ──────────────────────────────────────────────────── */}
