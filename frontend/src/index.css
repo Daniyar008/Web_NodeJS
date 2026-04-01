@@ -466,12 +466,25 @@ body {
   box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.18);
 }
 
+.inst-input-sm {
+  max-width: 180px;
+  padding: 8px 10px;
+}
+
 .inst-toolbar {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
   margin-top: 6px;
+}
+
+.inst-toolbar.end {
+  justify-content: flex-end;
+}
+
+.inst-toolbar.compact {
+  margin: 0 0 8px;
 }
 
 .inst-btn {
@@ -490,6 +503,12 @@ body {
 .inst-btn:hover {
   opacity: 0.92;
   transform: translateY(-1px);
+}
+
+.inst-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .inst-btn.ghost {
@@ -548,6 +567,47 @@ body {
   margin: 4px 0;
   font-size: 13px;
   color: #374151;
+}
+
+.inst-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.inst-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.46);
+}
+
+.inst-modal {
+  width: min(720px, 100%);
+  background: #fff;
+  border: 1px solid #e5e7ef;
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.2);
+  padding: 18px;
+}
+
+.inst-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.inst-modal-head h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #111827;
 }
 
 @media (max-width: 1200px) {

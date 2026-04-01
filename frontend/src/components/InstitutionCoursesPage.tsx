@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Language } from '../i18n/translations'
 import { InstitutionShellLayout } from './InstitutionShellLayout'
 
@@ -28,12 +28,48 @@ const TYPE_LABEL = {
     'teacher-upskill': 'Повышение квалификации',
 } as const
 
+const COURSES_STORAGE_KEY = 'institution-courses-v1'
+const MODERATION_PAGE_SIZE = 3
+
 export function InstitutionCoursesPage({ language, onLanguageChange }: Props) {
-    const [moderation, setModeration] = useState<CourseModerationItem[]>(INITIAL_MODERATION)
+    const [moderation, setModeration] = useState<CourseModerationItem[]>(() => {
+        try {
+            const saved = localStorage.getItem(COURSES_STORAGE_KEY)
+            if (!saved) return INITIAL_MODERATION
+            return (JSON.parse(saved) as { moderation: CourseModerationItem[] }).moderation
+        } catch {
+            return INITIAL_MODERATION
+        }
+    })
     const [assignForm, setAssignForm] = useState({ className: '', course: '' })
-    const [assignments, setAssignments] = useState<Array<{ id: string; className: string; course: string }>>([])
+    const [assignments, setAssignments] = useState<Array<{ id: string; className: string; course: string }>>(() => {
+        try {
+            const saved = localStorage.getItem(COURSES_STORAGE_KEY)
+            if (!saved) return []
+            return (JSON.parse(saved) as { assignments: Array<{ id: string; className: string; course: string }> }).assignments
+        } catch {
+            return []
+        }
+    })
+    const [statusFilter, setStatusFilter] = useState<'all' | CourseModerationItem['status']>('all')
+    const [page, setPage] = useState(1)
+    const [assignModalOpen, setAssignModalOpen] = useState(false)
+
+    useEffect(() => {
+        localStorage.setItem(COURSES_STORAGE_KEY, JSON.stringify({ moderation, assignments }))
+    }, [moderation, assignments])
 
     const pendingCount = useMemo(() => moderation.filter((m) => m.status === 'pending').length, [moderation])
+    const filteredModeration = useMemo(
+        () => moderation.filter((item) => statusFilter === 'all' || item.status === statusFilter),
+        [moderation, statusFilter],
+    )
+    const totalPages = Math.max(1, Math.ceil(filteredModeration.length / MODERATION_PAGE_SIZE))
+    const pagedModeration = filteredModeration.slice((page - 1) * MODERATION_PAGE_SIZE, page * MODERATION_PAGE_SIZE)
+
+    useEffect(() => {
+        setPage(1)
+    }, [statusFilter])
 
     function setStatus(id: string, status: CourseModerationItem['status']) {
         setModeration((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)))
@@ -75,8 +111,16 @@ export function InstitutionCoursesPage({ language, onLanguageChange }: Props) {
 
                 <article className="inst-card tall">
                     <h3>Поток модерации</h3>
+                    <div className="inst-toolbar compact">
+                        <select className="inst-input inst-input-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as 'all' | CourseModerationItem['status'])}>
+                            <option value="all">Все статусы</option>
+                            <option value="pending">На проверке</option>
+                            <option value="approved">Одобренные</option>
+                            <option value="rejected">Отклоненные</option>
+                        </select>
+                    </div>
                     <div className="inst-table-like">
-                        {moderation.map((item) => (
+                        {pagedModeration.map((item) => (
                             <div key={item.id} className="inst-row">
                                 <strong>{item.title}</strong>
                                 <span>Автор: {item.author}</span>
@@ -95,18 +139,21 @@ export function InstitutionCoursesPage({ language, onLanguageChange }: Props) {
                             </div>
                         ))}
                     </div>
+                    <div className="inst-pagination">
+                        <button type="button" className="inst-btn ghost" disabled={page === 1} onClick={() => setPage((prev) => Math.max(1, prev - 1))}>Назад</button>
+                        <span className="inst-card-note">Страница {page} из {totalPages}</span>
+                        <button type="button" className="inst-btn ghost" disabled={page === totalPages} onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}>Вперед</button>
+                    </div>
                 </article>
             </section>
 
             <section className="inst-grid-2">
                 <article className="inst-card">
                     <h3>Массовое назначение курса</h3>
-                    <div className="inst-form-grid">
-                        <input className="inst-input" placeholder="Класс / группа (напр. 8А)" value={assignForm.className} onChange={(e) => setAssignForm((p) => ({ ...p, className: e.target.value }))} />
-                        <input className="inst-input" placeholder="Название курса" value={assignForm.course} onChange={(e) => setAssignForm((p) => ({ ...p, course: e.target.value }))} />
-                    </div>
+                    <p className="inst-card-note">Назначай курс целым классам и группам через отдельную форму.</p>
                     <div className="inst-toolbar">
-                        <button type="button" className="inst-btn" onClick={assignCourse}>Назначить</button>
+                        <button type="button" className="inst-btn" onClick={() => setAssignModalOpen(true)}>Новое назначение</button>
+                        <span className="inst-chip">Назначений: {assignments.length}</span>
                     </div>
                 </article>
 
@@ -123,6 +170,25 @@ export function InstitutionCoursesPage({ language, onLanguageChange }: Props) {
                     </div>
                 </article>
             </section>
+
+            {assignModalOpen && (
+                <div className="inst-modal-backdrop" onClick={() => setAssignModalOpen(false)}>
+                    <div className="inst-modal" onClick={(event) => event.stopPropagation()}>
+                        <div className="inst-modal-head">
+                            <h3>Назначить курс классу</h3>
+                            <button type="button" className="inst-btn ghost" onClick={() => setAssignModalOpen(false)}>Закрыть</button>
+                        </div>
+                        <div className="inst-form-grid">
+                            <input className="inst-input" placeholder="Класс / группа (напр. 8А)" value={assignForm.className} onChange={(e) => setAssignForm((p) => ({ ...p, className: e.target.value }))} />
+                            <input className="inst-input" placeholder="Название курса" value={assignForm.course} onChange={(e) => setAssignForm((p) => ({ ...p, course: e.target.value }))} />
+                        </div>
+                        <div className="inst-toolbar end">
+                            <button type="button" className="inst-btn ghost" onClick={() => setAssignModalOpen(false)}>Отмена</button>
+                            <button type="button" className="inst-btn" onClick={() => { assignCourse(); setAssignModalOpen(false) }}>Назначить</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </InstitutionShellLayout>
     )
 }
