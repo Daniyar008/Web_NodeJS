@@ -18,6 +18,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export function InstitutionAdminDashboard() {
     const navigate = useNavigate()
+    const memberRoleOptions = ['STUDENT', 'TEACHER', 'PARENT', 'INSTITUTION_ADMIN']
     const [institutions, setInstitutions] = useState<Institution[]>([])
     const [selected, setSelected] = useState<(Institution & { departments: Department[] }) | null>(null)
     const [members, setMembers] = useState<Member[]>([])
@@ -29,10 +30,12 @@ export function InstitutionAdminDashboard() {
     const [showEdit, setShowEdit] = useState(false)
     const [showDepartmentForm, setShowDepartmentForm] = useState(false)
     const [showClassForm, setShowClassForm] = useState(false)
+    const [showMemberForm, setShowMemberForm] = useState(false)
     const [form, setForm] = useState({ name: '', slug: '', description: '' })
     const [editForm, setEditForm] = useState({ name: '', description: '' })
     const [departmentName, setDepartmentName] = useState('')
     const [classForm, setClassForm] = useState({ name: '', year: '1', departmentId: '' })
+    const [memberForm, setMemberForm] = useState({ userId: '', role: 'STUDENT', classId: '' })
     const [saving, setSaving] = useState(false)
     const [memberSearch, setMemberSearch] = useState('')
     const [memberRole, setMemberRole] = useState('ALL')
@@ -45,6 +48,9 @@ export function InstitutionAdminDashboard() {
             if (data[0]) {
                 const full = await institutionApi.get(data[0].id)
                 setSelected(full)
+                setEditForm({ name: full.name, description: full.description ?? '' })
+                setClassForm((prev) => ({ ...prev, departmentId: full.departments[0]?.id ?? '' }))
+                setMemberForm((prev) => ({ ...prev, classId: full.departments[0]?.classes[0]?.id ?? '' }))
                 const mems = await institutionApi.listMembers(data[0].id)
                 setMembers(mems)
             }
@@ -63,6 +69,7 @@ export function InstitutionAdminDashboard() {
             setSelected(full)
             setEditForm({ name: full.name, description: full.description ?? '' })
             setClassForm((prev) => ({ ...prev, departmentId: full.departments[0]?.id ?? '' }))
+            setMemberForm((prev) => ({ ...prev, classId: full.departments[0]?.classes[0]?.id ?? '' }))
             const mems = await institutionApi.listMembers(inst.id)
             setMembers(mems)
         } catch {
@@ -163,9 +170,57 @@ export function InstitutionAdminDashboard() {
 
     const handleRemoveMember = async (memberId: string) => {
         if (!selected) return
-        await institutionApi.removeMember(selected.id, memberId)
-        setMembers((prev) => prev.filter((m) => m.id !== memberId))
+        try {
+            await institutionApi.removeMember(selected.id, memberId)
+            setMembers((prev) => prev.filter((m) => m.id !== memberId))
+        } catch {
+            setError('Не удалось удалить участника')
+        }
     }
+
+    const handleAddMember = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!selected || !memberForm.userId.trim()) return
+        if (memberForm.role === 'STUDENT' && !memberForm.classId) {
+            setError('Для ученика нужно выбрать класс')
+            return
+        }
+        setSaving(true)
+        setError(null)
+        try {
+            await institutionApi.addMember(selected.id, {
+                userId: memberForm.userId.trim(),
+                role: memberForm.role,
+                classId: memberForm.role === 'STUDENT' ? memberForm.classId : undefined,
+            })
+            const [updatedInstitution, updatedMembers] = await Promise.all([
+                institutionApi.get(selected.id),
+                institutionApi.listMembers(selected.id),
+            ])
+            setSelected(updatedInstitution)
+            setMembers(updatedMembers)
+            setMemberForm((prev) => ({
+                ...prev,
+                userId: '',
+                classId: updatedInstitution.departments[0]?.classes[0]?.id ?? prev.classId,
+            }))
+            setShowMemberForm(false)
+        } catch {
+            setError('Не удалось добавить участника. Проверьте userId и права доступа.')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const flatClasses = useMemo(() => {
+        if (!selected) return []
+        return selected.departments.flatMap((department) =>
+            department.classes.map((cls) => ({
+                ...cls,
+                departmentName: department.name,
+            })),
+        )
+    }, [selected])
 
     const filteredMembers = useMemo(() => {
         return members.filter((member) => {
@@ -312,6 +367,7 @@ export function InstitutionAdminDashboard() {
                         <StatCard label="Отделений" value={selected._count?.departments ?? selected.departments.length} />
                         <StatCard label="Участников" value={selected._count?.memberships ?? members.length} />
                         <StatCard label="Участников (загружено)" value={members.length} sub="сотрудники и ученики" />
+                        <StatCard label="Найдено по фильтру" value={filteredMembers.length} sub="поиск и роль" />
                         <StatCard label="Статус" value={selected.isActive ? 'Активно' : 'Неактивно'} />
                     </div>
 
@@ -369,6 +425,7 @@ export function InstitutionAdminDashboard() {
                                         className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
                                     />
                                     <select
+                                        aria-label="Выбор отделения для нового класса"
                                         value={classForm.departmentId}
                                         onChange={(e) => setClassForm((prev) => ({ ...prev, departmentId: e.target.value }))}
                                         className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
@@ -426,7 +483,64 @@ export function InstitutionAdminDashboard() {
 
                     {/* Members table */}
                     <div className="reveal rounded-2xl border border-[color:var(--line)] bg-white/80 p-6 shadow-sm">
-                        <SectionTitle>Участники</SectionTitle>
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <SectionTitle>Участники</SectionTitle>
+                            <button
+                                onClick={() => setShowMemberForm((v) => !v)}
+                                className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-xs font-semibold transition hover:bg-gray-50"
+                            >
+                                {showMemberForm ? 'Скрыть форму' : '+ Подключить участника'}
+                            </button>
+                        </div>
+                        {showMemberForm && (
+                            <form onSubmit={(e) => { void handleAddMember(e) }} className="mt-4 grid gap-3 rounded-2xl border border-[color:var(--line)] bg-[color:var(--soft)]/30 p-4 lg:grid-cols-[1.4fr,220px,1fr,auto]">
+                                <div className="space-y-1">
+                                    <input
+                                        required
+                                        value={memberForm.userId}
+                                        onChange={(e) => setMemberForm((prev) => ({ ...prev, userId: e.target.value }))}
+                                        placeholder="userId пользователя"
+                                        className="w-full rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                                    />
+                                    <p className="text-xs text-[color:var(--ink-700)]">
+                                        Используйте внутренний ID пользователя из auth/backend. Для учеников ниже назначается класс.
+                                    </p>
+                                </div>
+                                <select
+                                    aria-label="Роль нового участника"
+                                    value={memberForm.role}
+                                    onChange={(e) => setMemberForm((prev) => ({
+                                        ...prev,
+                                        role: e.target.value,
+                                        classId: e.target.value === 'STUDENT' ? (prev.classId || flatClasses[0]?.id || '') : '',
+                                    }))}
+                                    className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
+                                >
+                                    {memberRoleOptions.map((roleOption) => (
+                                        <option key={roleOption} value={roleOption}>{roleOption}</option>
+                                    ))}
+                                </select>
+                                <select
+                                    aria-label="Класс для нового участника"
+                                    value={memberForm.classId}
+                                    onChange={(e) => setMemberForm((prev) => ({ ...prev, classId: e.target.value }))}
+                                    disabled={memberForm.role !== 'STUDENT' || flatClasses.length === 0}
+                                    className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)] disabled:bg-gray-100 disabled:text-gray-400"
+                                >
+                                    <option value="">{flatClasses.length === 0 ? 'Нет доступных классов' : 'Выберите класс'}</option>
+                                    {flatClasses.map((cls) => (
+                                        <option key={cls.id} value={cls.id}>{cls.departmentName} • {cls.name}</option>
+                                    ))}
+                                </select>
+                                <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="rounded-xl bg-[color:var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90 disabled:opacity-50"
+                                >
+                                    {saving ? 'Подключение…' : 'Добавить'}
+                                </button>
+                            </form>
+                        )}
                         <div className="mt-4 grid gap-3 sm:grid-cols-[1fr,220px]">
                             <input
                                 value={memberSearch}
@@ -435,6 +549,7 @@ export function InstitutionAdminDashboard() {
                                 className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
                             />
                             <select
+                                aria-label="Фильтр участников по роли"
                                 value={memberRole}
                                 onChange={(e) => setMemberRole(e.target.value)}
                                 className="rounded-xl border border-[color:var(--line)] px-3 py-2 text-sm outline-none focus:border-[color:var(--brand)]"
@@ -447,6 +562,8 @@ export function InstitutionAdminDashboard() {
                         </div>
                         {members.length === 0 ? (
                             <p className="mt-3 text-sm text-[color:var(--ink-700)]">Участников нет</p>
+                        ) : filteredMembers.length === 0 ? (
+                            <p className="mt-3 text-sm text-[color:var(--ink-700)]">По текущему фильтру совпадений нет.</p>
                         ) : (
                             <div className="mt-4 overflow-x-auto">
                                 <table className="w-full text-sm">
