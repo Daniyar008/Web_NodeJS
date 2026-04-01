@@ -1,121 +1,181 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+﻿import { useState } from 'react'
+import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { HomeDashboard } from './components/HomeDashboard'
+import { LandingPage } from './components/LandingPage'
+import { AuthPage } from './components/AuthPage'
+import { ChatPage } from './components/ChatPage'
+import { ProfilePage } from './components/ProfilePage'
+import { ResourcesPage } from './components/ResourcesPage'
+import { SettingsPage } from './components/SettingsPage'
+import { SchedulePage } from './components/SchedulePage'
+import { CourseDetailsPage } from './components/CourseDetailsPage'
+import { CoursesPage } from './components/CoursesPage'
+import { TeacherWorkspacePage } from './components/TeacherWorkspacePage'
+import { TeacherDashboardPage } from './components/TeacherDashboardPage'
+import { TeacherCoursesPage } from './components/TeacherCoursesPage'
+import { TeacherStudentsPage } from './components/TeacherStudentsPage'
+import { TeacherAnalyticsPage } from './components/TeacherAnalyticsPage'
+import { InstitutionDashboardPage } from './components/InstitutionDashboardPage'
+import { InstitutionStructurePage } from './components/InstitutionStructurePage'
+import { InstitutionUsersPage } from './components/InstitutionUsersPage'
+import { InstitutionAcademicPage } from './components/InstitutionAcademicPage'
+import { InstitutionAnalyticsPage } from './components/InstitutionAnalyticsPage'
+import { InstitutionCoursesPage } from './components/InstitutionCoursesPage'
+import { InstitutionFinancePage } from './components/InstitutionFinancePage'
+import { InstitutionTournamentsPage } from './components/InstitutionTournamentsPage'
+import { InstitutionCommunicationsPage } from './components/InstitutionCommunicationsPage'
+import { InstitutionIntegrationsPage } from './components/InstitutionIntegrationsPage'
+import { InstitutionSettingsPage } from './components/InstitutionSettingsPage'
+import { RoleGuard } from './components/RoleGuard'
+import type { Language } from './i18n/translations'
+
+type AuthRole = 'student' | 'teacher' | 'parent' | 'institution'
+
+function isAuthRole(value: string | undefined): value is AuthRole {
+  return value === 'student' || value === 'teacher' || value === 'parent' || value === 'institution'
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [language, setLanguage] = useState<Language>('ru')
+  const resolveRole = (value: string | undefined): AuthRole => (isAuthRole(value) ? value : 'student')
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <Routes>
+        {/* ── Public ─────────────────────────────────────────────────── */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<AuthPage mode="login" role="student" />} />
+        <Route path="/register" element={<AuthPage mode="register" role="student" />} />
+        <Route path="/login/:role" element={<AuthRoleRoute mode="login" resolveRole={resolveRole} />} />
+        <Route path="/register/:role" element={<AuthRoleRoute mode="register" resolveRole={resolveRole} />} />
 
-      <div className="ticks"></div>
+        {/* ── Student ────────────────────────────────────────────────── */}
+        <Route path="/dashboard" element={<HomeDashboard language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/courses" element={<CoursesPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/courses/:courseId" element={<CourseDetailsPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/chat" element={<ChatPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/profile" element={<ProfilePage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/schedule" element={<SchedulePage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/resources" element={<ResourcesPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/settings" element={<SettingsPage language={language} onLanguageChange={setLanguage} />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {/* ── Teacher (role-guarded) ──────────────────────────────────── */}
+        <Route path="/teacher" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <TeacherWorkspacePage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/teacher/schedule" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <TeacherWorkspacePage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/teacher/dashboard" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <TeacherDashboardPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/teacher/courses" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <TeacherCoursesPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/teacher/courses/new" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <TeacherWorkspacePage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/teacher/students" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <TeacherStudentsPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/teacher/analytics" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <TeacherAnalyticsPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/teacher/chat" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <ChatPage language={language} onLanguageChange={setLanguage} variant="teacher" />
+          </RoleGuard>
+        } />
+        <Route path="/teacher/settings" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <SettingsPage language={language} onLanguageChange={setLanguage} variant="teacher" />
+          </RoleGuard>
+        } />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        {/* ── Institution (role-guarded) ────────────────────────────── */}
+        <Route path="/institution" element={<Navigate to="/institution/dashboard" replace />} />
+        <Route path="/institution/dashboard" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionDashboardPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/structure" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionStructurePage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/users" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionUsersPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/academic" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionAcademicPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/analytics" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionAnalyticsPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/courses" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionCoursesPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/finance" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionFinancePage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/tournaments" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionTournamentsPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/communications" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionCommunicationsPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/integrations" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionIntegrationsPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/institution/settings" element={
+          <RoleGuard requiredRole="institution" fallback="/login/institution">
+            <InstitutionSettingsPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+
+        {/* ── Fallback ────────────────────────────────────────────────── */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 
+function AuthRoleRoute({ mode, resolveRole }: { mode: 'login' | 'register'; resolveRole: (value: string | undefined) => AuthRole }) {
+  const params = useParams<{ role?: string }>()
+  const role = resolveRole(params.role)
+  return <AuthPage mode={mode} role={role} />
+}
+
 export default App
+
