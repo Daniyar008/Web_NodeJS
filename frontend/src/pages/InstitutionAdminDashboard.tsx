@@ -169,8 +169,8 @@ export function InstitutionAdminDashboard() {
 
     const filteredMembers = useMemo(() => {
         return members.filter((member) => {
-            const fullName = `${member.user.firstName} ${member.user.lastName}`.toLowerCase()
-            const matchesSearch = `${fullName} ${member.user.email} ${member.class?.name ?? ''}`.includes(memberSearch.toLowerCase())
+            const searchableText = `${member.user.firstName} ${member.user.lastName} ${member.user.email} ${member.class?.name ?? ''}`.toLowerCase()
+            const matchesSearch = searchableText.includes(memberSearch.toLowerCase())
             const matchesRole = memberRole === 'ALL' || member.role === memberRole
             return matchesSearch && matchesRole
         })
