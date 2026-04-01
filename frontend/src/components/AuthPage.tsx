@@ -76,7 +76,7 @@ const ROLE_META = {
     },
     parent: {
         label: 'Родитель',
-        dashboard: '/dashboard',
+        dashboard: '/parent/dashboard',
         accent: '#f59e0b',
         softAccent: 'rgba(245, 158, 11, .2)',
         Icon: Users,

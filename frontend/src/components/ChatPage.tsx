@@ -12,6 +12,7 @@ import {
 import type { ChatMessage, ChatThread, UserRole } from '../data/chatData'
 import { CourseShellLayout } from './CourseShellLayout'
 import { TeacherShellLayout } from './TeacherShellLayout'
+import { ParentShellLayout } from './ParentShellLayout'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -157,7 +158,7 @@ function GroupAvatarStack({ avatars, name }: { avatars?: string[]; name?: string
 type ChatPageProps = {
   language: Language
   onLanguageChange: (lang: Language) => void
-  variant?: 'student' | 'teacher'
+  variant?: 'student' | 'teacher' | 'parent'
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -533,6 +534,20 @@ export function ChatPage({ language, onLanguageChange, variant = 'student' }: Ch
       >
         {page}
       </TeacherShellLayout>
+    )
+  }
+
+  if (variant === 'parent') {
+    return (
+      <ParentShellLayout
+        language={language}
+        onLanguageChange={onLanguageChange}
+        title="Чат с учителем"
+        subtitle="Переписка с учителями Анны"
+        activePage="p-chat"
+      >
+        {page}
+      </ParentShellLayout>
     )
   }
 

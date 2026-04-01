@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { CourseShellLayout } from './CourseShellLayout'
 import { TeacherShellLayout } from './TeacherShellLayout'
+import { ParentShellLayout } from './ParentShellLayout'
 import type { Language } from '../i18n/translations'
 import type {
     NotificationToggle,
@@ -40,7 +41,7 @@ import {
 interface SettingsPageProps {
     language: Language
     onLanguageChange: (lang: Language) => void
-    variant?: 'student' | 'teacher'
+    variant?: 'student' | 'teacher' | 'parent'
 }
 
 // ─── Toggle switch ────────────────────────────────────────────────────────────
@@ -752,6 +753,20 @@ export function SettingsPage({ language, onLanguageChange, variant = 'student' }
             >
                 {content}
             </TeacherShellLayout>
+        )
+    }
+
+    if (variant === 'parent') {
+        return (
+            <ParentShellLayout
+                language={language}
+                onLanguageChange={onLanguageChange}
+                title="Настройки"
+                subtitle="Уведомления и параметры кабинета родителя"
+                activePage="p-settings"
+            >
+                {content}
+            </ParentShellLayout>
         )
     }
 

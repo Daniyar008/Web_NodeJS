@@ -26,6 +26,13 @@ import { InstitutionTournamentsPage } from './components/InstitutionTournamentsP
 import { InstitutionCommunicationsPage } from './components/InstitutionCommunicationsPage'
 import { InstitutionIntegrationsPage } from './components/InstitutionIntegrationsPage'
 import { InstitutionSettingsPage } from './components/InstitutionSettingsPage'
+import { ParentDashboardPage } from './components/ParentDashboardPage'
+import { ParentGradesPage } from './components/ParentGradesPage'
+import { ParentAttendancePage } from './components/ParentAttendancePage'
+import { ParentHomeworkPage } from './components/ParentHomeworkPage'
+import { ParentMotivationPage } from './components/ParentMotivationPage'
+import { ParentAchievementsPage } from './components/ParentAchievementsPage'
+import { StudentTaskPage } from './components/StudentTaskPage'
 import { RoleGuard } from './components/RoleGuard'
 import type { Language } from './i18n/translations'
 
@@ -58,6 +65,7 @@ function App() {
         <Route path="/schedule" element={<SchedulePage language={language} onLanguageChange={setLanguage} />} />
         <Route path="/resources" element={<ResourcesPage language={language} onLanguageChange={setLanguage} />} />
         <Route path="/settings" element={<SettingsPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/tasks" element={<StudentTaskPage language={language} onLanguageChange={setLanguage} />} />
 
         {/* ── Teacher (role-guarded) ──────────────────────────────────── */}
         <Route path="/teacher" element={
@@ -161,6 +169,54 @@ function App() {
         <Route path="/institution/settings" element={
           <RoleGuard requiredRole="institution" fallback="/login/institution">
             <InstitutionSettingsPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+
+        {/* ── Parent (role-guarded) ────────────────────────────────── */}
+        <Route path="/parent" element={<Navigate to="/parent/dashboard" replace />} />
+        <Route path="/parent/dashboard" element={
+          <RoleGuard requiredRole="parent" fallback="/login/parent">
+            <ParentDashboardPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/parent/grades" element={
+          <RoleGuard requiredRole="parent" fallback="/login/parent">
+            <ParentGradesPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/parent/attendance" element={
+          <RoleGuard requiredRole="parent" fallback="/login/parent">
+            <ParentAttendancePage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/parent/homework" element={
+          <RoleGuard requiredRole="parent" fallback="/login/parent">
+            <ParentHomeworkPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/parent/motivation" element={
+          <RoleGuard requiredRole="parent" fallback="/login/parent">
+            <ParentMotivationPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/parent/chat" element={
+          <RoleGuard requiredRole="parent" fallback="/login/parent">
+            <ChatPage language={language} onLanguageChange={setLanguage} variant="parent" />
+          </RoleGuard>
+        } />
+        <Route path="/parent/courses" element={
+          <RoleGuard requiredRole="parent" fallback="/login/parent">
+            <CoursesPage language={language} onLanguageChange={setLanguage} variant="parent" />
+          </RoleGuard>
+        } />
+        <Route path="/parent/achievements" element={
+          <RoleGuard requiredRole="parent" fallback="/login/parent">
+            <ParentAchievementsPage language={language} onLanguageChange={setLanguage} />
+          </RoleGuard>
+        } />
+        <Route path="/parent/settings" element={
+          <RoleGuard requiredRole="parent" fallback="/login/parent">
+            <SettingsPage language={language} onLanguageChange={setLanguage} variant="parent" />
           </RoleGuard>
         } />
 

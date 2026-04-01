@@ -6,6 +6,7 @@ import {
     ChartNoAxesCombined,
     CircleUserRound,
     GraduationCap,
+    KanbanSquare,
     MessageCircle,
     Search,
     Settings,
@@ -14,8 +15,9 @@ import {
 import { useNavigate } from 'react-router-dom'
 import type { Language } from '../i18n/translations'
 import { translations } from '../i18n/translations'
+import { EduBuddy } from './EduBuddy'
 
-type ActivePage = 'dashboard' | 'courses' | 'chat' | 'teacher' | 'profile' | 'schedule' | 'resources' | 'settings' | 'other'
+type ActivePage = 'dashboard' | 'courses' | 'chat' | 'teacher' | 'profile' | 'schedule' | 'resources' | 'settings' | 'tasks' | 'other'
 
 type CourseShellLayoutProps = {
     language: Language
@@ -52,6 +54,7 @@ export function CourseShellLayout({
                     <button type="button" className={activePage === 'resources' ? 'active' : ''} onClick={() => navigate('/resources')}><GraduationCap size={17} /> {t.resources}</button>
                     <button type="button" className={activePage === 'chat' ? 'active' : ''} onClick={() => navigate('/chat')}><MessageCircle size={17} /> {t.chat}</button>
                     <button type="button" className={activePage === 'schedule' ? 'active' : ''} onClick={() => navigate('/schedule')}><CalendarDays size={17} /> {t.schedule}</button>
+                    <button type="button" className={activePage === 'tasks' ? 'active' : ''} onClick={() => navigate('/tasks')}><KanbanSquare size={17} /> Задачи</button>
                     <button type="button" className={activePage === 'profile' ? 'active' : ''} onClick={() => navigate('/profile')}><User size={17} /> {t.profile}</button>
                     <button type="button" className={activePage === 'settings' ? 'active' : ''} onClick={() => navigate('/settings')}><Settings size={17} /> {t.settings}</button>
                 </nav>
@@ -104,6 +107,8 @@ export function CourseShellLayout({
 
                 {children}
             </section>
+
+            <EduBuddy />
         </div>
     )
 }

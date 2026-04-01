@@ -2,7 +2,7 @@ import { useEffect, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 interface RoleGuardProps {
-    requiredRole: 'student' | 'teacher' | 'institution'
+    requiredRole: 'student' | 'teacher' | 'institution' | 'parent'
     children: ReactNode
     fallback?: string
 }
