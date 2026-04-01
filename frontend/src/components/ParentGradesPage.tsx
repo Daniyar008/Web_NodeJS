@@ -10,16 +10,16 @@ const SUBJECTS = ['Математика', 'Физика', 'Химия', 'Ист�
 type GradeEntry = { day: number; grade: number; type: string; comment?: string }
 
 const MATH_GRADES: GradeEntry[] = [
-    { day: 1,  grade: 5, type: 'КР',  comment: 'Отлично решила контрольную' },
-    { day: 3,  grade: 4, type: 'СР' },
-    { day: 5,  grade: 5, type: 'Уст' },
-    { day: 8,  grade: 4, type: 'ДЗ' },
-    { day: 10, grade: 5, type: 'КР',  comment: 'Превосходная работа!' },
+    { day: 1, grade: 5, type: 'КР', comment: 'Отлично решила контрольную' },
+    { day: 3, grade: 4, type: 'СР' },
+    { day: 5, grade: 5, type: 'Уст' },
+    { day: 8, grade: 4, type: 'ДЗ' },
+    { day: 10, grade: 5, type: 'КР', comment: 'Превосходная работа!' },
     { day: 12, grade: 4, type: 'ДЗ' },
     { day: 15, grade: 5, type: 'Уст' },
     { day: 17, grade: 5, type: 'СР' },
-    { day: 19, grade: 3, type: 'ДЗ',  comment: 'Допущены ошибки в уравнениях' },
-    { day: 22, grade: 5, type: 'КР',  comment: 'Отличная подготовка' },
+    { day: 19, grade: 3, type: 'ДЗ', comment: 'Допущены ошибки в уравнениях' },
+    { day: 22, grade: 5, type: 'КР', comment: 'Отличная подготовка' },
     { day: 24, grade: 4, type: 'ДЗ' },
 ]
 
@@ -36,12 +36,12 @@ const MONTHLY_AVG = [
 const MAX_AVG = 5
 
 const SUBJECT_STATS = [
-    { subj: 'Математика',   avg: 4.8, count: 23, dist: [12, 8, 3, 0],  trend: 'up',   change: '+0.3', teacher: 'А. Сейтказина' },
-    { subj: 'Физика',       avg: 4.2, count: 18, dist: [6, 9, 3, 0],   trend: 'down', change: '−0.2', teacher: 'Р. Байтенов'   },
-    { subj: 'Химия',        avg: 4.6, count: 19, dist: [11, 7, 1, 0],  trend: 'up',   change: '+0.1', teacher: 'Г. Ким'         },
-    { subj: 'История',      avg: 4.2, count: 16, dist: [5, 9, 2, 0],   trend: 'flat', change: '0',    teacher: 'Д. Серик'       },
-    { subj: 'Русский язык', avg: 3.9, count: 20, dist: [4, 8, 7, 1],   trend: 'down', change: '−0.4', teacher: 'З. Абуова'      },
-    { subj: 'Литература',   avg: 4.5, count: 14, dist: [8, 5, 1, 0],   trend: 'flat', change: '0',    teacher: 'З. Абуова'      },
+    { subj: 'Математика', avg: 4.8, count: 23, dist: [12, 8, 3, 0], trend: 'up', change: '+0.3', teacher: 'А. Сейтказина' },
+    { subj: 'Физика', avg: 4.2, count: 18, dist: [6, 9, 3, 0], trend: 'down', change: '−0.2', teacher: 'Р. Байтенов' },
+    { subj: 'Химия', avg: 4.6, count: 19, dist: [11, 7, 1, 0], trend: 'up', change: '+0.1', teacher: 'Г. Ким' },
+    { subj: 'История', avg: 4.2, count: 16, dist: [5, 9, 2, 0], trend: 'flat', change: '0', teacher: 'Д. Серик' },
+    { subj: 'Русский язык', avg: 3.9, count: 20, dist: [4, 8, 7, 1], trend: 'down', change: '−0.4', teacher: 'З. Абуова' },
+    { subj: 'Литература', avg: 4.5, count: 14, dist: [8, 5, 1, 0], trend: 'flat', change: '0', teacher: 'З. Абуова' },
 ]
 
 const TYPE_LABEL: Record<string, string> = {
@@ -58,7 +58,7 @@ const APRIL_OFFSET = 2
 export function ParentGradesPage({ language, onLanguageChange }: Props) {
     const [activeSubj, setActiveSubj] = useState('Математика')
     const selected = SUBJECT_STATS.find((s) => s.subj === activeSubj)!
-    const maxDist  = Math.max(...selected.dist, 1)
+    const maxDist = Math.max(...selected.dist, 1)
 
     return (
         <ParentShellLayout
@@ -95,7 +95,7 @@ export function ParentGradesPage({ language, onLanguageChange }: Props) {
                         {selected.avg}
                     </span>
                     <span className={`pg-trend-badge ${selected.trend}`}>
-                        {selected.trend === 'up'   && <TrendingUp   size={13} />}
+                        {selected.trend === 'up' && <TrendingUp size={13} />}
                         {selected.trend === 'down' && <TrendingDown size={13} />}
                         {selected.change}
                     </span>
@@ -111,7 +111,7 @@ export function ParentGradesPage({ language, onLanguageChange }: Props) {
 
                     {/* Weekday headers */}
                     <div className="pg-cal-weekdays">
-                        {['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map((d) => (
+                        {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map((d) => (
                             <span key={d} className="pg-cal-wd">{d}</span>
                         ))}
                     </div>

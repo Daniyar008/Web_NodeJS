@@ -148,12 +148,12 @@ const WELCOME: Message = {
 
 /* ── Component ───────────────────────────────────────────────────────────── */
 export function EduBuddy() {
-    const [open,     setOpen]     = useState(false)
+    const [open, setOpen] = useState(false)
     const [messages, setMessages] = useState<Message[]>([WELCOME])
-    const [input,    setInput]    = useState('')
-    const [typing,   setTyping]   = useState(false)
+    const [input, setInput] = useState('')
+    const [typing, setTyping] = useState(false)
     const bottomRef = useRef<HTMLDivElement>(null)
-    const inputRef  = useRef<HTMLInputElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' })

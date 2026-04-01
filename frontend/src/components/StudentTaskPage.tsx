@@ -20,16 +20,16 @@ interface Task {
 
 /* ── Static data ─────────────────────────────────────────────────────────── */
 const COLUMNS: { id: ColId; label: string; dot: string; countBg: string; countColor: string }[] = [
-    { id: 'todo',       label: 'Новые',        dot: '#94a3b8', countBg: '#f1f5f9', countColor: '#64748b' },
-    { id: 'inprogress', label: 'В работе',     dot: '#3b82f6', countBg: '#dbeafe', countColor: '#1d4ed8' },
-    { id: 'review',     label: 'На проверке',  dot: '#f59e0b', countBg: '#fef3c7', countColor: '#d97706' },
-    { id: 'done',       label: 'Готово',       dot: '#22c55e', countBg: '#dcfce7', countColor: '#16a34a' },
+    { id: 'todo', label: 'Новые', dot: '#94a3b8', countBg: '#f1f5f9', countColor: '#64748b' },
+    { id: 'inprogress', label: 'В работе', dot: '#3b82f6', countBg: '#dbeafe', countColor: '#1d4ed8' },
+    { id: 'review', label: 'На проверке', dot: '#f59e0b', countBg: '#fef3c7', countColor: '#d97706' },
+    { id: 'done', label: 'Готово', dot: '#22c55e', countBg: '#dcfce7', countColor: '#16a34a' },
 ]
 
 const PRIORITIES: { id: Priority; label: string; color: string; bg: string }[] = [
-    { id: 'high',   label: 'Высокий', color: '#dc2626', bg: '#fee2e2' },
+    { id: 'high', label: 'Высокий', color: '#dc2626', bg: '#fee2e2' },
     { id: 'medium', label: 'Средний', color: '#d97706', bg: '#fef3c7' },
-    { id: 'low',    label: 'Низкий',  color: '#16a34a', bg: '#dcfce7' },
+    { id: 'low', label: 'Низкий', color: '#16a34a', bg: '#dcfce7' },
 ]
 
 const CARD_COLORS = [
@@ -43,12 +43,12 @@ const SUBJECTS = [
 ]
 
 const INITIAL_TASKS: Task[] = [
-    { id: '1', title: 'Решить задачи по интегралам',       description: 'Стр. 45–48, задания 1–12',              subject: 'Математика',  dueDate: '2025-07-15', priority: 'high',   color: '#fca5a5', colId: 'todo' },
-    { id: '2', title: 'Прочитать «Война и мир»',           description: 'Том 1, часть 2',                        subject: 'Литература',  dueDate: '2025-07-20', priority: 'medium', color: '#c4b5fd', colId: 'todo' },
-    { id: '3', title: 'Лабораторная работа',               description: 'Реакции окисления-восстановления',      subject: 'Химия',       dueDate: '2025-07-12', priority: 'high',   color: '#fdba74', colId: 'inprogress' },
-    { id: '4', title: 'Доклад «Первая мировая война»',     description: 'Причины и итоги конфликта',             subject: 'История',     dueDate: '2025-07-18', priority: 'medium', color: '#6ee7b7', colId: 'inprogress' },
-    { id: '5', title: 'Эссе на английском языке',          description: 'My future career, 250 words',          subject: 'Английский',  dueDate: '2025-07-14', priority: 'low',    color: '#93c5fd', colId: 'review' },
-    { id: '6', title: 'Тест по биологии',                  description: 'Клеточное строение организмов',        subject: 'Биология',    dueDate: '2025-07-10', priority: 'high',   color: '#86efac', colId: 'done' },
+    { id: '1', title: 'Решить задачи по интегралам', description: 'Стр. 45–48, задания 1–12', subject: 'Математика', dueDate: '2025-07-15', priority: 'high', color: '#fca5a5', colId: 'todo' },
+    { id: '2', title: 'Прочитать «Война и мир»', description: 'Том 1, часть 2', subject: 'Литература', dueDate: '2025-07-20', priority: 'medium', color: '#c4b5fd', colId: 'todo' },
+    { id: '3', title: 'Лабораторная работа', description: 'Реакции окисления-восстановления', subject: 'Химия', dueDate: '2025-07-12', priority: 'high', color: '#fdba74', colId: 'inprogress' },
+    { id: '4', title: 'Доклад «Первая мировая война»', description: 'Причины и итоги конфликта', subject: 'История', dueDate: '2025-07-18', priority: 'medium', color: '#6ee7b7', colId: 'inprogress' },
+    { id: '5', title: 'Эссе на английском языке', description: 'My future career, 250 words', subject: 'Английский', dueDate: '2025-07-14', priority: 'low', color: '#93c5fd', colId: 'review' },
+    { id: '6', title: 'Тест по биологии', description: 'Клеточное строение организмов', subject: 'Биология', dueDate: '2025-07-10', priority: 'high', color: '#86efac', colId: 'done' },
 ]
 
 const blankTask = (colId: ColId = 'todo'): Omit<Task, 'id'> => ({
@@ -68,9 +68,9 @@ const fmtDate = (d: string) => {
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
 export function StudentTaskPage({ language, onLanguageChange }: Props) {
-    const [tasks,         setTasks]         = useState<Task[]>(INITIAL_TASKS)
+    const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
     const [activeSubject, setActiveSubject] = useState<string | null>(null)
-    const [openMenu,      setOpenMenu]      = useState<string | null>(null)
+    const [openMenu, setOpenMenu] = useState<string | null>(null)
     const [modal, setModal] = useState<{
         open: boolean
         task: Omit<Task, 'id'>
@@ -78,9 +78,9 @@ export function StudentTaskPage({ language, onLanguageChange }: Props) {
     }>({ open: false, task: blankTask(), editId: null })
 
     /* helpers */
-    const openAdd  = (colId: ColId) => setModal({ open: true, task: blankTask(colId), editId: null })
-    const openEdit = (t: Task)      => { setModal({ open: true, task: { ...t }, editId: t.id }); setOpenMenu(null) }
-    const closeModal = ()           => setModal({ open: false, task: blankTask(), editId: null })
+    const openAdd = (colId: ColId) => setModal({ open: true, task: blankTask(colId), editId: null })
+    const openEdit = (t: Task) => { setModal({ open: true, task: { ...t }, editId: t.id }); setOpenMenu(null) }
+    const closeModal = () => setModal({ open: false, task: blankTask(), editId: null })
 
     const setField = <K extends keyof Omit<Task, 'id'>>(key: K, val: Task[K]) =>
         setModal(m => ({ ...m, task: { ...m.task, [key]: val } }))
