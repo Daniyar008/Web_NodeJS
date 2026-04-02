@@ -8,7 +8,7 @@ import { initSocket } from "./lib/socket.js";
 const httpServer = createServer(app);
 initSocket(httpServer);
 initRedis();
-initNotificationQueue();
+await initNotificationQueue();
 
 httpServer.listen(env.PORT, () => {
     console.log(`Backend API started on http://localhost:${env.PORT}`);

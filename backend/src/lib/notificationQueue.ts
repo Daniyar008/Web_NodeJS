@@ -1,4 +1,5 @@
 import { Queue, Worker } from "bullmq";
+import Redis from "ioredis";
 
 import { env } from "../config/env.js";
 import { prisma } from "./prisma.js";
@@ -15,14 +16,24 @@ type NotificationJob = {
 let notificationQueue: Queue<NotificationJob> | null = null;
 let notificationWorker: Worker<NotificationJob> | null = null;
 
-function getRedisConnection() {
+export async function initNotificationQueue(): Promise<void> {
   const url = process.env["REDIS_URL"] ?? "redis://localhost:6379";
-  return { url, maxRetriesPerRequest: null };
-}
 
-export function initNotificationQueue(): void {
+  // Probe Redis before creating BullMQ workers
+  const probe = new Redis(url, { lazyConnect: true, enableOfflineQueue: false });
+  probe.on("error", () => { /* suppress unhandled error event */ });
   try {
-    const connection = getRedisConnection();
+    await probe.connect();
+    await probe.ping();
+    await probe.quit();
+  } catch {
+    console.warn("Redis unavailable — notification queue disabled (in-process fallback)");
+    try { await probe.disconnect(); } catch { /* ignore */ }
+    return;
+  }
+
+  try {
+    const connection = { url, maxRetriesPerRequest: null };
     notificationQueue = new Queue<NotificationJob>("notifications", { connection });
     notificationWorker = new Worker<NotificationJob>(
       "notifications",

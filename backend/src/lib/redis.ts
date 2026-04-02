@@ -8,11 +8,20 @@ export function getRedis(): Redis | null {
 
 export function initRedis(): void {
     const url = process.env["REDIS_URL"] ?? "redis://localhost:6379";
-    const client = new Redis(url, { lazyConnect: true, enableOfflineQueue: false });
+    const client = new Redis(url, {
+        lazyConnect: true,
+        enableOfflineQueue: false,
+        maxRetriesPerRequest: null,
+        retryStrategy(times) {
+            if (times > 3) return null;        // stop retrying after 3 attempts
+            return Math.min(times * 500, 2000); // 500ms, 1s, 2s
+        },
+    });
 
-    client.on("connect", () => console.log("Redis connected"));
+    let logged = false;
+    client.on("connect", () => { logged = false; console.log("Redis connected"); });
     client.on("error", () => {
-        // Redis is optional – fall back to DB queries silently.
+        if (!logged) { logged = true; console.warn("Redis unavailable — running without cache"); }
         _redis = null;
     });
 
@@ -22,7 +31,7 @@ export function initRedis(): void {
             _redis = client;
         })
         .catch(() => {
-            // Redis unavailable – continue without caching.
+            // Already logged via the 'error' event handler above.
         });
 }
 
