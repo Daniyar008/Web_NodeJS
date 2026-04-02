@@ -1,5 +1,8 @@
 ﻿import { useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { NotFoundPage } from './components/NotFoundPage'
+import { AboutPage } from './components/AboutPage'
+import { HelpPage } from './components/HelpPage'
 import { HomeDashboard } from './components/HomeDashboard'
 import { LandingPage } from './components/LandingPage'
 import { AuthPage } from './components/AuthPage'
@@ -36,6 +39,13 @@ import { ParentAchievementsPage } from './components/ParentAchievementsPage'
 import { StudentTaskPage } from './components/StudentTaskPage'
 import { StudentTournamentsPage } from './components/StudentTournamentsPage'
 import { ContentLibraryPage } from './components/ContentLibraryPage'
+import { StudentAchievementsPage } from './components/StudentAchievementsPage'
+import { StudentProgressPage } from './components/StudentProgressPage'
+import { TeacherGradesPage } from './components/TeacherGradesPage'
+import { TeacherSchedulePage } from './components/TeacherSchedulePage'
+import { ProforientationPage } from './components/ProforientationPage'
+import { CoursePlayerPage } from './components/CoursePlayerPage'
+import { XpShopPage } from './components/XpShopPage'
 import { RoleGuard } from './components/RoleGuard'
 import type { Language } from './i18n/translations'
 
@@ -54,6 +64,8 @@ function App() {
       <Routes>
         {/* ── Public ─────────────────────────────────────────────────── */}
         <Route path="/" element={<LandingPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/help" element={<HelpPage />} />
         <Route path="/login" element={<AuthPage mode="login" role="student" />} />
         <Route path="/register" element={<AuthPage mode="register" role="student" />} />
         <Route path="/login/:role" element={<AuthRoleRoute mode="login" resolveRole={resolveRole} />} />
@@ -71,6 +83,11 @@ function App() {
         <Route path="/tasks" element={<StudentTaskPage language={language} onLanguageChange={setLanguage} />} />
         <Route path="/tournaments" element={<StudentTournamentsPage language={language} onLanguageChange={setLanguage} />} />
         <Route path="/library" element={<ContentLibraryPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/achievements" element={<StudentAchievementsPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/progress" element={<StudentProgressPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/proftest" element={<ProforientationPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/shop" element={<XpShopPage language={language} onLanguageChange={setLanguage} />} />
+        <Route path="/courses/:courseId/lesson/:lessonId" element={<CoursePlayerPage language={language} onLanguageChange={setLanguage} />} />
 
         {/* ── Teacher (role-guarded) ──────────────────────────────────── */}
         <Route path="/teacher" element={
@@ -80,7 +97,7 @@ function App() {
         } />
         <Route path="/teacher/schedule" element={
           <RoleGuard requiredRole="teacher" fallback="/login/teacher">
-            <TeacherWorkspacePage language={language} onLanguageChange={setLanguage} />
+            <TeacherSchedulePage language={language} onLanguageChange={setLanguage} />
           </RoleGuard>
         } />
         <Route path="/teacher/dashboard" element={
@@ -116,6 +133,11 @@ function App() {
         <Route path="/teacher/settings" element={
           <RoleGuard requiredRole="teacher" fallback="/login/teacher">
             <SettingsPage language={language} onLanguageChange={setLanguage} variant="teacher" />
+          </RoleGuard>
+        } />
+        <Route path="/teacher/grades" element={
+          <RoleGuard requiredRole="teacher" fallback="/login/teacher">
+            <TeacherGradesPage language={language} onLanguageChange={setLanguage} />
           </RoleGuard>
         } />
 
@@ -226,7 +248,7 @@ function App() {
         } />
 
         {/* ── Fallback ────────────────────────────────────────────────── */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   )

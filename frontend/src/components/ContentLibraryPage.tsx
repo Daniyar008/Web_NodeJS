@@ -42,24 +42,24 @@ interface University {
 
 /* ── Static Data ─────────────────────────────────────────────────────────── */
 const CATEGORIES = [
-    { id: 'all',    label: 'Все',         icon: <Library size={13} /> },
-    { id: 'math',   label: 'Математика',  icon: <span>∑</span> },
-    { id: 'phys',   label: 'Физика',      icon: <span>⚡</span> },
-    { id: 'chem',   label: 'Химия',       icon: <span>🧪</span> },
-    { id: 'cs',     label: 'Информатика', icon: <span>💻</span> },
-    { id: 'eng',    label: 'Английский',  icon: <span>🇬🇧</span> },
-    { id: 'design', label: 'Дизайн',      icon: <span>🎨</span> },
+    { id: 'all', label: 'Все', icon: <Library size={13} /> },
+    { id: 'math', label: 'Математика', icon: <span>∑</span> },
+    { id: 'phys', label: 'Физика', icon: <span>⚡</span> },
+    { id: 'chem', label: 'Химия', icon: <span>🧪</span> },
+    { id: 'cs', label: 'Информатика', icon: <span>💻</span> },
+    { id: 'eng', label: 'Английский', icon: <span>🇬🇧</span> },
+    { id: 'design', label: 'Дизайн', icon: <span>🎨</span> },
 ]
 
 const RESOURCES: Resource[] = [
-    { id: '1', title: 'Производные и интегралы: полный курс', subject: 'Математика', emoji: '📐', type: 'Видео',   level: 'Продвинутый', rating: 4.9, views: 12400, bg: '#fef3c7' },
-    { id: '2', title: 'Законы Ньютона на практике',           subject: 'Физика',     emoji: '⚡', type: 'Статья',  level: 'Средний',     rating: 4.7, views: 8900,  bg: '#dbeafe' },
-    { id: '3', title: 'Органическая химия: функц. группы',    subject: 'Химия',      emoji: '🧪', type: 'Книга',   level: 'Продвинутый', rating: 4.8, views: 6700,  bg: '#d1fae5' },
-    { id: '4', title: 'Алгоритмы и структуры данных',         subject: 'Информатика',emoji: '💻', type: 'Тест',    level: 'Средний',     rating: 4.9, views: 21000, bg: '#ede9fe' },
-    { id: '5', title: 'IELTS Speaking: стратегии Part 2',     subject: 'Английский', emoji: '🎙️', type: 'Видео',   level: 'Базовый',     rating: 4.6, views: 15300, bg: '#fce7f3' },
-    { id: '6', title: 'Figma для начинающих дизайнеров',      subject: 'Дизайн',     emoji: '🎨', type: 'Задание', level: 'Базовый',     rating: 4.8, views: 9800,  bg: '#fff7ed' },
-    { id: '7', title: 'ЕНТ по математике: 300 задач',         subject: 'Математика', emoji: '📊', type: 'Тест',    level: 'Продвинутый', rating: 5.0, views: 34000, bg: '#fef9c3' },
-    { id: '8', title: 'Python для школьников',                subject: 'Информатика',emoji: '🐍', type: 'Видео',   level: 'Базовый',     rating: 4.7, views: 18700, bg: '#dbeafe' },
+    { id: '1', title: 'Производные и интегралы: полный курс', subject: 'Математика', emoji: '📐', type: 'Видео', level: 'Продвинутый', rating: 4.9, views: 12400, bg: '#fef3c7' },
+    { id: '2', title: 'Законы Ньютона на практике', subject: 'Физика', emoji: '⚡', type: 'Статья', level: 'Средний', rating: 4.7, views: 8900, bg: '#dbeafe' },
+    { id: '3', title: 'Органическая химия: функц. группы', subject: 'Химия', emoji: '🧪', type: 'Книга', level: 'Продвинутый', rating: 4.8, views: 6700, bg: '#d1fae5' },
+    { id: '4', title: 'Алгоритмы и структуры данных', subject: 'Информатика', emoji: '💻', type: 'Тест', level: 'Средний', rating: 4.9, views: 21000, bg: '#ede9fe' },
+    { id: '5', title: 'IELTS Speaking: стратегии Part 2', subject: 'Английский', emoji: '🎙️', type: 'Видео', level: 'Базовый', rating: 4.6, views: 15300, bg: '#fce7f3' },
+    { id: '6', title: 'Figma для начинающих дизайнеров', subject: 'Дизайн', emoji: '🎨', type: 'Задание', level: 'Базовый', rating: 4.8, views: 9800, bg: '#fff7ed' },
+    { id: '7', title: 'ЕНТ по математике: 300 задач', subject: 'Математика', emoji: '📊', type: 'Тест', level: 'Продвинутый', rating: 5.0, views: 34000, bg: '#fef9c3' },
+    { id: '8', title: 'Python для школьников', subject: 'Информатика', emoji: '🐍', type: 'Видео', level: 'Базовый', rating: 4.7, views: 18700, bg: '#dbeafe' },
 ]
 
 const SUBJECT_TO_CAT: Record<string, string> = {
@@ -112,8 +112,8 @@ const UNIVERSITIES: University[] = [
 
 const BOOKMARKS = [
     { id: '1', emoji: '📐', title: 'Производные и интегралы', type: 'Видео' },
-    { id: '2', emoji: '🐍', title: 'Python для школьников',   type: 'Видео' },
-    { id: '3', emoji: '⚡', title: 'Законы Ньютона',          type: 'Статья' },
+    { id: '2', emoji: '🐍', title: 'Python для школьников', type: 'Видео' },
+    { id: '3', emoji: '⚡', title: 'Законы Ньютона', type: 'Статья' },
 ]
 
 const PROGRESS = [
@@ -135,14 +135,14 @@ const TYPE_COLORS: Record<ResourceType, string> = {
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
 export function ContentLibraryPage({ language, onLanguageChange }: Props) {
-    const [search,  setSearch]  = useState('')
-    const [actCat,  setActCat]  = useState('all')
+    const [search, setSearch] = useState('')
+    const [actCat, setActCat] = useState('all')
     const [applied, setApplied] = useState<Set<string>>(new Set())
 
     const filteredResources = RESOURCES.filter(r => {
         const matchCat = actCat === 'all' || SUBJECT_TO_CAT[r.subject] === actCat
-        const matchQ   = r.title.toLowerCase().includes(search.toLowerCase()) ||
-                         r.subject.toLowerCase().includes(search.toLowerCase())
+        const matchQ = r.title.toLowerCase().includes(search.toLowerCase()) ||
+            r.subject.toLowerCase().includes(search.toLowerCase())
         return matchCat && matchQ
     })
 

@@ -22,6 +22,7 @@ import { CourseShellLayout } from './CourseShellLayout'
 import { TeacherShellLayout } from './TeacherShellLayout'
 import { ParentShellLayout } from './ParentShellLayout'
 import type { Language } from '../i18n/translations'
+import { useSettings, type Theme, type InterfaceLang } from '../lib/settingsStore'
 import type {
     NotificationToggle,
     PaymentMethod,
@@ -87,14 +88,15 @@ function NavCard({ icon, label, active, color, onClick }: NavCardProps) {
 
 // ─── Section: General ────────────────────────────────────────────────────────
 
-type Theme = 'light' | 'dark' | 'system'
-
-function GeneralSection() {
-    const [theme, setTheme] = useState<Theme>('light')
-    const [fontSize, setFontSize] = useState(14)
+function GeneralSection({ onLanguageChange }: { onLanguageChange: (l: Language) => void }) {
+    const { settings, update } = useSettings()
     const [saved, setSaved] = useState(false)
 
+    const langToApp: Record<InterfaceLang, Language> = { ru: 'ru', en: 'en', kz: 'ru' }
+
     const handleSave = () => {
+        // Language change propagates immediately via update(), but also notify App
+        onLanguageChange(langToApp[settings.interfaceLang])
         setSaved(true)
         setTimeout(() => setSaved(false), 2000)
     }
@@ -110,19 +112,19 @@ function GeneralSection() {
                 <h3 className="stg-group-title">Тема оформления</h3>
                 <div className="stg-theme-cards">
                     {([
-                        { id: 'light', icon: <Sun size={20} />, label: 'Светлая' },
-                        { id: 'dark', icon: <Moon size={20} />, label: 'Тёмная' },
-                        { id: 'system', icon: <Monitor size={20} />, label: 'Системная' },
-                    ] as { id: Theme; icon: React.ReactNode; label: string }[]).map((t) => (
+                        { id: 'light' as Theme, icon: <Sun size={20} />, label: 'Светлая' },
+                        { id: 'dark' as Theme, icon: <Moon size={20} />, label: 'Тёмная' },
+                        { id: 'system' as Theme, icon: <Monitor size={20} />, label: 'Системная' },
+                    ]).map((t) => (
                         <button
                             key={t.id}
                             type="button"
-                            className={`stg-theme-card ${theme === t.id ? 'active' : ''}`}
-                            onClick={() => setTheme(t.id)}
+                            className={`stg-theme-card ${settings.theme === t.id ? 'active' : ''}`}
+                            onClick={() => update('theme', t.id)}
                         >
                             <span className="stg-theme-icon">{t.icon}</span>
                             <span className="stg-theme-label">{t.label}</span>
-                            {theme === t.id && <Check size={13} className="stg-theme-check" />}
+                            {settings.theme === t.id && <Check size={13} className="stg-theme-check" />}
                         </button>
                     ))}
                 </div>
@@ -133,23 +135,36 @@ function GeneralSection() {
                 <div className="stg-form-grid">
                     <div className="stg-field">
                         <label className="stg-label">Язык интерфейса</label>
-                        <select className="stg-select">
-                            <option>Русский</option>
-                            <option>English</option>
-                            <option>Қазақша</option>
+                        <select
+                            className="stg-select"
+                            value={settings.interfaceLang}
+                            onChange={e => update('interfaceLang', e.target.value as InterfaceLang)}
+                        >
+                            <option value="ru">Русский</option>
+                            <option value="en">English</option>
+                            <option value="kz">Қазақша</option>
                         </select>
                     </div>
                     <div className="stg-field">
                         <label className="stg-label">Часовой пояс</label>
-                        <select className="stg-select">
+                        <select
+                            className="stg-select"
+                            value={settings.timezone}
+                            onChange={e => update('timezone', e.target.value)}
+                        >
                             <option>UTC+5 — Астана</option>
                             <option>UTC+3 — Москва</option>
                             <option>UTC+6 — Алматы</option>
+                            <option>UTC+0 — Лондон</option>
                         </select>
                     </div>
                     <div className="stg-field">
                         <label className="stg-label">Формат даты</label>
-                        <select className="stg-select">
+                        <select
+                            className="stg-select"
+                            value={settings.dateFormat}
+                            onChange={e => update('dateFormat', e.target.value)}
+                        >
                             <option>ДД.ММ.ГГГГ</option>
                             <option>MM/DD/YYYY</option>
                             <option>YYYY-MM-DD</option>
@@ -157,10 +172,15 @@ function GeneralSection() {
                     </div>
                     <div className="stg-field">
                         <label className="stg-label">Валюта</label>
-                        <select className="stg-select">
+                        <select
+                            className="stg-select"
+                            value={settings.currency}
+                            onChange={e => update('currency', e.target.value)}
+                        >
                             <option>₸ Тенге (KZT)</option>
                             <option>₽ Рубль (RUB)</option>
                             <option>$ Доллар (USD)</option>
+                            <option>€ Евро (EUR)</option>
                         </select>
                     </div>
                 </div>
@@ -175,13 +195,16 @@ function GeneralSection() {
                         min={12}
                         max={20}
                         step={1}
-                        value={fontSize}
-                        onChange={(e) => setFontSize(Number(e.target.value))}
+                        value={settings.fontSize}
+                        onChange={e => update('fontSize', Number(e.target.value))}
                         className="stg-range"
                     />
                     <span className="stg-font-large">A</span>
-                    <span className="stg-font-val">{fontSize}px</span>
+                    <span className="stg-font-val">{settings.fontSize}px</span>
                 </div>
+                <p className="stg-font-preview" style={{ fontSize: settings.fontSize }}>
+                    Пример текста: EduFuture — лучшая платформа для обучения
+                </p>
             </div>
 
             <div className="stg-save-row">
@@ -711,7 +734,7 @@ export function SettingsPage({ language, onLanguageChange, variant = 'student' }
 
     const renderSection = () => {
         switch (active) {
-            case 'general': return <GeneralSection />
+            case 'general': return <GeneralSection onLanguageChange={onLanguageChange} />
             case 'profile': return <ProfileSection />
             case 'email': return <EmailSection />
             case 'subscription': return <SubscriptionSection />

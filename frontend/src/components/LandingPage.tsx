@@ -204,6 +204,8 @@ export function LandingPage() {
                     <div className="lp-nav-links">
                         <button type="button" onClick={() => scrollTo(featuresRef)}>Возможности</button>
                         <button type="button" onClick={() => scrollTo(audienceRef)}>Для кого</button>
+                        <button type="button" onClick={() => navigate('/about')}>О нас</button>
+                        <button type="button" onClick={() => navigate('/help')}>Поддержка</button>
                         <button type="button" onClick={() => scrollTo(contactRef)}>Контакты</button>
                     </div>
                     <button type="button" className="lp-nav-cta" onClick={() => navigate('/login/student')}>
@@ -438,6 +440,7 @@ export function LandingPage() {
                 <div className="lp-footer-links">
                     <button type="button" onClick={() => scrollTo(featuresRef)}>Возможности</button>
                     <button type="button" onClick={() => scrollTo(audienceRef)}>Для кого</button>
+                    <button type="button" onClick={() => navigate('/about')}>О нас</button>
                     <button type="button" onClick={() => scrollTo(contactRef)}>Контакты</button>
                 </div>
                 <button type="button" className="lp-nav-cta" onClick={() => navigate('/login/student')}>

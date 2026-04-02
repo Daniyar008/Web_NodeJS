@@ -12,12 +12,12 @@ const CHILDREN = [
 ]
 
 const FEED = [
-    { type: 'grade', color: '#22c55e', icon: '📝', text: 'Анна получила 5 по математике (Сейтказина А.)', time: '15 мин назад' },
-    { type: 'hw', color: '#7c3aed', icon: '📚', text: 'По физике задано: задачи №5–8, срок — завтра', time: '1 ч назад' },
-    { type: 'achieve', color: '#f59e0b', icon: '🏆', text: 'Анна получила ачивку «Отличник недели»', time: '3 ч назад' },
-    { type: 'event', color: '#0ea5e9', icon: '📅', text: 'Родительское собрание 8А — 15 апреля в 18:00', time: 'Вчера' },
-    { type: 'msg', color: '#8b5cf6', icon: '💬', text: 'Учитель математики: Анна молодец!', time: 'Вчера' },
-    { type: 'warn', color: '#ef4444', icon: '⚠️', text: 'Пропуск урока химии без причины', time: '2 дня назад' },
+    { type: 'grade', icon: '📝', text: 'Анна получила 5 по математике (Сейтказина А.)', time: '15 мин назад' },
+    { type: 'hw', icon: '📚', text: 'По физике задано: задачи №5–8, срок — завтра', time: '1 ч назад' },
+    { type: 'achieve', icon: '🏆', text: 'Анна получила ачивку «Отличник недели»', time: '3 ч назад' },
+    { type: 'event', icon: '📅', text: 'Родительское собрание 8А — 15 апреля в 18:00', time: 'Вчера' },
+    { type: 'msg', icon: '💬', text: 'Учитель математики: Анна молодец!', time: 'Вчера' },
+    { type: 'warn', icon: '⚠️', text: 'Пропуск урока химии без причины', time: '2 дня назад' },
 ]
 
 const SUBJECTS = [
@@ -42,25 +42,43 @@ export function ParentDashboardPage({ language, onLanguageChange }: Props) {
             subtitle={`Актуальная сводка по ${child.name}`}
             activePage="p-dashboard"
         >
-            {/* Child switcher */}
-            <div className="pd-child-row">
-                {CHILDREN.map((c) => (
-                    <button
-                        key={c.id}
-                        type="button"
-                        className={`pd-child-btn ${activeChild === c.id ? 'active' : ''}`}
-                        onClick={() => setActiveChild(c.id)}
-                    >
-                        <img
-                            className="pd-child-av"
-                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${c.avatar}`}
-                            alt={c.name}
-                        />
-                        <span>{c.name}</span>
-                        <span className="pd-child-cls">{c.cls}</span>
-                        {c.events > 0 && <span className="pd-child-dot">{c.events}</span>}
-                    </button>
-                ))}
+            {/* ── Hero banner ─────────────────────────────────── */}
+            <div className="pd-hero">
+                <img
+                    className="pd-hero-avatar"
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${child.avatar}`}
+                    alt={child.name}
+                />
+                <div className="pd-hero-info">
+                    <h2 className="pd-hero-name">{child.name}</h2>
+                    <p className="pd-hero-class">{child.cls} класс · Апрель 2026 · III четверть</p>
+                    <div className="pd-hero-tags">
+                        <span className="pd-hero-tag green">Средний балл: {child.avg}</span>
+                        <span className="pd-hero-tag blue">93% посещаемость</span>
+                        <span className="pd-hero-tag purple">6 достижений</span>
+                    </div>
+                </div>
+                {CHILDREN.length > 1 && (
+                    <div className="pd-hero-switcher">
+                        {CHILDREN.map((c) => (
+                            <button
+                                key={c.id}
+                                type="button"
+                                className={`pd-child-btn ${activeChild === c.id ? 'active' : ''}`}
+                                onClick={() => setActiveChild(c.id)}
+                            >
+                                <img
+                                    className="pd-child-av"
+                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${c.avatar}`}
+                                    alt={c.name}
+                                />
+                                <span>{c.name}</span>
+                                <span className="pd-child-cls">{c.cls}</span>
+                                {c.events > 0 && <span className="pd-child-dot">{c.events}</span>}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* KPI widgets */}

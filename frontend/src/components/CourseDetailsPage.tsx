@@ -1,6 +1,6 @@
 ﻿import { useMemo, useState } from 'react'
 import { CirclePlus, PlayCircle, Star } from 'lucide-react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { courseCatalogData } from '../data/courseCatalogData'
 import {
     detailCourse,
@@ -25,6 +25,7 @@ const tabs: DetailTab[] = ['overview', 'faq', 'discussion', 'reviews']
 export function CourseDetailsPage({ language, onLanguageChange }: CourseDetailsPageProps) {
     const [activeTab, setActiveTab] = useState<DetailTab>('overview')
     const { courseId } = useParams()
+    const navigate = useNavigate()
     const t = translations[language]
     const selectedCourse = courseCatalogData.find((course) => course.id === courseId) ?? courseCatalogData[0]
 
@@ -62,7 +63,17 @@ export function CourseDetailsPage({ language, onLanguageChange }: CourseDetailsP
                                 <h2>{selectedCourse.title}</h2>
                                 <p className="details-meta">{selectedCourse.teacherName} | {detailCourse.category} | + Follow</p>
                             </div>
-                            <button type="button" className="mentor-btn">{t.becomeMentor}</button>
+                            <div style={{ display: 'flex', gap: 10 }}>
+                                <button
+                                    type="button"
+                                    className="mentor-btn"
+                                    style={{ background: 'var(--accent)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+                                    onClick={() => navigate(`/courses/${courseId}/lesson/l1`)}
+                                >
+                                    <PlayCircle size={15} /> Начать обучение
+                                </button>
+                                <button type="button" className="mentor-btn">{t.becomeMentor}</button>
+                            </div>
                         </div>
 
                         <div className="tabs-row" aria-label="Course detail tabs">

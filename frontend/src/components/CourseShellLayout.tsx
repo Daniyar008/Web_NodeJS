@@ -6,14 +6,19 @@ import {
     ChartNoAxesCombined,
     CircleUserRound,
     GraduationCap,
+    HelpCircle,
     KanbanSquare,
     Library,
+    LineChart,
+    LogOut,
     MessageCircle,
     Search,
     Settings,
+    ShoppingBag,
     Star,
     Trophy,
     User,
+    X,
     Zap,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -30,7 +35,7 @@ const NOTIFS = [
     { id: '5', icon: '💬', title: 'Новое сообщение', body: 'Учитель Иванов: "Хорошая работа!"', time: 'Вчера', read: true },
 ]
 
-type ActivePage = 'dashboard' | 'courses' | 'chat' | 'teacher' | 'profile' | 'schedule' | 'resources' | 'settings' | 'tasks' | 'tournaments' | 'library' | 'other'
+type ActivePage = 'dashboard' | 'courses' | 'chat' | 'teacher' | 'profile' | 'schedule' | 'resources' | 'settings' | 'tasks' | 'tournaments' | 'library' | 'achievements' | 'progress' | 'proftest' | 'shop' | 'other'
 
 type CourseShellLayoutProps = {
     language: Language
@@ -57,6 +62,11 @@ export function CourseShellLayout({
     const notifRef = useRef<HTMLDivElement>(null)
     const unread = notifs.filter(n => !n.read).length
 
+    const [profileOpen, setProfileOpen] = useState(false)
+    const [searchOpen, setSearchOpen]   = useState(false)
+    const [searchQ, setSearchQ]         = useState('')
+    const profileRef = useRef<HTMLDivElement>(null)
+
     useEffect(() => {
         if (!notifOpen) return
         const handler = (e: MouseEvent) => {
@@ -65,6 +75,15 @@ export function CourseShellLayout({
         document.addEventListener('mousedown', handler)
         return () => document.removeEventListener('mousedown', handler)
     }, [notifOpen])
+
+    useEffect(() => {
+        if (!profileOpen) return
+        const handler = (e: MouseEvent) => {
+            if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false)
+        }
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
+    }, [profileOpen])
 
     return (
         <div className="courses-shell">
@@ -84,8 +103,13 @@ export function CourseShellLayout({
                     <button type="button" className={activePage === 'tasks' ? 'active' : ''} onClick={() => navigate('/tasks')}><KanbanSquare size={17} /> Задачи</button>
                     <button type="button" className={activePage === 'tournaments' ? 'active' : ''} onClick={() => navigate('/tournaments')}><Trophy size={17} /> Турниры</button>
                     <button type="button" className={activePage === 'library' ? 'active' : ''} onClick={() => navigate('/library')}><Library size={17} /> Библиотека</button>
+                    <button type="button" className={activePage === 'achievements' ? 'active' : ''} onClick={() => navigate('/achievements')}><Trophy size={17} /> Достижения</button>
+                    <button type="button" className={activePage === 'progress' ? 'active' : ''} onClick={() => navigate('/progress')}><LineChart size={17} /> Прогресс</button>
+                    <button type="button" className={activePage === 'proftest' ? 'active' : ''} onClick={() => navigate('/proftest')}><Star size={17} /> Профориентация</button>
+                    <button type="button" className={activePage === 'shop' ? 'active' : ''} onClick={() => navigate('/shop')}><ShoppingBag size={17} /> Магазин</button>
                     <button type="button" className={activePage === 'profile' ? 'active' : ''} onClick={() => navigate('/profile')}><User size={17} /> {t.profile}</button>
                     <button type="button" className={activePage === 'settings' ? 'active' : ''} onClick={() => navigate('/settings')}><Settings size={17} /> {t.settings}</button>
+                    <button type="button" className={activePage === 'other' ? '' : ''} onClick={() => navigate('/help')}><HelpCircle size={17} /> Поддержка</button>
                 </nav>
 
                 {/* XP Bar */}
@@ -113,9 +137,16 @@ export function CourseShellLayout({
                 <header className="courses-header">
                     <div className="courses-title-row">
                         <h1>{title}</h1>
-                        <button type="button" className="search-circle" aria-label="Search">
-                            <Search size={16} />
-                        </button>
+                        <div className="shell-search-wrap">
+                            {searchOpen
+                                ? <form className="shell-search-form" onSubmit={e => { e.preventDefault(); navigate(`/courses?q=${encodeURIComponent(searchQ)}`); setSearchOpen(false); setSearchQ('') }}>
+                                    <input autoFocus className="shell-search-input" value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Поиск..." />
+                                    <button type="submit" className="ghost-icon" aria-label="Найти"><Search size={16} /></button>
+                                    <button type="button" className="ghost-icon" aria-label="Закрыть" onClick={() => { setSearchOpen(false); setSearchQ('') }}><X size={16} /></button>
+                                </form>
+                                : <button type="button" className="search-circle" aria-label="Search" onClick={() => setSearchOpen(true)}><Search size={16} /></button>
+                            }
+                        </div>
                     </div>
 
                     <div className="courses-actions">
@@ -175,7 +206,28 @@ export function CourseShellLayout({
                                 </div>
                             )}
                         </div>
-                        <button type="button" className="ghost-icon" aria-label="Профиль"><CircleUserRound size={16} /></button>
+                        <div className="mini-profile-wrap" ref={profileRef}>
+                            <button type="button" className="ghost-icon" aria-label="Профиль" onClick={() => setProfileOpen(o => !o)}>
+                                <CircleUserRound size={16} />
+                            </button>
+                            {profileOpen && (
+                                <div className="mini-profile-panel">
+                                    <div className="mini-profile-top">
+                                        <div className="mini-profile-avatar">СД</div>
+                                        <div className="mini-profile-info">
+                                            <p className="mini-profile-name">Султангереев Данияр</p>
+                                            <span className="mini-profile-role">Студент</span>
+                                        </div>
+                                    </div>
+                                    <div className="mini-profile-links">
+                                        <button type="button" onClick={() => { navigate('/profile'); setProfileOpen(false) }}><User size={14} /> Профиль</button>
+                                        <button type="button" onClick={() => { navigate('/settings'); setProfileOpen(false) }}><Settings size={14} /> Настройки</button>
+                                        <button type="button" onClick={() => { navigate('/help'); setProfileOpen(false) }}><HelpCircle size={14} /> Помощь</button>
+                                        <button type="button" className="mini-profile-logout"><LogOut size={14} /> Выйти</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </header>
 

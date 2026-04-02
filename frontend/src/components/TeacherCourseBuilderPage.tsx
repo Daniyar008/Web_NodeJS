@@ -21,9 +21,9 @@ import type { Language } from '../i18n/translations'
 /* ── Types ───────────────────────────────────────────────────────────────── */
 type LessonType = 'video' | 'text' | 'quiz' | 'file'
 
-interface Option  { id: string; text: string }
+interface Option { id: string; text: string }
 interface Question { id: string; text: string; options: Option[]; correctIdx: number }
-interface Lesson  {
+interface Lesson {
     id: string
     title: string
     type: LessonType
@@ -32,7 +32,7 @@ interface Lesson  {
     questions: Question[]
     duration: string
 }
-interface Module  { id: string; title: string; lessons: Lesson[]; open: boolean }
+interface Module { id: string; title: string; lessons: Lesson[]; open: boolean }
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 const genId = () => Math.random().toString(36).slice(2, 9)
@@ -58,10 +58,10 @@ function blankQuestion(): Question {
 }
 
 const LESSON_TYPES: { id: LessonType; label: string; icon: ReactElement; color: string; bg: string }[] = [
-    { id: 'video', label: 'Видео',  icon: <Video size={13} />,         color: '#2563eb', bg: '#dbeafe' },
-    { id: 'text',  label: 'Текст',  icon: <FileText size={13} />,      color: '#059669', bg: '#d1fae5' },
-    { id: 'quiz',  label: 'Тест',   icon: <ClipboardList size={13} />, color: '#d97706', bg: '#fef3c7' },
-    { id: 'file',  label: 'Файл',   icon: <UploadCloud size={13} />,   color: '#7c3aed', bg: '#ede9fe' },
+    { id: 'video', label: 'Видео', icon: <Video size={13} />, color: '#2563eb', bg: '#dbeafe' },
+    { id: 'text', label: 'Текст', icon: <FileText size={13} />, color: '#059669', bg: '#d1fae5' },
+    { id: 'quiz', label: 'Тест', icon: <ClipboardList size={13} />, color: '#d97706', bg: '#fef3c7' },
+    { id: 'file', label: 'Файл', icon: <UploadCloud size={13} />, color: '#7c3aed', bg: '#ede9fe' },
 ]
 
 const INITIAL_MODULES: Module[] = [
@@ -69,7 +69,7 @@ const INITIAL_MODULES: Module[] = [
         id: genId(), title: 'Введение', open: true,
         lessons: [
             { id: genId(), title: 'Знакомство с курсом', type: 'video', videoUrl: '', textContent: '', questions: [blankQuestion()], duration: '5' },
-            { id: genId(), title: 'Что вы узнаете',       type: 'text',  videoUrl: '', textContent: '', questions: [blankQuestion()], duration: '3' },
+            { id: genId(), title: 'Что вы узнаете', type: 'text', videoUrl: '', textContent: '', questions: [blankQuestion()], duration: '3' },
         ],
     },
     {
@@ -85,16 +85,16 @@ const INITIAL_MODULES: Module[] = [
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
 export function TeacherCourseBuilderPage({ language, onLanguageChange }: Props) {
-    const [modules,      setModules]      = useState<Module[]>(INITIAL_MODULES)
+    const [modules, setModules] = useState<Module[]>(INITIAL_MODULES)
     const [activeLesson, setActiveLesson] = useState<{ moduleId: string; lessonId: string } | null>({
         moduleId: INITIAL_MODULES[0].id,
         lessonId: INITIAL_MODULES[0].lessons[0].id,
     })
-    const [courseTitle,    setCourseTitle]    = useState('Название курса')
-    const [courseDesc,     setCourseDesc]     = useState('')
+    const [courseTitle, setCourseTitle] = useState('Название курса')
+    const [courseDesc, setCourseDesc] = useState('')
     const [courseCategory, setCourseCategory] = useState('Design')
-    const [courseLang,     setCourseLang]     = useState('ru')
-    const [saved,          setSaved]          = useState(false)
+    const [courseLang, setCourseLang] = useState('ru')
+    const [saved, setSaved] = useState(false)
 
     /* ── Finders ── */
     const findLesson = (mId: string, lId: string) =>
