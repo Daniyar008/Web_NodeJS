@@ -178,7 +178,7 @@ export function TeacherDashboardPage({ language, onLanguageChange }: Props) {
                                     <TrendingUp size={18} />
                                     Аналитика
                                 </button>
-                                <button type="button" className="td-quick-btn" onClick={() => window.location.assign('/chat')}>
+                                <button type="button" className="td-quick-btn" onClick={() => window.location.assign('/teacher/chat')}>
                                     <Star size={18} />
                                     Отзывы
                                 </button>

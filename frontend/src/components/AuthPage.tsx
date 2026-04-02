@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { auth, setTokens, backendRoleToFrontend, decodeAccessToken, ApiClientError } from '../lib/api'
 import {
     Building2,
     BookOpen,
@@ -115,8 +116,8 @@ export function AuthPage({ mode = 'register', role = 'student' }: AuthPageProps)
     const [password, setPassword] = useState('')
     const [showPass, setShowPass] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [oauthLoading, setOauthLoading] = useState<'google' | 'github' | null>(null)
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const [serverError, setServerError] = useState<string | null>(null)
     const [step] = useState(1)
 
     // ── Validation ──────────────────────────────────────────────────────────────
@@ -133,23 +134,47 @@ export function AuthPage({ mode = 'register', role = 'student' }: AuthPageProps)
     }
 
     // ── Submit ──────────────────────────────────────────────────────────────────
+    const ROLE_TO_BACKEND: Record<string, string> = {
+        student: 'STUDENT',
+        teacher: 'TEACHER',
+        parent: 'PARENT',
+        institution: 'INSTITUTION_ADMIN',
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!validate()) return
         setLoading(true)
-        await new Promise((r) => setTimeout(r, 1400))
-        setLoading(false)
-        localStorage.setItem('estudy-role', role)
-        navigate(roleMeta.dashboard)
+        setServerError(null)
+        try {
+            let tokens: { accessToken: string; refreshToken: string }
+            if (isLogin) {
+                tokens = await auth.login({ email, password })
+            } else {
+                tokens = await auth.register({
+                    email,
+                    password,
+                    firstName,
+                    lastName,
+                    roleName: ROLE_TO_BACKEND[role] ?? 'STUDENT',
+                })
+            }
+            setTokens(tokens.accessToken, tokens.refreshToken)
+            const payload = decodeAccessToken(tokens.accessToken)
+            const frontendRole = payload ? backendRoleToFrontend(payload.role) : role
+            localStorage.setItem('estudy-role', frontendRole)
+            navigate(ROLE_META[frontendRole as keyof typeof ROLE_META]?.dashboard ?? roleMeta.dashboard)
+        } catch (err) {
+            const msg = err instanceof ApiClientError ? err.message : 'Ошибка соединения с сервером'
+            setServerError(msg)
+        } finally {
+            setLoading(false)
+        }
     }
 
-    // ── OAuth mock ──────────────────────────────────────────────────────────────
-    const handleOAuth = async (provider: 'google' | 'github') => {
-        setOauthLoading(provider)
-        await new Promise((r) => setTimeout(r, 1200))
-        setOauthLoading(null)
-        localStorage.setItem('estudy-role', role)
-        navigate(roleMeta.dashboard)
+    // ── OAuth mock (not yet implemented on backend) ─────────────────────────────
+    const handleOAuth = async (_provider: 'google' | 'github') => {
+        setServerError('OAuth пока не поддерживается')
     }
 
     const strength = password.length === 0 ? 0
@@ -265,22 +290,16 @@ export function AuthPage({ mode = 'register', role = 'student' }: AuthPageProps)
                             type="button"
                             className="auth-oauth-btn"
                             onClick={() => handleOAuth('google')}
-                            disabled={!!oauthLoading}
                         >
-                            {oauthLoading === 'google'
-                                ? <Loader2 size={16} className="auth-spin" />
-                                : <GoogleIcon />}
+                            <GoogleIcon />
                             Google
                         </button>
                         <button
                             type="button"
                             className="auth-oauth-btn"
                             onClick={() => handleOAuth('github')}
-                            disabled={!!oauthLoading}
                         >
-                            {oauthLoading === 'github'
-                                ? <Loader2 size={16} className="auth-spin" />
-                                : <GithubIcon />}
+                            <GithubIcon />
                             GitHub
                         </button>
                     </div>
@@ -293,6 +312,11 @@ export function AuthPage({ mode = 'register', role = 'student' }: AuthPageProps)
 
                     {/* Form */}
                     <form className="auth-form" onSubmit={handleSubmit} noValidate>
+
+                        {/* Server error */}
+                        {serverError && (
+                            <div className="auth-server-error">{serverError}</div>
+                        )}
 
                         {/* Name row (register only) */}
                         {!isLogin && (

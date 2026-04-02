@@ -17,7 +17,7 @@ import {
 // ─── Team ──────────────────────────────────────────────────────────────────────
 
 // TODO: замените путь ниже на путь к вашему фото
-const MY_PHOTO = '' // например: '/photo/daniyar.jpg'  или  'https://...'
+const MY_PHOTO = 'public/photo.jpg' // например: '/photo/daniyar.jpg'  или  'https://...'
 
 const TECH_STACK = [
     {
@@ -53,7 +53,7 @@ const TEAM = [
         name: 'Султангереев Данияр',
         role: 'Software Developer · Студент 2 курса',
         tag: 'РАЗРАБОТЧИК',
-        bio: 'Студент Astana IT University College по направлению «Разработчик программного обеспечения». Создал платформу EduFuture с нуля — от архитектуры до UI — самостоятельно.',
+        bio: 'Студент Astana IT University College по направлению «Разработчик программного обеспечения».',
         details: [
             'Astana IT University College, 2 курс',
             'Full-Stack разработка (Python, JS, C#)',

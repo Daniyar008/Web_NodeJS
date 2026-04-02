@@ -77,5 +77,28 @@ export async function enqueueNotification(job: NotificationJob): Promise<void> {
     return;
   }
 
-  await notificationQueue.add("deliver", job, { removeOnComplete: true, removeOnFail: 50 });
+  try {
+    await Promise.race([
+      notificationQueue.add("deliver", job, { removeOnComplete: true, removeOnFail: 50 }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Queue timeout")), 3000)),
+    ]);
+  } catch {
+    // Redis unreachable – fall through to in-process delivery.
+    await prisma.notification.update({
+      where: { id: job.notificationId },
+      data: { deliveredAt: new Date() },
+    }).catch(() => undefined);
+
+    try {
+      getIO().to(`user:${job.userId}`).emit("notification:new", {
+        id: job.notificationId,
+        title: job.title,
+        body: job.body,
+        link: job.link ?? null,
+        createdAt: new Date().toISOString(),
+      });
+    } catch {
+      // Ignore if sockets are unavailable.
+    }
+  }
 }

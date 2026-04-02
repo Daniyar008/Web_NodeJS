@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { rolePath } from '../lib/roleUtils'
 import {
     Search,
     BookOpen,
@@ -274,8 +275,8 @@ export function HelpPage() {
                     <div className="hp-footer-links">
                         <button type="button" onClick={() => navigate('/')}>Главная</button>
                         <button type="button" onClick={() => navigate('/about')}>О нас</button>
-                        <button type="button" onClick={() => navigate('/courses')}>Курсы</button>
-                        <button type="button" onClick={() => navigate('/chat')}>Чат</button>
+                        <button type="button" onClick={() => navigate(rolePath('/courses'))}>Курсы</button>
+                        <button type="button" onClick={() => navigate(rolePath('/chat'))}>Чат</button>
                     </div>
                     <p className="hp-footer-copy">© 2025 EduFuture. Все права защищены.</p>
                 </div>
@@ -365,7 +366,7 @@ export function HelpPage() {
                                         </div>
                                         <ArrowRight size={14} className="sp-option-arrow" />
                                     </button>
-                                    <button type="button" className="sp-option" onClick={() => { closeSupport(); navigate('/chat') }}>
+                                    <button type="button" className="sp-option" onClick={() => { closeSupport(); navigate(rolePath('/chat')) }}>
                                         <div className="sp-option-icon sp-opt-chat"><MessageCircle size={22} /></div>
                                         <div className="sp-option-body">
                                             <p className="sp-option-title">Чат поддержки</p>

@@ -16,6 +16,7 @@ import {
     Zap,
 } from 'lucide-react'
 import { CourseShellLayout } from './CourseShellLayout'
+import { student, notifications as notificationsApi, ai as aiApi } from '../lib/api'
 import type { Language } from '../i18n/translations'
 import type {
     ActivityPoint,
@@ -209,9 +210,19 @@ function MentorCard({ mentor, onToggle }: { mentor: MentorItem; onToggle: (id: s
 export function HomeDashboard({ language, onLanguageChange }: HomeDashboardProps) {
     const [mentorList, setMentorList] = useState<MentorItem[]>(mentors)
     const [, setSlideIndex] = useState(0)
-    const [streak] = useState(14)
-    const [totalXP] = useState(3240)
+    const [streak, setStreak] = useState(14)
+    const [totalXP, setTotalXP] = useState(3240)
+    const [userName, setUserName] = useState('Martin')
     const scrollRef = useRef<HTMLDivElement>(null)
+
+    // Load real data from API
+    useEffect(() => {
+        student.me().then((profile) => {
+            setUserName(profile.user.firstName || profile.user.email.split('@')[0])
+            setStreak(profile.gamification.streak)
+            setTotalXP(profile.gamification.xp)
+        }).catch(() => { /* keep defaults */ })
+    }, [])
 
     // greeting
     const hour = new Date().getHours()
@@ -321,7 +332,7 @@ export function HomeDashboard({ language, onLanguageChange }: HomeDashboardProps
                         <div className="db-stat-top">
                             <div className="db-stat-avatar">MN</div>
                             <div>
-                                <p className="db-stat-greeting">{greeting}, Martin 🔥</p>
+                                <p className="db-stat-greeting">{greeting}, {userName} 🔥</p>
                                 <p className="db-stat-sub">Продолжай учиться — ты на пути к цели!</p>
                             </div>
                         </div>

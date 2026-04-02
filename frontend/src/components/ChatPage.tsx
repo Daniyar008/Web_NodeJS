@@ -13,6 +13,7 @@ import type { ChatMessage, ChatThread, UserRole } from '../data/chatData'
 import { CourseShellLayout } from './CourseShellLayout'
 import { TeacherShellLayout } from './TeacherShellLayout'
 import { ParentShellLayout } from './ParentShellLayout'
+import { chat as chatApi, type ChatPreview, type ChatMessage as ApiChatMsg } from '../lib/api'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -173,7 +174,83 @@ export function ChatPage({ language, onLanguageChange, variant = 'student' }: Ch
   const [messages, setMessages] = useState<Record<string, ChatMessage[]>>(conversationData)
   const [showCreateGroup, setShowCreateGroup] = useState(false)
   const [showMembers, setShowMembers] = useState(false)
+  const [apiChatMap, setApiChatMap] = useState<Record<string, string>>({}) // thread.id → api chat id
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // ── Load real chats from API ──
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const chats: ChatPreview[] = await chatApi.list()
+        if (cancelled || chats.length === 0) return
+        const apiThreads: ChatThread[] = chats.map((c) => {
+          const other = c.participants[0]
+          return {
+            id: `api_${c.id}`,
+            kind: c.type === 'GROUP' ? 'group' as const : 'direct' as const,
+            participantId: other ? `api_user_${other.id}` : undefined,
+            groupName: c.title ?? undefined,
+            lastMessage: c.lastMessage?.content ?? '',
+            time: c.lastMessage ? new Date(c.lastMessage.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : '',
+            unread: 0,
+          }
+        })
+        // Register API participants
+        for (const c of chats) {
+          for (const p of c.participants) {
+            const key = `api_user_${p.id}`
+            if (!participants[key]) {
+              participants[key] = {
+                id: key,
+                name: `${p.firstName} ${p.lastName}`,
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.firstName}`,
+                role: 'teacher',
+                online: false,
+              }
+            }
+          }
+        }
+        // Build api chat map (thread id → real chat id)
+        const map: Record<string, string> = {}
+        for (const c of chats) {
+          map[`api_${c.id}`] = c.id
+        }
+        if (!cancelled) {
+          setThreads((prev) => [...apiThreads, ...prev])
+          setApiChatMap(map)
+          if (apiThreads.length > 0) setSelectedId(apiThreads[0].id)
+        }
+      } catch {
+        // keep mock data
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  // Load messages when selecting an API chat
+  useEffect(() => {
+    const realChatId = apiChatMap[selectedId]
+    if (!realChatId) return
+    if (messages[selectedId]?.length) return // already loaded
+    let cancelled = false
+    ;(async () => {
+      try {
+        const msgs: ApiChatMsg[] = await chatApi.messages(realChatId)
+        if (cancelled) return
+        const mapped: ChatMessage[] = msgs.map((m) => ({
+          id: m.id,
+          senderId: m.senderId,
+          own: m.sender.email === ME.id || m.sender.firstName === ME.name.split(' ')[0],
+          text: m.content,
+          time: new Date(m.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+          senderName: `${m.sender.firstName} ${m.sender.lastName}`,
+        }))
+        setMessages((prev) => ({ ...prev, [selectedId]: mapped }))
+      } catch { /* keep empty */ }
+    })()
+    return () => { cancelled = true }
+  }, [selectedId, apiChatMap])
 
   const directThreads = threads.filter((t) => t.kind === 'direct')
   const groupThreads = threads.filter((t) => t.kind === 'group')
@@ -217,6 +294,11 @@ export function ChatPage({ language, onLanguageChange, variant = 'student' }: Ch
       [selectedId]: [...(prev[selectedId] ?? []), newMsg],
     }))
     setInputText('')
+    // Send to API if it's a real chat
+    const realChatId = apiChatMap[selectedId]
+    if (realChatId) {
+      chatApi.send(realChatId, text).catch(() => { /* optimistic — already shown */ })
+    }
   }
 
   function handleCreateGroup(thread: ChatThread) {

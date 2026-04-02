@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
     AlertTriangle, Bell, BookOpen, Brain, CalendarCheck, CheckCircle2,
     GraduationCap, MessageSquare, TrendingUp, Users, Zap,
@@ -6,6 +6,7 @@ import {
 import type { Language } from '../i18n/translations'
 import { InstitutionShellLayout } from './InstitutionShellLayout'
 import { useNavigate } from 'react-router-dom'
+import { institution as instApi, type Institution } from '../lib/api'
 
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
@@ -64,6 +65,23 @@ const EVENT_COLOR: Record<string, string> = {
 export function InstitutionDashboardPage({ language, onLanguageChange }: Props) {
     const [priorities, setPriorities] = useState(PRIORITIES)
     const navigate = useNavigate()
+    const [instName, setInstName] = useState('СОШ №14')
+    const [memberCount, setMemberCount] = useState<number | null>(null)
+
+    // Load institution info from API
+    useEffect(() => {
+        let cancelled = false
+            ; (async () => {
+                try {
+                    const list = await instApi.list()
+                    if (cancelled || list.length === 0) return
+                    const inst = list[0]
+                    setInstName(inst.name)
+                    if (inst._count) setMemberCount(inst._count.members)
+                } catch { /* keep defaults */ }
+            })()
+        return () => { cancelled = true }
+    }, [])
 
     const togglePriority = (i: number) =>
         setPriorities((prev) => prev.map((p, idx) => idx === i ? { ...p, done: !p.done } : p))
@@ -79,7 +97,7 @@ export function InstitutionDashboardPage({ language, onLanguageChange }: Props) 
             {/* ── Hero banner ─────────────────────────────────────── */}
             <div className="idb-hero">
                 <div className="idb-hero-text">
-                    <h2>Добро пожаловать, <span>СОШ №14</span></h2>
+                    <h2>Добро пожаловать, <span>{instName}</span></h2>
                     <p>Апрель 2026 · III четверть · неделя 6 из 8</p>
                 </div>
                 <div className="idb-hero-actions">

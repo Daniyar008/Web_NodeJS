@@ -1,5 +1,18 @@
-﻿import "dotenv/config";
+﻿import { config } from "dotenv";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 import { z } from "zod";
+
+// Load .env from the backend root regardless of process.cwd()
+// Graceful fallback for CJS environments (Jest)
+function getDir(): string {
+    try {
+        return dirname(fileURLToPath(import.meta.url));
+    } catch {
+        return __dirname ?? process.cwd();
+    }
+}
+config({ path: resolve(getDir(), "../../.env") });
 
 const envSchema = z.object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),

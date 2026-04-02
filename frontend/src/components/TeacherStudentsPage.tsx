@@ -179,7 +179,7 @@ export function TeacherStudentsPage({ language, onLanguageChange }: Props) {
                                         <button
                                             type="button"
                                             className="ts-chat-btn"
-                                            onClick={() => navigate('/chat')}
+                                            onClick={() => navigate('/teacher/chat')}
                                             title="Написать"
                                         >
                                             <MessageCircle size={14} />

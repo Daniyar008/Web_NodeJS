@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
     CheckCircle2, ChevronDown, ChevronLeft, ChevronRight,
@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { CourseShellLayout } from './CourseShellLayout'
 import { useXP } from '../lib/xpStore'
+import { student as studentApi } from '../lib/api'
 import type { Language } from '../i18n/translations'
 
 /* ── Types ───────────────────────────────────────────────────────── */
@@ -198,6 +199,26 @@ export function CoursePlayerPage({
 
     // Completed set
     const [completed, setCompleted] = useState<Set<string>>(new Set())
+
+    // Load progress from API
+    useEffect(() => {
+        if (!courseId) return
+        let cancelled = false
+            ; (async () => {
+                try {
+                    await studentApi.progress(courseId)
+                    // prog has completedLessons count — we don't get individual IDs from that endpoint
+                    // but we try coursesEnrolled for detailed progress
+                    const enrollments = await studentApi.coursesEnrolled()
+                    const enr = enrollments.find((e) => e.courseId === courseId)
+                    if (!cancelled && enr?.progress) {
+                        const done = enr.progress.filter((p) => p.completed).map((p) => p.lessonId)
+                        if (done.length > 0) setCompleted(new Set(done))
+                    }
+                } catch { /* use empty progress */ }
+            })()
+        return () => { cancelled = true }
+    }, [courseId])
     // Expanded modules in sidebar
     const [expandedModules, setExpandedModules] = useState<Set<string>>(
         new Set(course.modules.map(m => m.id))
@@ -224,6 +245,10 @@ export function CoursePlayerPage({
         if (completed.has(id)) return
         setCompleted(prev => new Set([...prev, id]))
         addXP(50)
+        // Call API to persist
+        if (courseId) {
+            studentApi.completeLesson(courseId, id).catch(() => { /* optimistic */ })
+        }
         // Auto-advance
         if (activeLessonIdx < allLessons.length - 1) {
             setTimeout(() => goLesson(activeLessonIdx + 1), 400)

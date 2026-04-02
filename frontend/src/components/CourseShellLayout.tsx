@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react'
+import { useState, useRef, useEffect, useMemo, type ReactNode } from 'react'
+import { auth, getAccessToken, decodeAccessToken, backendRoleToFrontend } from '../lib/api'
 import {
     Bell,
     BookOpen,
@@ -40,7 +41,7 @@ type ActivePage = 'dashboard' | 'courses' | 'chat' | 'teacher' | 'profile' | 'sc
 type CourseShellLayoutProps = {
     language: Language
     onLanguageChange: (lang: Language) => void
-    title: string
+    title?: string
     children: ReactNode
     includeCategoryFilter?: boolean
     activePage?: ActivePage
@@ -49,13 +50,19 @@ type CourseShellLayoutProps = {
 export function CourseShellLayout({
     language,
     onLanguageChange,
-    title,
+    title = '',
     children,
     includeCategoryFilter = false,
     activePage = 'other',
 }: CourseShellLayoutProps) {
     const t = translations[language]
     const navigate = useNavigate()
+    const user = useMemo(() => {
+        const t = getAccessToken(); if (!t) return null;
+        const p = decodeAccessToken(t); if (!p) return null;
+        return { email: p.email, role: backendRoleToFrontend(p.role), firstName: p.email.split('@')[0] };
+    }, [])
+    const handleLogout = async () => { await auth.logout(); setProfileOpen(false); navigate('/') }
     const { level, levelTitle, progress, xpInLevel, xpToNext, addXP, justLeveledUp, clearLevelUp } = useXP()
     const [notifOpen, setNotifOpen] = useState(false)
     const [notifs, setNotifs] = useState(NOTIFS)
@@ -139,7 +146,7 @@ export function CourseShellLayout({
                         <h1>{title}</h1>
                         <div className="shell-search-wrap">
                             {searchOpen
-                                ? <form className="shell-search-form" onSubmit={e => { e.preventDefault(); navigate(`/courses?q=${encodeURIComponent(searchQ)}`); setSearchOpen(false); setSearchQ('') }}>
+                                ? <form className="shell-search-form" onSubmit={e => { e.preventDefault(); navigate(`/search?q=${encodeURIComponent(searchQ)}`); setSearchOpen(false); setSearchQ('') }}>
                                     <input autoFocus className="shell-search-input" value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Поиск..." />
                                     <button type="submit" className="ghost-icon" aria-label="Найти"><Search size={16} /></button>
                                     <button type="button" className="ghost-icon" aria-label="Закрыть" onClick={() => { setSearchOpen(false); setSearchQ('') }}><X size={16} /></button>
@@ -213,9 +220,9 @@ export function CourseShellLayout({
                             {profileOpen && (
                                 <div className="mini-profile-panel">
                                     <div className="mini-profile-top">
-                                        <div className="mini-profile-avatar">СД</div>
+                                        <div className="mini-profile-avatar">{user?.firstName?.[0]?.toUpperCase() ?? '?'}</div>
                                         <div className="mini-profile-info">
-                                            <p className="mini-profile-name">Султангереев Данияр</p>
+                                            <p className="mini-profile-name">{user?.email ?? 'Гость'}</p>
                                             <span className="mini-profile-role">Студент</span>
                                         </div>
                                     </div>
@@ -223,7 +230,7 @@ export function CourseShellLayout({
                                         <button type="button" onClick={() => { navigate('/profile'); setProfileOpen(false) }}><User size={14} /> Профиль</button>
                                         <button type="button" onClick={() => { navigate('/settings'); setProfileOpen(false) }}><Settings size={14} /> Настройки</button>
                                         <button type="button" onClick={() => { navigate('/help'); setProfileOpen(false) }}><HelpCircle size={14} /> Помощь</button>
-                                        <button type="button" className="mini-profile-logout" onClick={() => { localStorage.removeItem('estudy-role'); setProfileOpen(false); navigate('/') }}><LogOut size={14} /> Выйти</button>
+                                        <button type="button" className="mini-profile-logout" onClick={handleLogout}><LogOut size={14} /> Выйти</button>
                                     </div>
                                 </div>
                             )}

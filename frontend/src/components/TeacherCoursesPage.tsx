@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BookOpen, Edit2, Eye, Plus, Star, Trash2, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { Language } from '../i18n/translations'
 import { TeacherShellLayout } from './TeacherShellLayout'
+import { courses as coursesApi, decodeAccessToken, getAccessToken, type CourseListItem } from '../lib/api'
 
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
@@ -18,6 +19,27 @@ type TeacherCourse = {
     lessons: number
     rating: number
     updatedAt: string
+}
+
+const FALLBACK_COVERS = [
+    'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=600&q=70',
+    'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=600&q=70',
+    'https://images.unsplash.com/photo-1545235617-9465d2a55698?auto=format&fit=crop&w=600&q=70',
+    'https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?auto=format&fit=crop&w=600&q=70',
+]
+
+function apiToTeacherCourse(c: CourseListItem, idx: number): TeacherCourse {
+    return {
+        id: c.id,
+        title: c.title,
+        category: c.description?.split(' ')[0] ?? 'Курс',
+        cover: c.coverUrl ?? FALLBACK_COVERS[idx % FALLBACK_COVERS.length],
+        status: (c.status === 'PUBLISHED' ? 'published' : c.status === 'REVIEW' ? 'review' : 'draft') as CourseStatus,
+        students: c._count?.enrollments ?? 0,
+        lessons: c._count?.modules ?? 0,
+        rating: 0,
+        updatedAt: new Date(c.updatedAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }),
+    }
 }
 
 const INITIAL_COURSES: TeacherCourse[] = [
@@ -84,14 +106,45 @@ export function TeacherCoursesPage({ language, onLanguageChange }: Props) {
     const navigate = useNavigate()
     const [courses, setCourses] = useState<TeacherCourse[]>(INITIAL_COURSES)
     const [filter, setFilter] = useState<'all' | CourseStatus>('all')
+    const [, setLoading] = useState(true)
+
+    // Load courses from API
+    useEffect(() => {
+        let cancelled = false
+            ; (async () => {
+                try {
+                    const token = getAccessToken()
+                    const payload = token ? decodeAccessToken(token) : null
+                    const authorId = payload?.sub
+                    const data = await coursesApi.list(authorId ?? undefined)
+                    if (!cancelled) {
+                        setCourses(data.map((c, i) => apiToTeacherCourse(c, i)))
+                    }
+                } catch {
+                    // keep fallback data
+                } finally {
+                    if (!cancelled) setLoading(false)
+                }
+            })()
+        return () => { cancelled = true }
+    }, [])
 
     const visible = filter === 'all' ? courses : courses.filter((c) => c.status === filter)
 
-    function deleteCourse(id: string) {
+    async function deleteCourse(id: string) {
+        try {
+            await coursesApi.delete(id)
+        } catch { /* still remove locally */ }
         setCourses((prev) => prev.filter((c) => c.id !== id))
     }
 
-    function togglePublish(id: string) {
+    async function togglePublish(id: string) {
+        const course = courses.find((c) => c.id === id)
+        if (!course) return
+        const newStatus = course.status === 'published' ? 'DRAFT' : 'PUBLISHED'
+        try {
+            await coursesApi.update(id, { status: newStatus })
+        } catch { /* still toggle locally */ }
         setCourses((prev) =>
             prev.map((c) => {
                 if (c.id !== id) return c

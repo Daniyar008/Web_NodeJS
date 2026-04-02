@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Bot, ChevronDown, Loader2, Send, Sparkles, X } from 'lucide-react'
+import { ai as aiApi } from '../lib/api'
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 type Role = 'user' | 'bot'
@@ -169,11 +170,16 @@ export function EduBuddy() {
         setMessages(prev => [...prev, userMsg])
         setInput('')
         setTyping(true)
-        setTimeout(() => {
+
+        aiApi.chat(text.trim()).then((res) => {
+            setTyping(false)
+            const botMsg: Message = { id: genId(), role: 'bot', text: res.answer, ts: now() }
+            setMessages(prev => [...prev, botMsg])
+        }).catch(() => {
             setTyping(false)
             const botMsg: Message = { id: genId(), role: 'bot', text: getResponse(text), ts: now() }
             setMessages(prev => [...prev, botMsg])
-        }, 850 + Math.random() * 550)
+        })
     }
 
     const showQuickPrompts = messages.length <= 1 && !typing

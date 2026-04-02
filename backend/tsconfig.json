@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
     "outDir": "dist",
     "module": "Node16",
     "target": "es2022",
@@ -9,7 +8,8 @@
       "ES2022"
     ],
     "types": [
-      "node"
+      "node",
+      "jest"
     ],
     "sourceMap": true,
     "strict": true,
@@ -22,7 +22,8 @@
     "resolveJsonModule": true
   },
   "include": [
-    "src"
+    "src",
+    "tests"
   ],
   "exclude": [
     "node_modules",

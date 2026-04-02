@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
     Bell,
     Check,
@@ -433,6 +434,7 @@ function EmailSection() {
 // ─── Section: Subscription ───────────────────────────────────────────────────
 
 function SubscriptionSection() {
+    const navigate = useNavigate()
     const [plan] = useState<'free' | 'pro'>('free')
 
     const features = [
@@ -502,7 +504,7 @@ function SubscriptionSection() {
                         <p className="stg-upgrade-title">Получите Pro уже сегодня</p>
                         <p className="stg-upgrade-desc">Откройте все возможности платформы с подпиской Pro</p>
                     </div>
-                    <button type="button" className="stg-upgrade-btn">Перейти на Pro</button>
+                    <button type="button" className="stg-upgrade-btn" onClick={() => navigate('/checkout?plan=plan_pro_monthly')}>Перейти на Pro</button>
                 </div>
             )}
         </div>

@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import type { ReactNode } from 'react'
+import { auth, getAccessToken, decodeAccessToken, backendRoleToFrontend } from '../lib/api'
 import {
     Award,
     Bell,
@@ -37,7 +38,7 @@ export type ActiveParentPage =
 type Props = {
     language: Language
     onLanguageChange: (lang: Language) => void
-    title: string
+    title?: string
     subtitle?: string
     children: ReactNode
     activePage?: ActiveParentPage
@@ -58,24 +59,48 @@ const NAV_ITEMS = [
     { key: 'p-courses', path: '/parent/courses', Icon: Star, label: 'Курсы' },
     { key: 'p-achievements', path: '/parent/achievements', Icon: Award, label: 'Достижения' },
     { key: 'p-settings', path: '/parent/settings', Icon: Settings, label: 'Настройки' },
-    { key: 'p-help', path: '/help', Icon: HelpCircle, label: 'Поддержка' },
 ] as const
+
+const NOTIFS = [
+    { id: '1', icon: '📚', title: 'Новая оценка', body: 'Анна: Математика - 5/5', time: '1 час назад', read: false },
+    { id: '2', icon: '🏆', title: 'Домашнее задание', body: 'Миша: Уже выполнено 70%', time: '3 часов назад', read: false },
+    { id: '3', icon: '💬', title: 'Сообщение от учителя', body: 'Учитель Иванов: Отличная работа!', time: 'Вчера', read: true },
+]
 
 export function ParentShellLayout({
     language,
     onLanguageChange,
-    title,
+    title = '',
     subtitle,
     children,
     activePage = 'other',
 }: Props) {
     const navigate = useNavigate()
+    const user = useMemo(() => {
+        const t = getAccessToken(); if (!t) return null;
+        const p = decodeAccessToken(t); if (!p) return null;
+        return { email: p.email, role: backendRoleToFrontend(p.role), firstName: p.email.split('@')[0] };
+    }, [])
+    const handleLogout = async () => { await auth.logout(); setProfileOpen(false); navigate('/') }
     const [activeChild, setActiveChild] = useState(0)
     const [childOpen, setChildOpen] = useState(false)
     const [profileOpen, setProfileOpen] = useState(false)
     const [searchOpen, setSearchOpen] = useState(false)
     const [searchQ, setSearchQ] = useState('')
+    const [notifOpen, setNotifOpen] = useState(false)
+    const [notifs, setNotifs] = useState(NOTIFS)
     const profileRef = useRef<HTMLDivElement>(null)
+    const notifRef = useRef<HTMLDivElement>(null)
+    const unread = notifs.filter(n => !n.read).length
+
+    useEffect(() => {
+        if (!notifOpen) return
+        const handler = (e: MouseEvent) => {
+            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false)
+        }
+        document.addEventListener('mousedown', handler)
+        return () => document.removeEventListener('mousedown', handler)
+    }, [notifOpen])
 
     useEffect(() => {
         if (!profileOpen) return
@@ -192,7 +217,7 @@ export function ParentShellLayout({
 
                         <div className="shell-search-wrap">
                             {searchOpen
-                                ? <form className="shell-search-form" onSubmit={e => { e.preventDefault(); setSearchOpen(false); setSearchQ('') }}>
+                                ? <form className="shell-search-form" onSubmit={e => { e.preventDefault(); navigate(`/parent/search?q=${encodeURIComponent(searchQ)}`); setSearchOpen(false); setSearchQ('') }}>
                                     <input autoFocus className="shell-search-input" value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Поиск..." />
                                     <button type="submit" className="ghost-icon" aria-label="Найти"><Search size={16} /></button>
                                     <button type="button" className="ghost-icon" aria-label="Закрыть" onClick={() => { setSearchOpen(false); setSearchQ('') }}><X size={16} /></button>
@@ -201,9 +226,38 @@ export function ParentShellLayout({
                             }
                         </div>
 
-                        <button type="button" className="ghost-icon" aria-label="Уведомления">
-                            <Bell size={16} />
-                        </button>
+                        <div className="notif-wrap" ref={notifRef}>
+                            <button type="button" className="ghost-icon" aria-label="Уведомления" onClick={() => setNotifOpen(o => !o)}>
+                                <Bell size={16} />
+                                {unread > 0 && <span className="notif-badge">{unread}</span>}
+                            </button>
+                            {notifOpen && (
+                                <div className="notif-panel">
+                                    <div className="notif-panel-head">
+                                        <span>Уведомления{unread > 0 && <b className="notif-unread-count"> {unread} новых</b>}</span>
+                                        {unread > 0 && (
+                                            <button type="button" className="notif-mark-all" onClick={() => setNotifs(prev => prev.map(n => ({ ...n, read: true })))}
+                                            >
+                                                Прочитать все
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="notif-list">
+                                        {notifs.map(n => (
+                                            <div key={n.id} className={`notif-item${n.read ? '' : ' unread'}`} onClick={() => setNotifs(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))}>
+                                                <span className="notif-item-icon">{n.icon}</span>
+                                                <div className="notif-item-body">
+                                                    <p className="notif-item-title">{n.title}</p>
+                                                    <p className="notif-item-text">{n.body}</p>
+                                                    <p className="notif-item-time">{n.time}</p>
+                                                </div>
+                                                {!n.read && <span className="notif-dot" />}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
                         <div className="mini-profile-wrap" ref={profileRef}>
                             <button type="button" className="ghost-icon" aria-label="Профиль" onClick={() => setProfileOpen(o => !o)}>
@@ -212,16 +266,16 @@ export function ParentShellLayout({
                             {profileOpen && (
                                 <div className="mini-profile-panel">
                                     <div className="mini-profile-top">
-                                        <div className="mini-profile-avatar">СД</div>
+                                        <div className="mini-profile-avatar">{user?.firstName?.[0]?.toUpperCase() ?? '?'}</div>
                                         <div className="mini-profile-info">
-                                            <p className="mini-profile-name">Султангереев Данияр</p>
+                                            <p className="mini-profile-name">{user?.email ?? 'Гость'}</p>
                                             <span className="mini-profile-role">Родитель</span>
                                         </div>
                                     </div>
                                     <div className="mini-profile-links">
                                         <button type="button" onClick={() => { navigate('/parent/settings'); setProfileOpen(false) }}><User size={14} /> Профиль / Настройки</button>
-                                        <button type="button" onClick={() => { navigate('/help'); setProfileOpen(false) }}><HelpCircle size={14} /> Помощь</button>
-                                        <button type="button" className="mini-profile-logout" onClick={() => { localStorage.removeItem('estudy-role'); setProfileOpen(false); navigate('/') }}><LogOut size={14} /> Выйти</button>
+                                        <button type="button" onClick={() => { navigate('/parent/help'); setProfileOpen(false) }}><HelpCircle size={14} /> Помощь</button>
+                                        <button type="button" className="mini-profile-logout" onClick={handleLogout}><LogOut size={14} /> Выйти</button>
                                     </div>
                                 </div>
                             )}

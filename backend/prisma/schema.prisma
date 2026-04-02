@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -27,6 +28,7 @@ model User {
   passwordHash           String
   firstName              String
   lastName               String
+  avatarUrl              String?
   isActive               Boolean                 @default(true)
   roleId                 String
   role                   Role                    @relation(fields: [roleId], references: [id], onDelete: Restrict)

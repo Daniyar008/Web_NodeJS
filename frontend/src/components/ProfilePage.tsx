@@ -5,7 +5,8 @@ import {
 } from 'lucide-react'
 import type { Language } from '../i18n/translations'
 import { COUNTRIES, INST_TYPES, mockProfile } from '../data/profileData'
-import { CourseShellLayout } from './CourseShellLayout'
+import { RoleShellLayout } from './RoleShellLayout'
+import { uploads } from '../lib/api'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -124,7 +125,11 @@ export function ProfilePage({ language, onLanguageChange }: Props) {
 
     function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
         const f = e.target.files?.[0]
-        if (f) setAvatar(URL.createObjectURL(f))
+        if (!f) return
+        // Show preview immediately
+        setAvatar(URL.createObjectURL(f))
+        // Upload to server
+        uploads.avatar(f).then(({ url }) => setAvatar(url)).catch(() => { /* keep local preview */ })
     }
 
     function handleSave() {
@@ -143,11 +148,9 @@ export function ProfilePage({ language, onLanguageChange }: Props) {
 
     // ── Render ────────────────────────────────────────────────────────────────
     return (
-        <CourseShellLayout
+        <RoleShellLayout
             language={language}
             onLanguageChange={onLanguageChange}
-            title="Профиль"
-            activePage="profile"
         >
             <div className="profile-page">
 
@@ -693,6 +696,6 @@ export function ProfilePage({ language, onLanguageChange }: Props) {
                     </div>
                 </div>
             )}
-        </CourseShellLayout>
+        </RoleShellLayout>
     )
 }

@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { CirclePlus, PlayCircle, Star } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { courseCatalogData } from '../data/courseCatalogData'
@@ -14,6 +14,7 @@ import {
 import type { Language } from '../i18n/translations'
 import { translations } from '../i18n/translations'
 import { CourseShellLayout } from './CourseShellLayout'
+import { courses as coursesApi, student as studentApi, type CourseDetail } from '../lib/api'
 
 type CourseDetailsPageProps = {
     language: Language
@@ -28,6 +29,36 @@ export function CourseDetailsPage({ language, onLanguageChange }: CourseDetailsP
     const navigate = useNavigate()
     const t = translations[language]
     const selectedCourse = courseCatalogData.find((course) => course.id === courseId) ?? courseCatalogData[0]
+    const [apiCourse, setApiCourse] = useState<CourseDetail | null>(null)
+    const [enrolling, setEnrolling] = useState(false)
+    const [enrolled, setEnrolled] = useState(false)
+
+    // Load real course from API
+    useEffect(() => {
+        if (!courseId) return
+        let cancelled = false
+            ; (async () => {
+                try {
+                    const data = await coursesApi.get(courseId)
+                    if (!cancelled) setApiCourse(data)
+                } catch { /* use mock data */ }
+            })()
+        return () => { cancelled = true }
+    }, [courseId])
+
+    async function handleEnroll() {
+        if (!courseId || enrolling) return
+        setEnrolling(true)
+        try {
+            await studentApi.enroll(courseId)
+            setEnrolled(true)
+        } catch { /* ignore — might already be enrolled */ }
+        setEnrolling(false)
+    }
+
+    const courseTitle = apiCourse?.title ?? selectedCourse.title
+    const courseTeacher = apiCourse?.author ? `${apiCourse.author.firstName} ${apiCourse.author.lastName}` : selectedCourse.teacherName
+    const courseModules = apiCourse?.modules ?? []
 
     const tabLabel = useMemo(
         () => ({
@@ -60,8 +91,8 @@ export function CourseDetailsPage({ language, onLanguageChange }: CourseDetailsP
                     <article className="details-card">
                         <div className="details-title-row">
                             <div>
-                                <h2>{selectedCourse.title}</h2>
-                                <p className="details-meta">{selectedCourse.teacherName} | {detailCourse.category} | + Follow</p>
+                                <h2>{courseTitle}</h2>
+                                <p className="details-meta">{courseTeacher} | {detailCourse.category} | + Follow</p>
                             </div>
                             <div style={{ display: 'flex', gap: 10 }}>
                                 <button
@@ -72,7 +103,15 @@ export function CourseDetailsPage({ language, onLanguageChange }: CourseDetailsP
                                 >
                                     <PlayCircle size={15} /> Начать обучение
                                 </button>
-                                <button type="button" className="mentor-btn">{t.becomeMentor}</button>
+                                {!enrolled ? (
+                                    <button type="button" className="mentor-btn" onClick={handleEnroll} disabled={enrolling}>
+                                        {enrolling ? 'Записываемся...' : 'Записаться'}
+                                    </button>
+                                ) : (
+                                    <button type="button" className="mentor-btn" disabled style={{ opacity: 0.6 }}>
+                                        ✅ Записаны
+                                    </button>
+                                )}
                             </div>
                         </div>
 
@@ -192,31 +231,56 @@ export function CourseDetailsPage({ language, onLanguageChange }: CourseDetailsP
 
                 <aside className="details-outline">
                     <h3>{t.courseContent}</h3>
-                    <p className="outline-meta">{t.lecture} (15) {t.total} (5.5 hrs)</p>
+                    <p className="outline-meta">
+                        {courseModules.length > 0
+                            ? `${courseModules.length} модулей · ${courseModules.reduce((s, m) => s + m.lessons.length, 0)} уроков`
+                            : `${t.lecture} (15) ${t.total} (5.5 hrs)`}
+                    </p>
 
                     <div className="module-list">
-                        {moduleList.map((module) => (
-                            <article key={module.title} className={module.active ? 'module-item active' : 'module-item'}>
-                                <div className="module-head">
-                                    <div>
-                                        <h4>{module.title.replace('Module', t.module)}</h4>
-                                        <p>{module.subtitle}</p>
+                        {courseModules.length > 0 ? (
+                            courseModules.map((mod) => (
+                                <article key={mod.id} className="module-item">
+                                    <div className="module-head">
+                                        <div>
+                                            <h4>{mod.title}</h4>
+                                        </div>
+                                        <small>{mod.lessons.length} {t.lecture}</small>
                                     </div>
-                                    <small>{module.lessons} {t.lecture} · {module.minutes} min</small>
-                                </div>
-
-                                {module.children && (
                                     <ul className="module-children">
-                                        {module.children.map((child) => (
-                                            <li key={child.title}>
-                                                <span>{child.title}</span>
-                                                <small>{child.meta}</small>
+                                        {mod.lessons.map((les) => (
+                                            <li key={les.id}>
+                                                <span>{les.title}</span>
+                                                <small>{les.type}</small>
                                             </li>
                                         ))}
                                     </ul>
-                                )}
-                            </article>
-                        ))}
+                                </article>
+                            ))
+                        ) : (
+                            moduleList.map((module) => (
+                                <article key={module.title} className={module.active ? 'module-item active' : 'module-item'}>
+                                    <div className="module-head">
+                                        <div>
+                                            <h4>{module.title.replace('Module', t.module)}</h4>
+                                            <p>{module.subtitle}</p>
+                                        </div>
+                                        <small>{module.lessons} {t.lecture} · {module.minutes} min</small>
+                                    </div>
+
+                                    {module.children && (
+                                        <ul className="module-children">
+                                            {module.children.map((child) => (
+                                                <li key={child.title}>
+                                                    <span>{child.title}</span>
+                                                    <small>{child.meta}</small>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </article>
+                            ))
+                        )}
                     </div>
                 </aside>
             </div>

@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AlertTriangle, BookOpen, CheckCircle, MessageCircle, Star, TrendingDown, TrendingUp } from 'lucide-react'
 import type { Language } from '../i18n/translations'
 import { ParentShellLayout } from './ParentShellLayout'
 import { useNavigate } from 'react-router-dom'
+import { parent as parentApi, type ParentChild, type ChildProgress } from '../lib/api'
 
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
@@ -32,14 +33,49 @@ const SUBJECTS = [
 export function ParentDashboardPage({ language, onLanguageChange }: Props) {
     const [activeChild, setActiveChild] = useState(1)
     const navigate = useNavigate()
+    const [apiChildren, setApiChildren] = useState<ParentChild[]>([])
+    const [, setChildProgress] = useState<ChildProgress | null>(null)
+
+    // Load children from API
+    useEffect(() => {
+        let cancelled = false
+            ; (async () => {
+                try {
+                    const kids = await parentApi.children()
+                    if (!cancelled && kids.length > 0) {
+                        setApiChildren(kids)
+                    }
+                } catch { /* use mock */ }
+            })()
+        return () => { cancelled = true }
+    }, [])
+
+    // Load progress when child changes
+    useEffect(() => {
+        if (apiChildren.length === 0) return
+        const kid = apiChildren.find((_, i) => i + 1 === activeChild) ?? apiChildren[0]
+        if (!kid) return
+        let cancelled = false
+            ; (async () => {
+                try {
+                    const prog = await parentApi.childProgress(kid.student.id)
+                    if (!cancelled) setChildProgress(prog)
+                } catch { /* keep null */ }
+            })()
+        return () => { cancelled = true }
+    }, [activeChild, apiChildren])
+
     const child = CHILDREN.find((c) => c.id === activeChild)!
+    // Override name from API if available
+    const apiChild = apiChildren[activeChild - 1]
+    const childName = apiChild ? `${apiChild.student.firstName} ${apiChild.student.lastName}` : child.name
 
     return (
         <ParentShellLayout
             language={language}
             onLanguageChange={onLanguageChange}
             title="Обзор"
-            subtitle={`Актуальная сводка по ${child.name}`}
+            subtitle={`Актуальная сводка по ${childName}`}
             activePage="p-dashboard"
         >
             {/* ── Hero banner ─────────────────────────────────── */}
@@ -50,7 +86,7 @@ export function ParentDashboardPage({ language, onLanguageChange }: Props) {
                     alt={child.name}
                 />
                 <div className="pd-hero-info">
-                    <h2 className="pd-hero-name">{child.name}</h2>
+                    <h2 className="pd-hero-name">{childName}</h2>
                     <p className="pd-hero-class">{child.cls} класс · Апрель 2026 · III четверть</p>
                     <div className="pd-hero-tags">
                         <span className="pd-hero-tag green">Средний балл: {child.avg}</span>
