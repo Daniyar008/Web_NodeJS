@@ -63,8 +63,8 @@ export function CourseShellLayout({
     const unread = notifs.filter(n => !n.read).length
 
     const [profileOpen, setProfileOpen] = useState(false)
-    const [searchOpen, setSearchOpen]   = useState(false)
-    const [searchQ, setSearchQ]         = useState('')
+    const [searchOpen, setSearchOpen] = useState(false)
+    const [searchQ, setSearchQ] = useState('')
     const profileRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -223,7 +223,7 @@ export function CourseShellLayout({
                                         <button type="button" onClick={() => { navigate('/profile'); setProfileOpen(false) }}><User size={14} /> Профиль</button>
                                         <button type="button" onClick={() => { navigate('/settings'); setProfileOpen(false) }}><Settings size={14} /> Настройки</button>
                                         <button type="button" onClick={() => { navigate('/help'); setProfileOpen(false) }}><HelpCircle size={14} /> Помощь</button>
-                                        <button type="button" className="mini-profile-logout"><LogOut size={14} /> Выйти</button>
+                                        <button type="button" className="mini-profile-logout" onClick={() => { localStorage.removeItem('estudy-role'); setProfileOpen(false); navigate('/') }}><LogOut size={14} /> Выйти</button>
                                     </div>
                                 </div>
                             )}

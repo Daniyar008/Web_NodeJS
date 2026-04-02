@@ -218,11 +218,16 @@ function GeneralSection({ onLanguageChange }: { onLanguageChange: (l: Language) 
 
 // ─── Section: User Profile ───────────────────────────────────────────────────
 
-function ProfileSection() {
+function ProfileSection({ variant = 'student' }: { variant?: 'student' | 'teacher' | 'parent' }) {
+    const defaultName = variant === 'teacher' ? 'Султангереев Данияр' : variant === 'parent' ? 'Султангереев Аскар' : 'Султангереев Данияр'
+    const defaultUsername = variant === 'teacher' ? 'daniyar_teacher' : variant === 'parent' ? 'askar_parent' : 'daniyar_student'
+    const defaultBio = variant === 'teacher' ? 'Учитель математики и физики.' : variant === 'parent' ? 'Родитель ученика.' : 'Студент, учусь UX/UI дизайну.'
+    const initials = defaultName.split(' ').map(p => p[0]).join('').slice(0, 2)
+
     const [avatar, setAvatar] = useState<string | null>(null)
-    const [name, setName] = useState('Martin Nel')
-    const [username, setUsername] = useState('martin_nel')
-    const [bio, setBio] = useState('Frontend разработчик, учусь UX/UI дизайну.')
+    const [name, setName] = useState(defaultName)
+    const [username, setUsername] = useState(defaultUsername)
+    const [bio, setBio] = useState(defaultBio)
     const [website, setWebsite] = useState('')
     const [linkedin, setLinkedin] = useState('')
     const [saved, setSaved] = useState(false)
@@ -254,7 +259,7 @@ function ProfileSection() {
                         {avatar ? (
                             <img src={avatar} alt="Avatar" className="stg-avatar-img" />
                         ) : (
-                            <span className="stg-avatar-initials">MN</span>
+                            <span className="stg-avatar-initials">{initials}</span>
                         )}
                     </div>
                     <div className="stg-avatar-btns">
@@ -735,7 +740,7 @@ export function SettingsPage({ language, onLanguageChange, variant = 'student' }
     const renderSection = () => {
         switch (active) {
             case 'general': return <GeneralSection onLanguageChange={onLanguageChange} />
-            case 'profile': return <ProfileSection />
+            case 'profile': return <ProfileSection variant={variant} />
             case 'email': return <EmailSection />
             case 'subscription': return <SubscriptionSection />
             case 'payment': return <PaymentSection />

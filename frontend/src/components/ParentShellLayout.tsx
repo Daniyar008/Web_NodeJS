@@ -71,10 +71,10 @@ export function ParentShellLayout({
 }: Props) {
     const navigate = useNavigate()
     const [activeChild, setActiveChild] = useState(0)
-    const [childOpen, setChildOpen]     = useState(false)
+    const [childOpen, setChildOpen] = useState(false)
     const [profileOpen, setProfileOpen] = useState(false)
-    const [searchOpen, setSearchOpen]   = useState(false)
-    const [searchQ, setSearchQ]         = useState('')
+    const [searchOpen, setSearchOpen] = useState(false)
+    const [searchQ, setSearchQ] = useState('')
     const profileRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -219,10 +219,9 @@ export function ParentShellLayout({
                                         </div>
                                     </div>
                                     <div className="mini-profile-links">
-                                        <button type="button" onClick={() => { navigate('/parent/settings'); setProfileOpen(false) }}><User size={14} /> Профиль</button>
-                                        <button type="button" onClick={() => { navigate('/parent/settings'); setProfileOpen(false) }}><Settings size={14} /> Настройки</button>
+                                        <button type="button" onClick={() => { navigate('/parent/settings'); setProfileOpen(false) }}><User size={14} /> Профиль / Настройки</button>
                                         <button type="button" onClick={() => { navigate('/help'); setProfileOpen(false) }}><HelpCircle size={14} /> Помощь</button>
-                                        <button type="button" className="mini-profile-logout"><LogOut size={14} /> Выйти</button>
+                                        <button type="button" className="mini-profile-logout" onClick={() => { localStorage.removeItem('estudy-role'); setProfileOpen(false); navigate('/') }}><LogOut size={14} /> Выйти</button>
                                     </div>
                                 </div>
                             )}

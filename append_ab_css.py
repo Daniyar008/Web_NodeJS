@@ -829,6 +829,8 @@ css = r"""
 .ab-footer-copy { font-size: 12px; color: rgba(255,255,255,.25); margin: 0; }
 """
 
-with open(r'f:\My_Projects\Node\docs\frontend\src\index.css', 'a', encoding='utf-8') as f:
+with open(
+    r"f:\My_Projects\Node\docs\frontend\src\index.css", "a", encoding="utf-8"
+) as f:
     f.write(css)
-print('Done')
+print("Done")

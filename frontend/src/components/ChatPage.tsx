@@ -402,8 +402,8 @@ export function ChatPage({ language, onLanguageChange, variant = 'student' }: Ch
                 )}
               </div>
               <div className="chat-conv-actions">
-                <button type="button" className="chat-action-btn" aria-label="Голосовой звонок"><Phone size={16} /></button>
-                <button type="button" className="chat-action-btn video" aria-label="Видеозвонок"><Video size={16} /></button>
+                <button type="button" className="chat-action-btn" aria-label="Голосовой звонок" onClick={() => alert('Голосовые звонки появятся в следующей версии')}><Phone size={16} /></button>
+                <button type="button" className="chat-action-btn video" aria-label="Видеозвонок" onClick={() => alert('Видеозвонки появятся в следующей версии')}><Video size={16} /></button>
                 {selectedThread.kind === 'group' && (
                   <button
                     type="button"

@@ -166,6 +166,8 @@ css = r"""
 .ab-dev-tag:hover { transform: translateY(-1px); }
 """
 
-with open(r'f:\My_Projects\Node\docs\frontend\src\index.css', 'a', encoding='utf-8') as f:
+with open(
+    r"f:\My_Projects\Node\docs\frontend\src\index.css", "a", encoding="utf-8"
+) as f:
     f.write(css)
-print('Done')
+print("Done")

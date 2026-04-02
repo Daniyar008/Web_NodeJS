@@ -462,9 +462,9 @@ css = r"""
 .mini-profile-logout:hover { background: rgba(248,113,113,0.1) !important; }
 """
 
-target = os.path.join(os.path.dirname(__file__), 'frontend', 'src', 'index.css')
-with open(target, 'a', encoding='utf-8') as f:
-    f.write('\n')
+target = os.path.join(os.path.dirname(__file__), "frontend", "src", "index.css")
+with open(target, "a", encoding="utf-8") as f:
+    f.write("\n")
     f.write(css)
 
-print('CSS appended successfully.')
+print("CSS appended successfully.")

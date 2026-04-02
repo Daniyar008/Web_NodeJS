@@ -184,6 +184,18 @@ export function CoursePlayerPage({
     const activeLessonIdx = allLessons.findIndex(l => l.lesson.id === lessonId) ?? 0
     const activeEntry = allLessons[activeLessonIdx < 0 ? 0 : activeLessonIdx]
 
+    // Guard: no lessons at all
+    if (allLessons.length === 0) {
+        return (
+            <CourseShellLayout language={language} onLanguageChange={onLanguageChange} title="Курс не найден" activePage="courses">
+                <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
+                    <p style={{ fontSize: 18, marginBottom: 12 }}>Курс не найден или не содержит уроков.</p>
+                    <button type="button" onClick={() => navigate('/courses')} style={{ padding: '8px 20px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>← Вернуться к курсам</button>
+                </div>
+            </CourseShellLayout>
+        )
+    }
+
     // Completed set
     const [completed, setCompleted] = useState<Set<string>>(new Set())
     // Expanded modules in sidebar

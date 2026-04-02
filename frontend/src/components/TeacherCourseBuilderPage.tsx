@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import type { ReactElement } from 'react'
 import {
     BookOpen,
@@ -85,12 +86,16 @@ const INITIAL_MODULES: Module[] = [
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
 export function TeacherCourseBuilderPage({ language, onLanguageChange }: Props) {
+    const location = useLocation()
+    const editState = location.state as { editId?: string; editTitle?: string } | null
+    const isEditMode = !!editState?.editId
+
     const [modules, setModules] = useState<Module[]>(INITIAL_MODULES)
     const [activeLesson, setActiveLesson] = useState<{ moduleId: string; lessonId: string } | null>({
         moduleId: INITIAL_MODULES[0].id,
         lessonId: INITIAL_MODULES[0].lessons[0].id,
     })
-    const [courseTitle, setCourseTitle] = useState('Название курса')
+    const [courseTitle, setCourseTitle] = useState(editState?.editTitle ?? 'Название курса')
     const [courseDesc, setCourseDesc] = useState('')
     const [courseCategory, setCourseCategory] = useState('Design')
     const [courseLang, setCourseLang] = useState('ru')
@@ -185,7 +190,7 @@ export function TeacherCourseBuilderPage({ language, onLanguageChange }: Props) 
         <TeacherShellLayout
             language={language}
             onLanguageChange={onLanguageChange}
-            title="Конструктор курса"
+            title={isEditMode ? `Редактирование: ${editState?.editTitle}` : 'Конструктор курса'}
             activePage="t-courses"
         >
             <div className="cb-page">

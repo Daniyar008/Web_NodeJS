@@ -21,56 +21,56 @@ import {
 } from 'lucide-react'
 
 const CATEGORIES = [
-    { id: 'all',        label: 'Все статьи',       Icon: HelpCircle,  count: 35 },
-    { id: 'start',      label: 'Начало работы',     Icon: BookOpen,    count: 8  },
-    { id: 'auth',       label: 'Аутентификация',    Icon: Shield,      count: 5  },
-    { id: 'billing',    label: 'Оплата и тарифы',   Icon: Zap,         count: 6  },
-    { id: 'settings',   label: 'Настройки',         Icon: Settings,    count: 9  },
-    { id: 'api',        label: 'API и интеграции',  Icon: Code,        count: 4  },
-    { id: 'enterprise', label: 'Enterprise',        Icon: Building2,   count: 3  },
+    { id: 'all', label: 'Все статьи', Icon: HelpCircle, count: 35 },
+    { id: 'start', label: 'Начало работы', Icon: BookOpen, count: 8 },
+    { id: 'auth', label: 'Аутентификация', Icon: Shield, count: 5 },
+    { id: 'billing', label: 'Оплата и тарифы', Icon: Zap, count: 6 },
+    { id: 'settings', label: 'Настройки', Icon: Settings, count: 9 },
+    { id: 'api', label: 'API и интеграции', Icon: Code, count: 4 },
+    { id: 'enterprise', label: 'Enterprise', Icon: Building2, count: 3 },
 ]
 
 const ARTICLES = [
-    { id: 1,  cat: 'start',      title: 'Быстрый старт',                      excerpt: 'Зарегистрируйтесь и начните первый курс за 5 минут',                   readTime: '3 мин', Icon: BookOpen   },
-    { id: 2,  cat: 'start',      title: 'Навигация по платформе',              excerpt: 'Обзор всех разделов панели студента и их назначение',                  readTime: '5 мин', Icon: BookOpen   },
-    { id: 3,  cat: 'start',      title: 'Настройка профиля',                  excerpt: 'Загрузите фото, заполните информацию о себе',                          readTime: '2 мин', Icon: BookOpen   },
-    { id: 4,  cat: 'start',      title: 'Первый курс: от записи до диплома',  excerpt: 'Пошаговый путь студента через структуру курса',                         readTime: '6 мин', Icon: BookOpen   },
-    { id: 5,  cat: 'auth',       title: 'Сброс пароля',                       excerpt: 'Шаги для восстановления доступа к аккаунту',                           readTime: '2 мин', Icon: Shield     },
-    { id: 6,  cat: 'auth',       title: 'Двухфакторная аутентификация',       excerpt: 'Как включить 2FA для защиты аккаунта',                                 readTime: '4 мин', Icon: Shield     },
-    { id: 7,  cat: 'auth',       title: 'Управление сессиями',                excerpt: 'Просмотр активных устройств и завершение сессий',                       readTime: '3 мин', Icon: Shield     },
-    { id: 8,  cat: 'billing',    title: 'Тарифные планы',                     excerpt: 'Сравнение Free, Pro и Enterprise тарифов',                             readTime: '3 мин', Icon: Zap        },
-    { id: 9,  cat: 'billing',    title: 'Способы оплаты',                     excerpt: 'Принимаемые карты и банковские переводы',                               readTime: '2 мин', Icon: Zap        },
-    { id: 10, cat: 'billing',    title: 'Возврат средств',                    excerpt: 'Условия и сроки возврата платежей',                                     readTime: '3 мин', Icon: Zap        },
-    { id: 11, cat: 'settings',   title: 'Уведомления',                       excerpt: 'Управление всеми типами push и email уведомлений',                     readTime: '3 мин', Icon: Settings   },
-    { id: 12, cat: 'settings',   title: 'Язык и регион',                     excerpt: 'Смена языка интерфейса на RU / EN / KZ',                               readTime: '1 мин', Icon: Settings   },
-    { id: 13, cat: 'settings',   title: 'Конфиденциальность',                excerpt: 'Настройки видимости профиля и данных',                                  readTime: '4 мин', Icon: Settings   },
-    { id: 14, cat: 'api',        title: 'REST API — начало',                  excerpt: 'Получите API ключ и сделайте первый запрос',                            readTime: '7 мин', Icon: Code       },
-    { id: 15, cat: 'api',        title: 'Webhooks',                           excerpt: 'Настройка уведомлений о событиях через webhook',                       readTime: '5 мин', Icon: Code       },
-    { id: 16, cat: 'enterprise', title: 'SSO и LDAP',                        excerpt: 'Интеграция с корпоративными системами авторизации',                     readTime: '10 мин', Icon: Building2 },
-    { id: 17, cat: 'enterprise', title: 'Массовое добавление пользователей', excerpt: 'Импорт пользователей через CSV или API',                                readTime: '8 мин', Icon: Building2  },
+    { id: 1, cat: 'start', title: 'Быстрый старт', excerpt: 'Зарегистрируйтесь и начните первый курс за 5 минут', readTime: '3 мин', Icon: BookOpen },
+    { id: 2, cat: 'start', title: 'Навигация по платформе', excerpt: 'Обзор всех разделов панели студента и их назначение', readTime: '5 мин', Icon: BookOpen },
+    { id: 3, cat: 'start', title: 'Настройка профиля', excerpt: 'Загрузите фото, заполните информацию о себе', readTime: '2 мин', Icon: BookOpen },
+    { id: 4, cat: 'start', title: 'Первый курс: от записи до диплома', excerpt: 'Пошаговый путь студента через структуру курса', readTime: '6 мин', Icon: BookOpen },
+    { id: 5, cat: 'auth', title: 'Сброс пароля', excerpt: 'Шаги для восстановления доступа к аккаунту', readTime: '2 мин', Icon: Shield },
+    { id: 6, cat: 'auth', title: 'Двухфакторная аутентификация', excerpt: 'Как включить 2FA для защиты аккаунта', readTime: '4 мин', Icon: Shield },
+    { id: 7, cat: 'auth', title: 'Управление сессиями', excerpt: 'Просмотр активных устройств и завершение сессий', readTime: '3 мин', Icon: Shield },
+    { id: 8, cat: 'billing', title: 'Тарифные планы', excerpt: 'Сравнение Free, Pro и Enterprise тарифов', readTime: '3 мин', Icon: Zap },
+    { id: 9, cat: 'billing', title: 'Способы оплаты', excerpt: 'Принимаемые карты и банковские переводы', readTime: '2 мин', Icon: Zap },
+    { id: 10, cat: 'billing', title: 'Возврат средств', excerpt: 'Условия и сроки возврата платежей', readTime: '3 мин', Icon: Zap },
+    { id: 11, cat: 'settings', title: 'Уведомления', excerpt: 'Управление всеми типами push и email уведомлений', readTime: '3 мин', Icon: Settings },
+    { id: 12, cat: 'settings', title: 'Язык и регион', excerpt: 'Смена языка интерфейса на RU / EN / KZ', readTime: '1 мин', Icon: Settings },
+    { id: 13, cat: 'settings', title: 'Конфиденциальность', excerpt: 'Настройки видимости профиля и данных', readTime: '4 мин', Icon: Settings },
+    { id: 14, cat: 'api', title: 'REST API — начало', excerpt: 'Получите API ключ и сделайте первый запрос', readTime: '7 мин', Icon: Code },
+    { id: 15, cat: 'api', title: 'Webhooks', excerpt: 'Настройка уведомлений о событиях через webhook', readTime: '5 мин', Icon: Code },
+    { id: 16, cat: 'enterprise', title: 'SSO и LDAP', excerpt: 'Интеграция с корпоративными системами авторизации', readTime: '10 мин', Icon: Building2 },
+    { id: 17, cat: 'enterprise', title: 'Массовое добавление пользователей', excerpt: 'Импорт пользователей через CSV или API', readTime: '8 мин', Icon: Building2 },
 ]
 
 const FAQS = [
-    { q: 'Как сбросить пароль?',                                              a: 'Перейдите на страницу входа и нажмите «Забыли пароль?». Введите email — вам придёт письмо со ссылкой для сброса.',                                    cat: 'auth'     },
-    { q: 'Можно ли использовать один аккаунт на нескольких устройствах?',     a: 'Да, ваш аккаунт доступен с любых устройств. Авторизуйтесь с теми же данными — прогресс синхронизируется автоматически.',                               cat: 'start'    },
-    { q: 'Как удалить учётную запись?',                                       a: 'Перейдите в Настройки → Безопасность → Удалить аккаунт. Данные удаляются в течение 30 дней.',                                                          cat: 'settings' },
-    { q: 'Что включено в бесплатный тариф?',                                  a: 'Free-план включает: 5 курсов, базовый AI-ассистент, квизы и участие в турнирах без ограничений.',                                                      cat: 'billing'  },
-    { q: 'Как настроить API интеграцию?',                                     a: 'В разделе Настройки → API скопируйте ваш ключ. Документация с примерами запросов доступна в разделе /docs/api.',                                       cat: 'api'      },
-    { q: 'Как добавить ребёнка в родительский аккаунт?',                      a: 'В дашборде родителя нажмите «+ Добавить ребёнка» и введите его учётные данные или пригласительный код.',                                             cat: 'start'    },
-    { q: 'Можно ли получить возврат денег?',                                  a: 'Да, в течение 14 дней после оплаты. Создайте тикет в поддержку с номером заказа — мы вернём средства в течение 3–5 рабочих дней.',                   cat: 'billing'  },
-    { q: 'Как включить двухфакторную аутентификацию?',                        a: 'Перейдите в Настройки → Безопасность → 2FA. Выберите приложение-аутентификатор (Google Authenticator или аналог) и насканируйте QR-код.',             cat: 'auth'     },
+    { q: 'Как сбросить пароль?', a: 'Перейдите на страницу входа и нажмите «Забыли пароль?». Введите email — вам придёт письмо со ссылкой для сброса.', cat: 'auth' },
+    { q: 'Можно ли использовать один аккаунт на нескольких устройствах?', a: 'Да, ваш аккаунт доступен с любых устройств. Авторизуйтесь с теми же данными — прогресс синхронизируется автоматически.', cat: 'start' },
+    { q: 'Как удалить учётную запись?', a: 'Перейдите в Настройки → Безопасность → Удалить аккаунт. Данные удаляются в течение 30 дней.', cat: 'settings' },
+    { q: 'Что включено в бесплатный тариф?', a: 'Free-план включает: 5 курсов, базовый AI-ассистент, квизы и участие в турнирах без ограничений.', cat: 'billing' },
+    { q: 'Как настроить API интеграцию?', a: 'В разделе Настройки → API скопируйте ваш ключ. Документация с примерами запросов доступна в разделе /docs/api.', cat: 'api' },
+    { q: 'Как добавить ребёнка в родительский аккаунт?', a: 'В дашборде родителя нажмите «+ Добавить ребёнка» и введите его учётные данные или пригласительный код.', cat: 'start' },
+    { q: 'Можно ли получить возврат денег?', a: 'Да, в течение 14 дней после оплаты. Создайте тикет в поддержку с номером заказа — мы вернём средства в течение 3–5 рабочих дней.', cat: 'billing' },
+    { q: 'Как включить двухфакторную аутентификацию?', a: 'Перейдите в Настройки → Безопасность → 2FA. Выберите приложение-аутентификатор (Google Authenticator или аналог) и насканируйте QR-код.', cat: 'auth' },
 ]
 
 export function HelpPage() {
     const navigate = useNavigate()
     const [activeCat, setActiveCat] = useState('all')
-    const [searchQ, setSearchQ]     = useState('')
-    const [openFaq, setOpenFaq]     = useState<number | null>(null)
-    const [faqCat, setFaqCat]       = useState('all')
+    const [searchQ, setSearchQ] = useState('')
+    const [openFaq, setOpenFaq] = useState<number | null>(null)
+    const [faqCat, setFaqCat] = useState('all')
     const [supportOpen, setSupportOpen] = useState(false)
-    const [ticketMode, setTicketMode]   = useState(false)
-    const [ticketForm, setTicketForm]   = useState({ name: '', email: '', subject: '', message: '' })
-    const [ticketSent, setTicketSent]   = useState(false)
+    const [ticketMode, setTicketMode] = useState(false)
+    const [ticketForm, setTicketForm] = useState({ name: '', email: '', subject: '', message: '' })
+    const [ticketSent, setTicketSent] = useState(false)
 
     function openSupport() { setSupportOpen(true); setTicketMode(false); setTicketSent(false) }
     function closeSupport() { setSupportOpen(false); setTicketMode(false); setTicketSent(false) }
@@ -349,7 +349,7 @@ export function HelpPage() {
                                         rel="noreferrer"
                                     >
                                         <div className="sp-option-icon sp-opt-tg">
-                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 1 0 24 12 12.017 12.017 0 0 0 11.944 0zm5.01 7.77-1.73 8.16c-.13.58-.47.72-.95.45l-2.62-1.93-1.26 1.22a.66.66 0 0 1-.53.26l.19-2.66 4.84-4.37c.21-.19-.05-.29-.32-.1L7.29 14.63l-2.56-.8c-.56-.17-.57-.56.12-.83l9.98-3.85c.46-.17.87.11.72.62z"/></svg>
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 1 0 24 12 12.017 12.017 0 0 0 11.944 0zm5.01 7.77-1.73 8.16c-.13.58-.47.72-.95.45l-2.62-1.93-1.26 1.22a.66.66 0 0 1-.53.26l.19-2.66 4.84-4.37c.21-.19-.05-.29-.32-.1L7.29 14.63l-2.56-.8c-.56-.17-.57-.56.12-.83l9.98-3.85c.46-.17.87.11.72.62z" /></svg>
                                         </div>
                                         <div className="sp-option-body">
                                             <p className="sp-option-title">Telegram</p>

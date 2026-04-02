@@ -172,7 +172,7 @@ export function TeacherCoursesPage({ language, onLanguageChange }: Props) {
                                         <button
                                             type="button"
                                             className="tc-action-btn edit"
-                                            onClick={() => navigate('/teacher/courses/new')}
+                                            onClick={() => navigate('/teacher/courses/new', { state: { editId: c.id, editTitle: c.title } })}
                                             title="Редактировать"
                                         >
                                             <Edit2 size={14} />

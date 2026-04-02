@@ -229,7 +229,7 @@ export function TeacherWorkspacePage({ language, onLanguageChange }: TeacherWork
     )
 
     return (
-        <TeacherShellLayout language={language} onLanguageChange={onLanguageChange} title="Расписание и занятия" activePage="t-schedule">
+        <TeacherShellLayout language={language} onLanguageChange={onLanguageChange} title="Рабочий стол" activePage="t-workspace">
             <section className="teacher-workspace">
                 <div className="teacher-tabs" aria-label="Teacher workspace tabs">
                     {tabItems.map((tab) => {

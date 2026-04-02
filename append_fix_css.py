@@ -256,9 +256,9 @@ css = r"""
 .sp-sent p  { font-size: 0.875rem; color: rgba(255,255,255,0.55); margin-bottom: 1.5rem; }
 """
 
-target = os.path.join(os.path.dirname(__file__), 'frontend', 'src', 'index.css')
-with open(target, 'a', encoding='utf-8') as f:
-    f.write('\n')
+target = os.path.join(os.path.dirname(__file__), "frontend", "src", "index.css")
+with open(target, "a", encoding="utf-8") as f:
+    f.write("\n")
     f.write(css)
 
-print('CSS fix appended successfully.')
+print("CSS fix appended successfully.")

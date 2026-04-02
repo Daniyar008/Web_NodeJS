@@ -7,6 +7,7 @@ import {
     CalendarDays,
     CircleUserRound,
     HelpCircle,
+    Layout,
     LayoutDashboard,
     LogOut,
     MessageCircle,
@@ -21,6 +22,7 @@ import { useNavigate } from 'react-router-dom'
 import type { Language } from '../i18n/translations'
 
 export type ActiveTeacherPage =
+    | 't-workspace'
     | 't-dashboard'
     | 't-courses'
     | 't-students'
@@ -49,8 +51,8 @@ export function TeacherShellLayout({
     const navigate = useNavigate()
 
     const [profileOpen, setProfileOpen] = useState(false)
-    const [searchOpen, setSearchOpen]   = useState(false)
-    const [searchQ, setSearchQ]         = useState('')
+    const [searchOpen, setSearchOpen] = useState(false)
+    const [searchQ, setSearchQ] = useState('')
     const profileRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -84,6 +86,13 @@ export function TeacherShellLayout({
                 </button>
 
                 <nav className="teacher-nav" aria-label="Teacher navigation">
+                    <button
+                        type="button"
+                        className={activePage === 't-workspace' ? 'active' : ''}
+                        onClick={() => navigate('/teacher')}
+                    >
+                        <Layout size={17} /> Рабочий стол
+                    </button>
                     <button
                         type="button"
                         className={activePage === 't-dashboard' ? 'active' : ''}
@@ -196,10 +205,10 @@ export function TeacherShellLayout({
                                         </div>
                                     </div>
                                     <div className="mini-profile-links">
-                                        <button type="button" onClick={() => { navigate('/teacher/dashboard'); setProfileOpen(false) }}><User size={14} /> Профиль</button>
+                                        <button type="button" onClick={() => { navigate('/teacher/settings'); setProfileOpen(false) }}><User size={14} /> Профиль</button>
                                         <button type="button" onClick={() => { navigate('/teacher/settings'); setProfileOpen(false) }}><Settings size={14} /> Настройки</button>
                                         <button type="button" onClick={() => { navigate('/help'); setProfileOpen(false) }}><HelpCircle size={14} /> Помощь</button>
-                                        <button type="button" className="mini-profile-logout"><LogOut size={14} /> Выйти</button>
+                                        <button type="button" className="mini-profile-logout" onClick={() => { localStorage.removeItem('estudy-role'); setProfileOpen(false); navigate('/') }}><LogOut size={14} /> Выйти</button>
                                     </div>
                                 </div>
                             )}
