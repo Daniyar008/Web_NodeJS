@@ -57,7 +57,7 @@ export function InstitutionUsersPage({ language, onLanguageChange }: Props) {
             return instApi.members(list[0].id)
         }).then((members?: InstitutionMember[]) => {
             if (members) setUsers(members.map(memberToUser))
-        }).catch(() => {})
+        }).catch(() => { })
     }, [])
 
     async function removeMember(memberId: string) {
