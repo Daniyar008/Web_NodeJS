@@ -3,7 +3,7 @@ import { BookOpen, Edit2, Eye, Plus, Star, Trash2, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { Language } from '../i18n/translations'
 import { TeacherShellLayout } from './TeacherShellLayout'
-import { courses as coursesApi, decodeAccessToken, getAccessToken, type CourseListItem } from '../lib/api'
+import { courses as coursesApi, type CourseListItem } from '../lib/api'
 
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
@@ -113,10 +113,7 @@ export function TeacherCoursesPage({ language, onLanguageChange }: Props) {
         let cancelled = false
             ; (async () => {
                 try {
-                    const token = getAccessToken()
-                    const payload = token ? decodeAccessToken(token) : null
-                    const authorId = payload?.sub
-                    const data = await coursesApi.list(authorId ?? undefined)
+                    const data = await coursesApi.list('me')
                     if (!cancelled) {
                         setCourses(data.map((c, i) => apiToTeacherCourse(c, i)))
                     }

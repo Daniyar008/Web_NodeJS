@@ -71,14 +71,14 @@ export function StudentProgressPage({ language, onLanguageChange }: Props) {
     useEffect(() => {
         student.coursesEnrolled().then(enrolled => {
             setCourses(enrolled.map((e, i) => enrolledToProgress(e, i)))
-        }).catch(() => {})
+        }).catch(() => { })
         student.me().then(p => {
             setStreak(p.gamification.streak)
-        }).catch(() => {})
+        }).catch(() => { })
         student.achievements().then(data => {
             setAchTotal(data.all.length)
             setAchUnlocked(data.unlockedIds.length)
-        }).catch(() => {})
+        }).catch(() => { })
     }, [])
 
     const totalLessons = courses.reduce((s, c) => s + c.lessons, 0)

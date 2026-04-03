@@ -197,8 +197,8 @@ export interface CourseDetail extends CourseListItem {
 }
 
 export const courses = {
-    list: (authorId?: string) => {
-        const qs = authorId ? `?authorId=${encodeURIComponent(authorId)}` : ''
+    list: (filter?: 'me') => {
+        const qs = filter === 'me' ? '?mine=true' : ''
         return apiFetch<CourseListItem[]>(`/api/courses${qs}`)
     },
     get: (id: string) => apiFetch<CourseDetail>(`/api/courses/${id}`),
@@ -210,6 +210,26 @@ export const courses = {
         apiFetch<void>(`/api/courses/${id}`, { method: 'DELETE' }),
     teacherStats: () =>
         apiFetch<{ totalCourses: number; totalStudents: number; pendingSubmissions: number }>('/api/courses/teacher/stats'),
+
+    // Modules
+    createModule: (courseId: string, body: { title: string; order?: number }) =>
+        apiFetch<{ id: string; title: string; order: number }>(`/api/courses/${courseId}/modules`, { method: 'POST', body: JSON.stringify(body) }),
+    updateModule: (moduleId: string, body: { title?: string; order?: number }) =>
+        apiFetch<{ id: string; title: string; order: number }>(`/api/courses/modules/${moduleId}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    deleteModule: (moduleId: string) =>
+        apiFetch<void>(`/api/courses/modules/${moduleId}`, { method: 'DELETE' }),
+
+    // Lessons
+    createLesson: (moduleId: string, body: { title: string; type?: string; content?: string; videoUrl?: string; order?: number }) =>
+        apiFetch<{ id: string; title: string; type: string; order: number }>(`/api/courses/modules/${moduleId}/lessons`, { method: 'POST', body: JSON.stringify(body) }),
+    updateLesson: (lessonId: string, body: { title?: string; type?: string; content?: string; videoUrl?: string }) =>
+        apiFetch<{ id: string; title: string; type: string; order: number }>(`/api/courses/lessons/${lessonId}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    deleteLesson: (lessonId: string) =>
+        apiFetch<void>(`/api/courses/lessons/${lessonId}`, { method: 'DELETE' }),
+
+    // Tests
+    upsertTest: (lessonId: string, body: { title: string; timeLimit?: number; passingScore?: number; questions: Array<{ text: string; type: 'SINGLE' | 'MULTIPLE' | 'TEXT'; options?: Array<{ text: string; isCorrect: boolean }> }> }) =>
+        apiFetch<unknown>(`/api/courses/lessons/${lessonId}/test`, { method: 'PUT', body: JSON.stringify(body) }),
 }
 
 // ─── Student ───────────────────────────────────────────────────────────────────

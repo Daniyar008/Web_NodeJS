@@ -61,7 +61,7 @@ export function StudentAchievementsPage({ language, onLanguageChange }: Props) {
         student.achievements().then(data => {
             const unlockedMap = new Map(data.unlocked.map(u => [u.achievementId, u.unlockedAt]))
             setAchievements(data.all.map(a => apiToLocal(a, unlockedMap)))
-        }).catch(() => {})
+        }).catch(() => { })
     }, [])
 
     const unlocked = achievements.filter(a => a.unlocked)

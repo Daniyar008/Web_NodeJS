@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import type { ReactElement } from 'react'
 import {
     BookOpen,
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { TeacherShellLayout } from './TeacherShellLayout'
 import type { Language } from '../i18n/translations'
+import { courses as coursesApi } from '../lib/api'
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 type LessonType = 'video' | 'text' | 'quiz' | 'file'
@@ -87,19 +88,42 @@ type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
 export function TeacherCourseBuilderPage({ language, onLanguageChange }: Props) {
     const location = useLocation()
+    const navigate = useNavigate()
     const editState = location.state as { editId?: string; editTitle?: string } | null
     const isEditMode = !!editState?.editId
 
-    const [modules, setModules] = useState<Module[]>(INITIAL_MODULES)
-    const [activeLesson, setActiveLesson] = useState<{ moduleId: string; lessonId: string } | null>({
-        moduleId: INITIAL_MODULES[0].id,
-        lessonId: INITIAL_MODULES[0].lessons[0].id,
-    })
+    const [courseId, setCourseId] = useState<string | null>(editState?.editId ?? null)
+    const [modules, setModules] = useState<Module[]>(isEditMode ? [] : INITIAL_MODULES)
+    const [activeLesson, setActiveLesson] = useState<{ moduleId: string; lessonId: string } | null>(
+        isEditMode ? null : { moduleId: INITIAL_MODULES[0].id, lessonId: INITIAL_MODULES[0].lessons[0].id }
+    )
     const [courseTitle, setCourseTitle] = useState(editState?.editTitle ?? 'Название курса')
     const [courseDesc, setCourseDesc] = useState('')
     const [courseCategory, setCourseCategory] = useState('Design')
     const [courseLang, setCourseLang] = useState('ru')
     const [saved, setSaved] = useState(false)
+    const [saving, setSaving] = useState(false)
+
+    /* ── Load existing course in edit mode ── */
+    useEffect(() => {
+        if (!editState?.editId) return
+        coursesApi.get(editState.editId).then(c => {
+            setCourseTitle(c.title)
+            setCourseDesc(c.description ?? '')
+            const loaded: Module[] = c.modules.map(m => ({
+                id: m.id, title: m.title, open: false,
+                lessons: m.lessons.map(l => ({
+                    id: l.id, title: l.title, type: l.type.toLowerCase() as LessonType,
+                    videoUrl: '', textContent: '', questions: [blankQuestion()], duration: '10',
+                })),
+            }))
+            if (loaded.length > 0) loaded[0].open = true
+            setModules(loaded)
+            if (loaded.length > 0 && loaded[0].lessons.length > 0) {
+                setActiveLesson({ moduleId: loaded[0].id, lessonId: loaded[0].lessons[0].id })
+            }
+        }).catch(() => { })
+    }, [editState?.editId])
 
     /* ── Finders ── */
     const findLesson = (mId: string, lId: string) =>
@@ -179,9 +203,75 @@ export function TeacherCourseBuilderPage({ language, onLanguageChange }: Props) 
     }
 
     /* ── Save ── */
-    const handleSave = () => {
-        setSaved(true)
-        setTimeout(() => setSaved(false), 2000)
+    const handleSave = async (publish = false) => {
+        if (saving) return
+        setSaving(true)
+        try {
+            let id = courseId
+            if (!id) {
+                const created = await coursesApi.create({ title: courseTitle, description: courseDesc || undefined })
+                id = created.id
+                setCourseId(id)
+            } else {
+                await coursesApi.update(id, { title: courseTitle, description: courseDesc || undefined })
+            }
+            // Create modules & lessons that don't exist on backend yet (local genId ids)
+            for (let mi = 0; mi < modules.length; mi++) {
+                const mod = modules[mi]
+                let moduleId = mod.id
+                // If id is short (genId), it's a local-only module
+                if (moduleId.length < 20) {
+                    const created = await coursesApi.createModule(id, { title: mod.title, order: mi })
+                    moduleId = created.id
+                    setModules(prev => prev.map(m => m.id === mod.id ? { ...m, id: moduleId } : m))
+                } else {
+                    await coursesApi.updateModule(moduleId, { title: mod.title, order: mi })
+                }
+                for (let li = 0; li < mod.lessons.length; li++) {
+                    const les = mod.lessons[li]
+                    let lessonId = les.id
+                    const typeUpper = les.type.toUpperCase() as 'VIDEO' | 'TEXT' | 'QUIZ' | 'ASSIGNMENT'
+                    if (lessonId.length < 20) {
+                        const created = await coursesApi.createLesson(moduleId, {
+                            title: les.title, type: typeUpper,
+                            content: les.textContent || undefined,
+                            videoUrl: les.videoUrl || undefined, order: li,
+                        })
+                        lessonId = created.id
+                        setModules(prev => prev.map(m => m.id === moduleId
+                            ? { ...m, lessons: m.lessons.map(l => l.id === les.id ? { ...l, id: lessonId } : l) }
+                            : m
+                        ))
+                    } else {
+                        await coursesApi.updateLesson(lessonId, {
+                            title: les.title, type: typeUpper,
+                            content: les.textContent || undefined,
+                            videoUrl: les.videoUrl || undefined,
+                        })
+                    }
+                    // Save quiz questions
+                    if (les.type === 'quiz' && les.questions.length > 0 && les.questions.some(q => q.text)) {
+                        await coursesApi.upsertTest(lessonId, {
+                            title: les.title,
+                            questions: les.questions.filter(q => q.text).map(q => ({
+                                text: q.text, type: 'SINGLE' as const,
+                                options: q.options.map((o, i) => ({ text: o.text || `Вариант ${i + 1}`, isCorrect: i === q.correctIdx })),
+                            })),
+                        })
+                    }
+                }
+            }
+            if (publish && id) {
+                await coursesApi.update(id, { status: 'PUBLISHED' })
+            }
+            setSaved(true)
+            setTimeout(() => setSaved(false), 2000)
+            if (publish) navigate('/teacher/courses')
+        } catch (err) {
+            console.error('Save failed', err)
+        } finally {
+            setSaving(false)
+        }
     }
 
     const totalLessons = modules.reduce((s, m) => s + m.lessons.length, 0)
@@ -497,11 +587,11 @@ export function TeacherCourseBuilderPage({ language, onLanguageChange }: Props) 
                             <span className="cb-status-text">{saved ? 'Сохранено ✓' : 'Несохранённые изменения'}</span>
                         </div>
                         <div className="cb-action-right">
-                            <button type="button" className="cb-btn secondary" onClick={handleSave}>
+                            <button type="button" className="cb-btn secondary" onClick={() => handleSave(false)} disabled={saving}>
                                 <Save size={14} style={{ verticalAlign: 'middle', marginRight: 5 }} />
-                                Сохранить черновик
+                                {saving ? 'Сохранение...' : 'Сохранить черновик'}
                             </button>
-                            <button type="button" className="cb-btn primary" onClick={handleSave}>
+                            <button type="button" className="cb-btn primary" onClick={() => handleSave(true)} disabled={saving}>
                                 <Send size={14} style={{ verticalAlign: 'middle', marginRight: 5 }} />
                                 Отправить на проверку
                             </button>

@@ -63,7 +63,7 @@ export function StudentTournamentsPage({ language, onLanguageChange }: Props) {
 
     // Load tournaments from API
     useEffect(() => {
-        tournamentApi.list().then(arr => setTournaments(arr.map(apiToLocal))).catch(() => {})
+        tournamentApi.list().then(arr => setTournaments(arr.map(apiToLocal))).catch(() => { })
     }, [])
 
     // Load leaderboard for the first active tournament
@@ -77,7 +77,7 @@ export function StudentTournamentsPage({ language, onLanguageChange }: Props) {
                 ...r,
                 me: r.user.id === myId,
             })))
-        }).catch(() => {})
+        }).catch(() => { })
     }, [tournaments])
 
     const enter = async (id: string) => {

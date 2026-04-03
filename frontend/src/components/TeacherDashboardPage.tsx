@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
     Award,
     BookOpen,
@@ -8,15 +8,10 @@ import {
 } from 'lucide-react'
 import type { Language } from '../i18n/translations'
 import { TeacherShellLayout } from './TeacherShellLayout'
+import { courses as coursesApi } from '../lib/api'
+import type { CourseListItem } from '../lib/api'
 
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
-
-const STATS = [
-    { icon: <Users size={20} />, value: '247', label: 'Студентов', change: '+12 за месяц', up: true, color: '#6366f1' },
-    { icon: <BookOpen size={20} />, value: '4', label: 'Активных курса', change: '1 на проверке', up: null, color: '#43c38d' },
-    { icon: <Star size={20} />, value: '4.8', label: 'Средний рейтинг', change: '+0.2 за месяц', up: true, color: '#f59e0b' },
-    { icon: <TrendingUp size={20} />, value: '52 000 ₸', label: 'Доход', change: '+8 400 ₸', up: true, color: '#ec4899' },
-]
 
 const UPCOMING = [
     { time: '10:00', title: 'Класс 8A — UI Fundamentals', type: 'class', count: 22 },
@@ -32,15 +27,28 @@ const ACTIVITY = [
     { avatar: 'ЗК', name: 'Зарина Кенжебаева', action: 'завершила урок', subject: 'Color Theory', time: '3 ч назад' },
 ]
 
-const COURSES = [
-    { title: 'Figma Basic to Advance', students: 98, lessons: 24, rating: 4.9, completion: 72 },
-    { title: 'Graphic Design Pro', students: 74, lessons: 18, rating: 4.7, completion: 58 },
-    { title: 'UI/UX Masterclass', students: 56, lessons: 30, rating: 4.8, completion: 81 },
-    { title: 'Illustration Camp', students: 19, lessons: 12, rating: 4.6, completion: 44 },
-]
-
 export function TeacherDashboardPage({ language, onLanguageChange }: Props) {
     const [tab, setTab] = useState<'today' | 'week'>('today')
+    const [totalStudents, setTotalStudents] = useState(0)
+    const [totalCourses, setTotalCourses] = useState(0)
+    const [pendingSubs, setPendingSubs] = useState(0)
+    const [myCourses, setMyCourses] = useState<CourseListItem[]>([])
+
+    useEffect(() => {
+        coursesApi.teacherStats().then(s => {
+            setTotalStudents(s.totalStudents)
+            setTotalCourses(s.totalCourses)
+            setPendingSubs(s.pendingSubmissions)
+        }).catch(() => { })
+        coursesApi.list('me').then(setMyCourses).catch(() => { })
+    }, [])
+
+    const STATS = [
+        { icon: <Users size={20} />, value: String(totalStudents), label: 'Студентов', change: `${totalCourses} курсов`, color: '#6366f1' },
+        { icon: <BookOpen size={20} />, value: String(totalCourses), label: 'Активных курса', change: `${pendingSubs} на проверку`, color: '#43c38d' },
+        { icon: <Star size={20} />, value: '4.8', label: 'Средний рейтинг', change: '', color: '#f59e0b' },
+        { icon: <TrendingUp size={20} />, value: String(pendingSubs), label: 'На проверке', change: 'работ', color: '#ec4899' },
+    ]
 
     return (
         <TeacherShellLayout
@@ -73,9 +81,7 @@ export function TeacherDashboardPage({ language, onLanguageChange }: Props) {
                             <div className="td-stat-body">
                                 <span className="td-stat-value">{s.value}</span>
                                 <span className="td-stat-label">{s.label}</span>
-                                <span className={`td-stat-change ${s.up === true ? 'up' : s.up === false ? 'down' : ''}`}>
-                                    {s.change}
-                                </span>
+                                {s.change && <span className="td-stat-change">{s.change}</span>}
                             </div>
                         </div>
                     ))}
@@ -122,16 +128,16 @@ export function TeacherDashboardPage({ language, onLanguageChange }: Props) {
                                     <span>Завершили</span>
                                     <span>Рейтинг</span>
                                 </div>
-                                {COURSES.map((c) => (
-                                    <div key={c.title} className="td-perf-row">
+                                {myCourses.map((c) => (
+                                    <div key={c.id} className="td-perf-row">
                                         <span className="td-perf-name">{c.title}</span>
-                                        <span>{c.students}</span>
+                                        <span>{c._count.enrollments}</span>
                                         <div className="td-perf-progress">
-                                            <div className="td-perf-bar" style={{ width: `${c.completion}%` }} />
-                                            <span>{c.completion}%</span>
+                                            <div className="td-perf-bar" style={{ width: '0%' }} />
+                                            <span>{c._count.modules} мод.</span>
                                         </div>
                                         <span className="td-perf-rating">
-                                            <Award size={12} /> {c.rating}
+                                            <Award size={12} /> —
                                         </span>
                                     </div>
                                 ))}
