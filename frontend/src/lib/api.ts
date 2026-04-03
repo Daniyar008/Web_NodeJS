@@ -428,10 +428,30 @@ export interface ChildProgress {
     gamification: { xp: number; level: number; streak: number }
 }
 
+export interface ParentGoal {
+    id: string
+    title: string
+    description: string | null
+    targetXp: number
+    reward: string | null
+    achieved: boolean
+    achievedAt: string | null
+    studentId: string
+    createdAt: string
+}
+
 export const parent = {
     children: () => apiFetch<ParentChild[]>('/api/parent/children'),
     childProgress: (studentId: string) => apiFetch<ChildProgress>(`/api/parent/children/${studentId}/progress`),
-    goals: (studentId: string) => apiFetch<Array<{ id: string; title: string; status: string; targetDate: string | null }>>(`/api/parent/children/${studentId}/goals`),
+    goals: (studentId: string) => apiFetch<ParentGoal[]>(`/api/parent/children/${studentId}/goals`),
+    createGoal: (body: { studentId: string; title: string; description?: string; targetXp: number; reward?: string }) =>
+        apiFetch<ParentGoal>('/api/parent/goals', { method: 'POST', body: JSON.stringify(body) }),
+    updateGoal: (id: string, body: { title?: string; description?: string; targetXp?: number; reward?: string; achieved?: boolean }) =>
+        apiFetch<ParentGoal>(`/api/parent/goals/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    deleteGoal: (id: string) =>
+        apiFetch<void>(`/api/parent/goals/${id}`, { method: 'DELETE' }),
+    checkGoals: (studentId: string) =>
+        apiFetch<ParentGoal[]>(`/api/parent/children/${studentId}/goals/check`, { method: 'POST' }),
     teachers: () => apiFetch<Array<{ id: string; firstName: string; lastName: string; email: string }>>('/api/parent/teachers'),
 }
 
