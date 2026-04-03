@@ -30,6 +30,18 @@ const envSchema = z.object({
     // Supabase (optional — only needed for Storage; DB is plain DATABASE_URL)
     SUPABASE_URL: z.string().url().optional(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+    // SMTP Email (optional — falls back to Ethereal in dev if absent)
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.coerce.number().int().default(587),
+    SMTP_SECURE: z
+        .string()
+        .optional()
+        .transform((v) => v === "true")
+        .pipe(z.boolean())
+        .default(false),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    SMTP_FROM: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

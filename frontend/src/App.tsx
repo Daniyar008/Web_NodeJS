@@ -6,6 +6,7 @@ import { HelpPage } from './components/HelpPage'
 import { HomeDashboard } from './components/HomeDashboard'
 import { LandingPage } from './components/LandingPage'
 import { AuthPage } from './components/AuthPage'
+import { ForgotPasswordPage } from './components/ForgotPasswordPage'
 import { ChatPage } from './components/ChatPage'
 import { ProfilePage } from './components/ProfilePage'
 import { ResourcesPage } from './components/ResourcesPage'
@@ -80,6 +81,8 @@ function App() {
         <Route path="/register" element={<AuthPage mode="register" role="student" />} />
         <Route path="/login/:role" element={<AuthRoleRoute mode="login" resolveRole={resolveRole} />} />
         <Route path="/register/:role" element={<AuthRoleRoute mode="register" resolveRole={resolveRole} />} />
+        <Route path="/forgot" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ForgotPasswordPage />} />
 
         {/* ── Student (auth-guarded) ──────────────────────────────── */}
         <Route path="/dashboard" element={<AuthGuard><HomeDashboard language={language} onLanguageChange={setLanguage} /></AuthGuard>} />

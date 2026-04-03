@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
+    "rootDir": "./src",
     "module": "Node16",
     "target": "es2022",
     "moduleResolution": "node16",

@@ -1,0 +1,578 @@
+﻿// ═══════════════════════════════════════════════════════════════════
+// Q-EDU / EduFuture — полная схема базы данных (dbdiagram.io DBML)
+// Основана на реальной Prisma-схеме проекта (April 2026)
+// Вставьте содержимое на https://dbdiagram.io
+// ═══════════════════════════════════════════════════════════════════
+
+// ─── АУТЕНТИФИКАЦИЯ И ПОЛЬЗОВАТЕЛИ ──────────────────────────────────
+
+Table roles {
+  id        varchar [pk]
+  name      varchar [unique, note: "'INSTITUTION_ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT'"]
+  createdAt timestamptz
+  updatedAt timestamptz
+}
+
+Table users {
+  id           varchar [pk]
+  email        varchar [unique]
+  passwordHash varchar
+  firstName    varchar
+  lastName     varchar
+  avatarUrl    varchar [null]
+  isActive     boolean [default: true]
+  roleId       varchar [ref: > roles.id]
+  createdAt    timestamptz
+  updatedAt    timestamptz
+
+  Indexes {
+    roleId
+  }
+}
+
+Table refresh_tokens {
+  id        varchar [pk]
+  token     varchar [unique]
+  userId    varchar [ref: > users.id]
+  expiresAt timestamptz
+  createdAt timestamptz
+
+  Indexes {
+    userId
+  }
+}
+
+// ─── УЧРЕЖДЕНИЯ ───────────────────────────────────────────────────────
+
+Table institutions {
+  id          varchar [pk]
+  name        varchar
+  slug        varchar [unique]
+  description varchar [null]
+  address     varchar [null]
+  phone       varchar [null]
+  email       varchar [null]
+  website     varchar [null]
+  logoUrl     varchar [null]
+  isActive    boolean [default: true]
+  createdAt   timestamptz
+  updatedAt   timestamptz
+}
+
+Table departments {
+  id            varchar [pk]
+  name          varchar
+  institutionId varchar [ref: > institutions.id]
+  createdAt     timestamptz
+  updatedAt     timestamptz
+
+  Indexes {
+    institutionId
+  }
+}
+
+Table classes {
+  id           varchar [pk]
+  name         varchar
+  year         integer
+  departmentId varchar [ref: > departments.id]
+  createdAt    timestamptz
+  updatedAt    timestamptz
+
+  Indexes {
+    departmentId
+  }
+}
+
+// role: ADMIN | TEACHER | STUDENT | PARENT
+Table institution_members {
+  id            varchar [pk]
+  userId        varchar [ref: > users.id]
+  institutionId varchar [ref: > institutions.id]
+  classId       varchar [ref: > classes.id, null]
+  role          varchar [note: "'ADMIN' | 'TEACHER' | 'STUDENT' | 'PARENT'"]
+  joinedAt      timestamptz
+
+  Indexes {
+    (userId, institutionId) [unique]
+    institutionId
+    userId
+  }
+}
+
+// ─── КУРСЫ ────────────────────────────────────────────────────────────
+
+// status: DRAFT | PUBLISHED | ARCHIVED
+Table courses {
+  id            varchar [pk]
+  title         varchar
+  description   varchar [null]
+  coverUrl      varchar [null]
+  status        varchar [default: 'DRAFT', note: "'DRAFT' | 'PUBLISHED' | 'ARCHIVED'"]
+  isPaid        boolean [default: false]
+  priceCents    integer [default: 0]
+  currency      varchar [default: 'USD']
+  authorId      varchar [ref: > users.id]
+  institutionId varchar [null]
+  createdAt     timestamptz
+  updatedAt     timestamptz
+
+  Indexes {
+    authorId
+    institutionId
+  }
+}
+
+Table course_modules {
+  id        varchar [pk]
+  title     varchar
+  order     integer [default: 0]
+  courseId  varchar [ref: > courses.id]
+  createdAt timestamptz
+  updatedAt timestamptz
+
+  Indexes {
+    courseId
+  }
+}
+
+// type: VIDEO | TEXT | QUIZ | ASSIGNMENT
+Table lessons {
+  id        varchar [pk]
+  title     varchar
+  type      varchar [default: 'TEXT', note: "'VIDEO' | 'TEXT' | 'QUIZ' | 'ASSIGNMENT'"]
+  content   varchar [null]
+  videoUrl  varchar [null]
+  order     integer [default: 0]
+  moduleId  varchar [ref: > course_modules.id]
+  createdAt timestamptz
+  updatedAt timestamptz
+
+  Indexes {
+    moduleId
+  }
+}
+
+Table tests {
+  id           varchar [pk]
+  title        varchar
+  timeLimit    integer [null]
+  passingScore integer [default: 70]
+  lessonId     varchar [unique, ref: - lessons.id]
+  createdAt    timestamptz
+  updatedAt    timestamptz
+}
+
+// type: SINGLE | MULTIPLE | TEXT
+Table questions {
+  id     varchar [pk]
+  text   varchar
+  type   varchar [default: 'SINGLE', note: "'SINGLE' | 'MULTIPLE' | 'TEXT'"]
+  order  integer [default: 0]
+  points integer [default: 1]
+  testId varchar [ref: > tests.id]
+
+  Indexes {
+    testId
+  }
+}
+
+Table question_options {
+  id         varchar [pk]
+  text       varchar
+  isCorrect  boolean [default: false]
+  questionId varchar [ref: > questions.id]
+
+  Indexes {
+    questionId
+  }
+}
+
+Table assignments {
+  id          varchar [pk]
+  title       varchar
+  description varchar [null]
+  maxScore    integer [default: 100]
+  dueDate     timestamptz [null]
+  lessonId    varchar [unique, ref: - lessons.id]
+  createdAt   timestamptz
+  updatedAt   timestamptz
+}
+
+Table assignment_submissions {
+  id           varchar [pk]
+  fileUrl      varchar [null]
+  textContent  varchar [null]
+  score        integer [null]
+  feedback     varchar [null]
+  studentId    varchar [ref: > users.id]
+  assignmentId varchar [ref: > assignments.id]
+  submittedAt  timestamptz
+  gradedAt     timestamptz [null]
+
+  Indexes {
+    (studentId, assignmentId) [unique]
+    assignmentId
+  }
+}
+
+Table test_attempts {
+  id          varchar [pk]
+  score       integer
+  passed      boolean
+  answers     jsonb
+  studentId   varchar [ref: > users.id]
+  testId      varchar [ref: > tests.id]
+  completedAt timestamptz
+
+  Indexes {
+    studentId
+    testId
+  }
+}
+
+// ─── ЗАЧИСЛЕНИЯ И ПРОГРЕСС ────────────────────────────────────────────
+
+Table enrollments {
+  id         varchar [pk]
+  studentId  varchar [ref: > users.id]
+  courseId   varchar [ref: > courses.id]
+  enrolledAt timestamptz
+
+  Indexes {
+    (studentId, courseId) [unique]
+    courseId
+  }
+}
+
+Table lesson_progress {
+  id           varchar [pk]
+  completed    boolean [default: false]
+  completedAt  timestamptz [null]
+  enrollmentId varchar [ref: > enrollments.id]
+  lessonId     varchar [ref: > lessons.id]
+
+  Indexes {
+    (enrollmentId, lessonId) [unique]
+    enrollmentId
+  }
+}
+
+// ─── ЗАДАЧИ (TO-DO) ───────────────────────────────────────────────────
+
+// status: TODO | IN_PROGRESS | REVIEW | DONE
+// priority: LOW | MEDIUM | HIGH | URGENT
+Table todos {
+  id           varchar [pk]
+  title        varchar
+  description  varchar [null]
+  status       varchar [default: 'TODO', note: "'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE'"]
+  priority     varchar [default: 'MEDIUM', note: "'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'"]
+  position     integer [default: 0]
+  dueDate      timestamptz [null]
+  userId       varchar [ref: > users.id]
+  courseId     varchar [ref: > courses.id, null]
+  assignmentId varchar [ref: > assignments.id, null]
+  createdAt    timestamptz
+  updatedAt    timestamptz
+
+  Indexes {
+    userId
+    status
+    dueDate
+  }
+}
+
+// ─── ГЕЙМИФИКАЦИЯ ─────────────────────────────────────────────────────
+
+Table gamification_profiles {
+  id        varchar [pk]
+  userId    varchar [unique, ref: - users.id]
+  xp        integer [default: 0]
+  level     integer [default: 1]
+  streak    integer [default: 0]
+  updatedAt timestamptz
+}
+
+// source: LESSON_COMPLETED | TEST_PASSED | ASSIGNMENT_GRADED |
+//         ACHIEVEMENT_UNLOCKED | DAILY_STREAK
+Table xp_transactions {
+  id        varchar [pk]
+  userId    varchar [ref: > users.id]
+  amount    integer
+  source    varchar [note: "'LESSON_COMPLETED' | 'TEST_PASSED' | 'ASSIGNMENT_GRADED' | 'ACHIEVEMENT_UNLOCKED' | 'DAILY_STREAK'"]
+  meta      jsonb [null]
+  createdAt timestamptz
+
+  Indexes {
+    userId
+  }
+}
+
+// category: LEARNING | STREAK | TESTS | SOCIAL
+Table achievements {
+  id          varchar [pk]
+  code        varchar [unique]
+  title       varchar
+  description varchar
+  icon        varchar [null]
+  category    varchar [default: 'LEARNING', note: "'LEARNING' | 'STREAK' | 'TESTS' | 'SOCIAL'"]
+  xpReward    integer [default: 0]
+  createdAt   timestamptz
+  updatedAt   timestamptz
+}
+
+Table student_achievements {
+  id            varchar [pk]
+  userId        varchar [ref: > users.id]
+  achievementId varchar [ref: > achievements.id]
+  unlockedAt    timestamptz
+
+  Indexes {
+    (userId, achievementId) [unique]
+    userId
+  }
+}
+
+// ─── ТУРНИРЫ ─────────────────────────────────────────────────────────
+
+// status: UPCOMING | ACTIVE | FINISHED
+Table tournaments {
+  id          varchar [pk]
+  title       varchar
+  description varchar [null]
+  status      varchar [default: 'UPCOMING', note: "'UPCOMING' | 'ACTIVE' | 'FINISHED'"]
+  startsAt    timestamptz
+  endsAt      timestamptz
+  maxScore    integer [default: 100]
+  createdById varchar [ref: > users.id]
+  createdAt   timestamptz
+  updatedAt   timestamptz
+
+  Indexes {
+    status
+    createdById
+  }
+}
+
+Table tournament_participants {
+  id           varchar [pk]
+  tournamentId varchar [ref: > tournaments.id]
+  userId       varchar [ref: > users.id]
+  joinedAt     timestamptz
+
+  Indexes {
+    (tournamentId, userId) [unique]
+    tournamentId
+    userId
+  }
+}
+
+Table tournament_results {
+  id           varchar [pk]
+  tournamentId varchar [ref: > tournaments.id]
+  userId       varchar [ref: > users.id]
+  score        integer [default: 0]
+  rank         integer [null]
+  submittedAt  timestamptz
+  updatedAt    timestamptz
+
+  Indexes {
+    (tournamentId, userId) [unique]
+    tournamentId
+    userId
+  }
+}
+
+// ─── РОДИТЕЛИ И ДЕТИ ─────────────────────────────────────────────────
+
+Table parent_students {
+  id        varchar [pk]
+  parentId  varchar [ref: > users.id]
+  studentId varchar [ref: > users.id]
+  createdAt timestamptz
+
+  Indexes {
+    (parentId, studentId) [unique]
+    parentId
+    studentId
+  }
+}
+
+Table parent_goals {
+  id          varchar [pk]
+  title       varchar
+  description varchar [null]
+  targetXp    integer [default: 100]
+  reward      varchar [null]
+  achieved    boolean [default: false]
+  achievedAt  timestamptz [null]
+  parentId    varchar [ref: > users.id]
+  studentId   varchar [ref: > users.id]
+  createdAt   timestamptz
+  updatedAt   timestamptz
+
+  Indexes {
+    parentId
+    studentId
+  }
+}
+
+// ─── ЧАТ И СООБЩЕНИЯ ─────────────────────────────────────────────────
+
+// type: DIRECT | GROUP
+Table chats {
+  id        varchar [pk]
+  title     varchar [null]
+  type      varchar [default: 'DIRECT', note: "'DIRECT' | 'GROUP'"]
+  createdAt timestamptz
+  updatedAt timestamptz
+}
+
+Table chat_participants {
+  id         varchar [pk]
+  chatId     varchar [ref: > chats.id]
+  userId     varchar [ref: > users.id]
+  joinedAt   timestamptz
+  lastReadAt timestamptz [null]
+
+  Indexes {
+    (chatId, userId) [unique]
+    chatId
+    userId
+  }
+}
+
+Table messages {
+  id            varchar [pk]
+  content       varchar
+  attachmentUrl varchar [null]
+  chatId        varchar [ref: > chats.id, null]
+  senderId      varchar [ref: > users.id]
+  receiverId    varchar [ref: > users.id]
+  readAt        timestamptz [null]
+  createdAt     timestamptz
+
+  Indexes {
+    chatId
+    senderId
+    receiverId
+    (senderId, receiverId)
+  }
+}
+
+// ─── УВЕДОМЛЕНИЯ ─────────────────────────────────────────────────────
+
+// type: CHAT_MESSAGE | ASSIGNMENT | TOURNAMENT | SYSTEM
+Table notifications {
+  id          varchar [pk]
+  userId      varchar [ref: > users.id]
+  type        varchar [default: 'SYSTEM', note: "'CHAT_MESSAGE' | 'ASSIGNMENT' | 'TOURNAMENT' | 'SYSTEM'"]
+  title       varchar
+  body        varchar
+  link        varchar [null]
+  isRead      boolean [default: false]
+  deliveredAt timestamptz [null]
+  createdAt   timestamptz
+
+  Indexes {
+    userId
+    isRead
+    createdAt
+  }
+}
+
+Table notification_preferences {
+  id            varchar [pk]
+  userId        varchar [unique, ref: - users.id]
+  inAppEnabled  boolean [default: true]
+  emailEnabled  boolean [default: false]
+  pushEnabled   boolean [default: false]
+  chatEnabled   boolean [default: true]
+  courseEnabled boolean [default: true]
+  systemEnabled boolean [default: true]
+  updatedAt     timestamptz
+}
+
+// ─── ПЛАТЕЖИ И ПОДПИСКИ ───────────────────────────────────────────────
+
+// interval: MONTHLY | YEARLY | ONE_TIME
+Table subscription_plans {
+  id              varchar [pk]
+  name            varchar
+  description     varchar [null]
+  priceCents      integer
+  currency        varchar [default: 'USD']
+  interval        varchar [note: "'MONTHLY' | 'YEARLY' | 'ONE_TIME'"]
+  stripeProductId varchar [null]
+  stripePriceId   varchar [null]
+  isActive        boolean [default: true]
+  createdAt       timestamptz
+  updatedAt       timestamptz
+
+  Indexes {
+    isActive
+  }
+}
+
+// status: ACTIVE | CANCELED | PAST_DUE | TRIALING
+Table subscriptions {
+  id                   varchar [pk]
+  userId               varchar [ref: > users.id]
+  planId               varchar [ref: > subscription_plans.id]
+  status               varchar [default: 'ACTIVE', note: "'ACTIVE' | 'CANCELED' | 'PAST_DUE' | 'TRIALING'"]
+  stripeCustomerId     varchar [null]
+  stripeSubscriptionId varchar [null]
+  currentPeriodStart   timestamptz [null]
+  currentPeriodEnd     timestamptz [null]
+  cancelAtPeriodEnd    boolean [default: false]
+  createdAt            timestamptz
+  updatedAt            timestamptz
+
+  Indexes {
+    userId
+    planId
+    status
+  }
+}
+
+// status: PENDING | SUCCEEDED | FAILED | REFUNDED
+Table course_purchases {
+  id                      varchar [pk]
+  userId                  varchar [ref: > users.id]
+  courseId                varchar [ref: > courses.id]
+  amountCents             integer
+  currency                varchar [default: 'USD']
+  status                  varchar [default: 'PENDING', note: "'PENDING' | 'SUCCEEDED' | 'FAILED' | 'REFUNDED'"]
+  stripeCheckoutSessionId varchar [null]
+  stripePaymentIntentId   varchar [null]
+  createdAt               timestamptz
+  updatedAt               timestamptz
+
+  Indexes {
+    (userId, courseId) [unique]
+    userId
+    courseId
+    status
+  }
+}
+
+// status: PENDING | PAID
+Table commission_transactions {
+  id                 varchar [pk]
+  teacherId          varchar [ref: > users.id]
+  courseId           varchar [ref: > courses.id]
+  purchaseId         varchar [unique, ref: - course_purchases.id]
+  grossAmountCents   integer
+  platformFeeCents   integer
+  teacherAmountCents integer
+  status             varchar [default: 'PENDING', note: "'PENDING' | 'PAID'"]
+  paidAt             timestamptz [null]
+  createdAt          timestamptz
+
+  Indexes {
+    teacherId
+    courseId
+    status
+  }
+}
