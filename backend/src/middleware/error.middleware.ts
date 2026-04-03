@@ -18,7 +18,7 @@ export function errorHandler(
     if (err instanceof ZodError) {
         return res.status(400).json({
             message: "Validation error",
-            errors: err.errors.map((e) => ({ path: e.path.join("."), message: e.message })),
+            errors: err.issues.map((e) => ({ path: e.path.join("."), message: e.message })),
         });
     }
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {

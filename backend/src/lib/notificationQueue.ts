@@ -1,5 +1,5 @@
 import { Queue, Worker } from "bullmq";
-import Redis from "ioredis";
+import { Redis } from "ioredis";
 
 import { env } from "../config/env.js";
 import { prisma } from "./prisma.js";
