@@ -1,22 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Clock, Flag, GripVertical, MoreHorizontal, Pencil, Plus, Trash2, X } from 'lucide-react'
 import { CourseShellLayout } from './CourseShellLayout'
 import type { Language } from '../i18n/translations'
+import { tasks as taskApi, type Task as ApiTask, type TodoStatus, type TodoPriority } from '../lib/api'
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
-type Priority = 'high' | 'medium' | 'low'
 type ColId = 'todo' | 'inprogress' | 'review' | 'done'
+type LocalPriority = 'high' | 'medium' | 'low' | 'urgent'
 
-interface Task {
-    id: string
-    title: string
-    description: string
-    subject: string
-    dueDate: string
-    priority: Priority
-    color: string
-    colId: ColId
-}
+/* ── Conversion helpers ──────────────────────────────────────────────────── */
+const statusToCol: Record<TodoStatus, ColId> = { TODO: 'todo', IN_PROGRESS: 'inprogress', REVIEW: 'review', DONE: 'done' }
+const colToStatus: Record<ColId, TodoStatus> = { todo: 'TODO', inprogress: 'IN_PROGRESS', review: 'REVIEW', done: 'DONE' }
+const prioToLocal: Record<TodoPriority, LocalPriority> = { LOW: 'low', MEDIUM: 'medium', HIGH: 'high', URGENT: 'urgent' }
+const localToPrio: Record<LocalPriority, TodoPriority> = { low: 'LOW', medium: 'MEDIUM', high: 'HIGH', urgent: 'URGENT' }
+const isoToDate = (d: string | null) => d ? d.slice(0, 10) : ''
 
 /* ── Static data ─────────────────────────────────────────────────────────── */
 const COLUMNS: { id: ColId; label: string; dot: string; countBg: string; countColor: string }[] = [
@@ -26,7 +23,8 @@ const COLUMNS: { id: ColId; label: string; dot: string; countBg: string; countCo
     { id: 'done', label: 'Готово', dot: '#22c55e', countBg: '#dcfce7', countColor: '#16a34a' },
 ]
 
-const PRIORITIES: { id: Priority; label: string; color: string; bg: string }[] = [
+const PRIORITIES: { id: LocalPriority; label: string; color: string; bg: string }[] = [
+    { id: 'urgent', label: 'Срочный', color: '#7c3aed', bg: '#ede9fe' },
     { id: 'high', label: 'Высокий', color: '#dc2626', bg: '#fee2e2' },
     { id: 'medium', label: 'Средний', color: '#d97706', bg: '#fef3c7' },
     { id: 'low', label: 'Низкий', color: '#16a34a', bg: '#dcfce7' },
@@ -37,26 +35,34 @@ const CARD_COLORS = [
     '#6ee7b7', '#93c5fd', '#c4b5fd', '#f9a8d4', '#f8fafc',
 ]
 
-const SUBJECTS = [
-    'Математика', 'Физика', 'Химия', 'История',
-    'Литература', 'Биология', 'Английский', 'Информатика',
-]
+interface LocalTask {
+    id: string
+    title: string
+    description: string
+    subject: string
+    dueDate: string
+    priority: LocalPriority
+    color: string
+    colId: ColId
+}
 
-const INITIAL_TASKS: Task[] = [
-    { id: '1', title: 'Решить задачи по интегралам', description: 'Стр. 45–48, задания 1–12', subject: 'Математика', dueDate: '2025-07-15', priority: 'high', color: '#fca5a5', colId: 'todo' },
-    { id: '2', title: 'Прочитать «Война и мир»', description: 'Том 1, часть 2', subject: 'Литература', dueDate: '2025-07-20', priority: 'medium', color: '#c4b5fd', colId: 'todo' },
-    { id: '3', title: 'Лабораторная работа', description: 'Реакции окисления-восстановления', subject: 'Химия', dueDate: '2025-07-12', priority: 'high', color: '#fdba74', colId: 'inprogress' },
-    { id: '4', title: 'Доклад «Первая мировая война»', description: 'Причины и итоги конфликта', subject: 'История', dueDate: '2025-07-18', priority: 'medium', color: '#6ee7b7', colId: 'inprogress' },
-    { id: '5', title: 'Эссе на английском языке', description: 'My future career, 250 words', subject: 'Английский', dueDate: '2025-07-14', priority: 'low', color: '#93c5fd', colId: 'review' },
-    { id: '6', title: 'Тест по биологии', description: 'Клеточное строение организмов', subject: 'Биология', dueDate: '2025-07-10', priority: 'high', color: '#86efac', colId: 'done' },
-]
+function apiToLocal(t: ApiTask): LocalTask {
+    return {
+        id: t.id,
+        title: t.title,
+        description: t.description ?? '',
+        subject: t.course?.title ?? '',
+        dueDate: isoToDate(t.dueDate),
+        priority: prioToLocal[t.priority] ?? 'medium',
+        color: '#f8fafc',
+        colId: statusToCol[t.status] ?? 'todo',
+    }
+}
 
-const blankTask = (colId: ColId = 'todo'): Omit<Task, 'id'> => ({
+const blankTask = (colId: ColId = 'todo'): Omit<LocalTask, 'id'> => ({
     title: '', description: '', subject: '', dueDate: '',
     priority: 'medium', color: '#f8fafc', colId,
 })
-
-const genId = () => Math.random().toString(36).slice(2, 9)
 
 const fmtDate = (d: string) => {
     if (!d) return ''
@@ -68,41 +74,62 @@ const fmtDate = (d: string) => {
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
 export function StudentTaskPage({ language, onLanguageChange }: Props) {
-    const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
+    const [localTasks, setLocalTasks] = useState<LocalTask[]>([])
     const [activeSubject, setActiveSubject] = useState<string | null>(null)
     const [openMenu, setOpenMenu] = useState<string | null>(null)
     const [modal, setModal] = useState<{
         open: boolean
-        task: Omit<Task, 'id'>
+        task: Omit<LocalTask, 'id'>
         editId: string | null
     }>({ open: false, task: blankTask(), editId: null })
 
+    /* Load tasks from API */
+    useEffect(() => {
+        taskApi.list().then(list => setLocalTasks(list.map(apiToLocal)))
+            .catch(() => { /* offline — show empty */ })
+    }, [])
+
     /* helpers */
     const openAdd = (colId: ColId) => setModal({ open: true, task: blankTask(colId), editId: null })
-    const openEdit = (t: Task) => { setModal({ open: true, task: { ...t }, editId: t.id }); setOpenMenu(null) }
+    const openEdit = (t: LocalTask) => { setModal({ open: true, task: { ...t }, editId: t.id }); setOpenMenu(null) }
     const closeModal = () => setModal({ open: false, task: blankTask(), editId: null })
 
-    const setField = <K extends keyof Omit<Task, 'id'>>(key: K, val: Task[K]) =>
+    const setField = <K extends keyof Omit<LocalTask, 'id'>>(key: K, val: LocalTask[K]) =>
         setModal(m => ({ ...m, task: { ...m.task, [key]: val } }))
 
-    const saveTask = () => {
+    const saveTask = async () => {
         if (!modal.task.title.trim()) return
-        if (modal.editId) {
-            setTasks(prev => prev.map(t => t.id === modal.editId ? { ...modal.task, id: modal.editId } : t))
-        } else {
-            setTasks(prev => [...prev, { ...modal.task, id: genId() }])
+        const body = {
+            title: modal.task.title,
+            description: modal.task.description || undefined,
+            status: colToStatus[modal.task.colId],
+            priority: localToPrio[modal.task.priority],
+            dueDate: modal.task.dueDate || undefined,
         }
+        try {
+            if (modal.editId) {
+                const updated = await taskApi.update(modal.editId, body)
+                setLocalTasks(prev => prev.map(t => t.id === modal.editId ? { ...apiToLocal(updated), color: modal.task.color } : t))
+            } else {
+                const created = await taskApi.create(body)
+                setLocalTasks(prev => [...prev, { ...apiToLocal(created), color: modal.task.color }])
+            }
+        } catch { /* API error — ignore for now */ }
         closeModal()
     }
 
-    const deleteTask = (id: string) => { setTasks(prev => prev.filter(t => t.id !== id)); setOpenMenu(null) }
+    const deleteTask = async (id: string) => {
+        setOpenMenu(null)
+        try { await taskApi.delete(id) } catch { /* ignore */ }
+        setLocalTasks(prev => prev.filter(t => t.id !== id))
+    }
 
     const colTasks = (colId: ColId) =>
-        tasks.filter(t => t.colId === colId && (!activeSubject || t.subject === activeSubject))
+        localTasks.filter(t => t.colId === colId && (!activeSubject || t.subject === activeSubject))
 
-    const allSubjects = [...new Set(tasks.map(t => t.subject).filter(Boolean))]
+    const allSubjects = [...new Set(localTasks.map(t => t.subject).filter(Boolean))]
 
-    const getPri = (p: Priority) => PRIORITIES.find(x => x.id === p)!
+    const getPri = (p: LocalPriority) => PRIORITIES.find(x => x.id === p) ?? PRIORITIES[2]
 
     return (
         <CourseShellLayout
@@ -308,14 +335,12 @@ export function StudentTaskPage({ language, onLanguageChange }: Props) {
                             <div className="task-modal-row">
                                 <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, fontSize: 12, fontWeight: 600, color: '#718198' }}>
                                     Предмет
-                                    <select
+                                    <input
                                         className="inst-input"
+                                        placeholder="Предмет (необязательно)"
                                         value={modal.task.subject}
                                         onChange={e => setField('subject', e.target.value)}
-                                    >
-                                        <option value="">— Выберите —</option>
-                                        {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-                                    </select>
+                                    />
                                 </label>
                                 <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, fontSize: 12, fontWeight: 600, color: '#718198' }}>
                                     Срок сдачи
@@ -335,7 +360,7 @@ export function StudentTaskPage({ language, onLanguageChange }: Props) {
                                     <select
                                         className="inst-input"
                                         value={modal.task.priority}
-                                        onChange={e => setField('priority', e.target.value as Priority)}
+                                        onChange={e => setField('priority', e.target.value as LocalPriority)}
                                     >
                                         {PRIORITIES.map(p => <option key={p.id} value={p.id}>{p.label}</option>)}
                                     </select>

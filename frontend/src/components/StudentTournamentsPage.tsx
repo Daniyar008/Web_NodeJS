@@ -1,73 +1,50 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Clock, Trophy, Users, Zap } from 'lucide-react'
 import { CourseShellLayout } from './CourseShellLayout'
+import { tournaments as tournamentApi } from '../lib/api'
+import type { Tournament as ApiTournament, LeaderboardEntry } from '../lib/api'
 import type { Language } from '../i18n/translations'
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 type TournStatus = 'active' | 'upcoming' | 'ended'
 type TournTab = 'active' | 'mine' | 'results'
 
-interface Tournament {
+interface LocalTournament {
     id: string
     title: string
-    subject: string
-    subjectColor: string
-    subjectBg: string
-    prize: string
+    description: string
     participants: number
-    maxParticipants: number
     deadline: string
     status: TournStatus
-    featured?: boolean
     entered: boolean
 }
 
-/* ── Data ────────────────────────────────────────────────────────────────── */
-const INITIAL: Tournament[] = [
-    {
-        id: '1', title: 'Math Battle 2026',
-        subject: 'Математика', subjectColor: '#1d4ed8', subjectBg: '#dbeafe',
-        prize: '+500 XP + Диплом',
-        participants: 48, maxParticipants: 100,
-        deadline: '5 апр 2026', status: 'active', featured: true, entered: false,
-    },
-    {
-        id: '2', title: 'Олимпиада по физике',
-        subject: 'Физика', subjectColor: '#b45309', subjectBg: '#fef3c7',
-        prize: '+300 XP',
-        participants: 32, maxParticipants: 60,
-        deadline: '8 апр 2026', status: 'active', entered: true,
-    },
-    {
-        id: '3', title: 'Code & AI Challenge',
-        subject: 'Информатика', subjectColor: '#6d28d9', subjectBg: '#ede9fe',
-        prize: 'Сертификат + 200 XP',
-        participants: 120, maxParticipants: 200,
-        deadline: '15 апр 2026', status: 'upcoming', entered: false,
-    },
-    {
-        id: '4', title: 'Литературный марафон',
-        subject: 'Литература', subjectColor: '#065f46', subjectBg: '#d1fae5',
-        prize: '+200 XP',
-        participants: 67, maxParticipants: 120,
-        deadline: '20 апр 2026', status: 'upcoming', entered: false,
-    },
-    {
-        id: '5', title: 'Химическая олимпиада',
-        subject: 'Химия', subjectColor: '#9d174d', subjectBg: '#fce7f3',
-        prize: '+150 XP + Грамота',
-        participants: 45, maxParticipants: 45,
-        deadline: '2 апр 2026', status: 'ended', entered: true,
-    },
-]
+/* ── Helpers ─────────────────────────────────────────────────────────────── */
+function mapStatus(s: string): TournStatus {
+    if (s === 'ACTIVE') return 'active'
+    if (s === 'UPCOMING') return 'upcoming'
+    return 'ended'
+}
 
-const LEADERBOARD = [
-    { rank: 1, name: 'Алина К.', xp: 2840, color: '#fbbf24', medal: '🥇', me: false },
-    { rank: 2, name: 'Денис Р.', xp: 2620, color: '#94a3b8', medal: '🥈', me: false },
-    { rank: 3, name: 'Вы', xp: 2480, color: '#43c38d', medal: '🥉', me: true },
-    { rank: 4, name: 'Санжар М.', xp: 2100, color: '#818cf8', medal: '4', me: false },
-    { rank: 5, name: 'Лейла Т.', xp: 1890, color: '#fb923c', medal: '5', me: false },
-]
+function apiToLocal(t: ApiTournament): LocalTournament {
+    return {
+        id: t.id,
+        title: t.title,
+        description: t.description ?? '',
+        participants: t._count?.participants ?? 0,
+        deadline: new Date(t.endsAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' }),
+        status: mapStatus(t.status),
+        entered: !!t.joined,
+    }
+}
+
+function medalFor(rank: number): string {
+    if (rank === 1) return '🥇'
+    if (rank === 2) return '🥈'
+    if (rank === 3) return '🥉'
+    return String(rank)
+}
+const RANK_COLORS = ['#fbbf24', '#94a3b8', '#43c38d', '#818cf8', '#fb923c']
 
 const STATUS_MAP: Record<TournStatus, { label: string; cls: string }> = {
     active: { label: '● Активен', cls: 'active' },
@@ -80,12 +57,36 @@ type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
 export function StudentTournamentsPage({ language, onLanguageChange }: Props) {
     const [tab, setTab] = useState<TournTab>('active')
-    const [tournaments, setTournaments] = useState(INITIAL)
+    const [tournaments, setTournaments] = useState<LocalTournament[]>([])
+    const [leaderboard, setLeaderboard] = useState<(LeaderboardEntry & { me: boolean })[]>([])
+    const [lbTitle, setLbTitle] = useState('Топ 5')
 
-    const enter = (id: string) => {
-        setTournaments(prev =>
-            prev.map(t => t.id === id ? { ...t, entered: true, participants: t.participants + 1 } : t)
-        )
+    // Load tournaments from API
+    useEffect(() => {
+        tournamentApi.list().then(arr => setTournaments(arr.map(apiToLocal))).catch(() => {})
+    }, [])
+
+    // Load leaderboard for the first active tournament
+    useEffect(() => {
+        const active = tournaments.find(t => t.status === 'active')
+        if (!active) return
+        setLbTitle(`${active.title} — Топ 5`)
+        const myId = localStorage.getItem('estudy-user-id') ?? ''
+        tournamentApi.leaderboard(active.id).then(rows => {
+            setLeaderboard(rows.slice(0, 5).map(r => ({
+                ...r,
+                me: r.user.id === myId,
+            })))
+        }).catch(() => {})
+    }, [tournaments])
+
+    const enter = async (id: string) => {
+        try {
+            await tournamentApi.join(id)
+            setTournaments(prev =>
+                prev.map(t => t.id === id ? { ...t, entered: true, participants: t.participants + 1 } : t)
+            )
+        } catch { /* already joined or finished */ }
     }
 
     const filtered = tournaments.filter(t => {
@@ -151,26 +152,24 @@ export function StudentTournamentsPage({ language, onLanguageChange }: Props) {
                     <div className="tourn-grid">
                         {filtered.map(t => {
                             const st = STATUS_MAP[t.status]
-                            const full = t.participants >= t.maxParticipants && !t.entered
                             return (
-                                <div key={t.id} className={`tourn-card${t.featured ? ' featured' : ''}`}>
+                                <div key={t.id} className="tourn-card">
                                     <div className="tourn-card-top">
-                                        <span className="tourn-subject-badge" style={{ background: t.subjectBg, color: t.subjectColor }}>
-                                            {t.subject}
-                                        </span>
                                         <span className={`tourn-status-chip ${st.cls}`}>{st.label}</span>
                                     </div>
 
                                     <p className="tourn-card-title">{t.title}</p>
 
-                                    <div className="tourn-card-prize">
-                                        <Zap size={14} /> {t.prize}
-                                    </div>
+                                    {t.description && (
+                                        <div className="tourn-card-prize">
+                                            <Zap size={14} /> {t.description}
+                                        </div>
+                                    )}
 
                                     <div className="tourn-card-meta">
                                         <div className="tourn-meta-row">
                                             <Users size={12} />
-                                            <span>{t.participants} / {t.maxParticipants} участников</span>
+                                            <span>{t.participants} участников</span>
                                         </div>
                                         <div className="tourn-meta-row">
                                             <Clock size={12} />
@@ -180,18 +179,13 @@ export function StudentTournamentsPage({ language, onLanguageChange }: Props) {
 
                                     <div className="tourn-card-footer">
                                         <span className="tourn-participant-count">
-                                            {t.entered
-                                                ? '✓ Вы участвуете'
-                                                : full
-                                                    ? 'Нет мест'
-                                                    : `${t.maxParticipants - t.participants} мест`}
+                                            {t.entered ? '✓ Вы участвуете' : ''}
                                         </span>
                                         {t.status !== 'ended' ? (
                                             <button
                                                 type="button"
                                                 className={`tourn-enter-btn${t.entered ? ' entered' : ''}`}
-                                                onClick={() => { if (!t.entered && !full) enter(t.id) }}
-                                                disabled={full}
+                                                onClick={() => { if (!t.entered) enter(t.id) }}
                                             >
                                                 {t.entered ? 'Участвую ✓' : 'Участвовать'}
                                             </button>
@@ -217,19 +211,25 @@ export function StudentTournamentsPage({ language, onLanguageChange }: Props) {
                 <aside className="tourn-sidebar">
                     <div className="tourn-leaderboard">
                         <h3 className="tourn-lb-title">
-                            <Trophy size={16} color="#f59e0b" /> Math Battle — Топ 5
+                            <Trophy size={16} color="#f59e0b" /> {lbTitle}
                         </h3>
                         <div className="tourn-lb-list">
-                            {LEADERBOARD.map(entry => (
-                                <div key={entry.rank} className={`tourn-lb-row${entry.me ? ' me' : ''}`}>
-                                    <span className="tourn-lb-rank">{entry.medal}</span>
-                                    <div className="tourn-lb-avatar" style={{ background: entry.color }}>
-                                        {entry.name[0]}
+                            {leaderboard.length === 0 && (
+                                <div style={{ textAlign: 'center', color: '#9ca3af', fontSize: 13, padding: 12 }}>Нет результатов</div>
+                            )}
+                            {leaderboard.map((entry, i) => {
+                                const name = entry.me ? 'Вы' : `${entry.user.firstName} ${entry.user.lastName.charAt(0)}.`
+                                return (
+                                    <div key={entry.rank} className={`tourn-lb-row${entry.me ? ' me' : ''}`}>
+                                        <span className="tourn-lb-rank">{medalFor(entry.rank)}</span>
+                                        <div className="tourn-lb-avatar" style={{ background: RANK_COLORS[i % RANK_COLORS.length] }}>
+                                            {name[0]}
+                                        </div>
+                                        <span className={`tourn-lb-name${entry.me ? ' me' : ''}`}>{name}</span>
+                                        <span className="tourn-lb-xp">{entry.score.toLocaleString()}</span>
                                     </div>
-                                    <span className={`tourn-lb-name${entry.me ? ' me' : ''}`}>{entry.name}</span>
-                                    <span className="tourn-lb-xp">{entry.xp.toLocaleString()} XP</span>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     </div>
 
@@ -238,18 +238,6 @@ export function StudentTournamentsPage({ language, onLanguageChange }: Props) {
                         <div className="tourn-my-stat-row">
                             <span>Участий всего</span>
                             <strong>{mineCnt}</strong>
-                        </div>
-                        <div className="tourn-my-stat-row">
-                            <span>Побед</span>
-                            <strong>2</strong>
-                        </div>
-                        <div className="tourn-my-stat-row">
-                            <span>XP из турниров</span>
-                            <strong>+1 200 XP</strong>
-                        </div>
-                        <div className="tourn-my-stat-row">
-                            <span>Лучшее место</span>
-                            <strong>🥇 1-е</strong>
                         </div>
                     </div>
                 </aside>

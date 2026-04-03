@@ -214,10 +214,21 @@ export const courses = {
 
 // ─── Student ───────────────────────────────────────────────────────────────────
 
+export interface ApiAchievement {
+    id: string; code: string; title: string; description: string; icon: string | null
+    category: 'LEARNING' | 'STREAK' | 'TESTS' | 'SOCIAL'; xpReward: number
+}
+export interface StudentUnlocked {
+    id: string; achievementId: string; unlockedAt: string
+    achievement: ApiAchievement
+}
+export interface AchievementsResponse {
+    all: ApiAchievement[]; unlocked: StudentUnlocked[]; unlockedIds: string[]
+}
 export interface StudentProfile {
     user: { id: string; email: string; firstName: string; lastName: string; role: { name: string } }
     gamification: { xp: number; level: number; streak: number }
-    achievements: Array<{ id: string; achievement: { name: string; description: string; icon: string }; unlockedAt: string }>
+    achievements: StudentUnlocked[]
 }
 
 export interface EnrolledCourse {
@@ -238,30 +249,45 @@ export const student = {
         apiFetch<{ enrollmentId: string; completedLessons: number; totalLessons: number; percent: number }>(`/api/student/courses/${courseId}/progress`),
     completeLesson: (courseId: string, lessonId: string) =>
         apiFetch('/api/student/courses/' + courseId + '/lessons/' + lessonId + '/complete', { method: 'POST' }),
-    achievements: () => apiFetch<StudentProfile['achievements']>('/api/student/achievements'),
+    achievements: () => apiFetch<AchievementsResponse>('/api/student/achievements'),
 }
 
 // ─── Tasks ─────────────────────────────────────────────────────────────────────
+
+export type TodoStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE'
+export type TodoPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 
 export interface Task {
     id: string
     title: string
     description: string | null
-    status: string
-    priority: string
+    status: TodoStatus
+    priority: TodoPriority
     dueDate: string | null
-    order: number
+    position: number
+    courseId: string | null
+    assignmentId: string | null
+    course: { id: string; title: string } | null
+    assignment: { id: string; title: string } | null
     createdAt: string
+    updatedAt: string
 }
 
 export const tasks = {
     list: () => apiFetch<Task[]>('/api/tasks'),
-    calendar: () => apiFetch<Task[]>('/api/tasks/calendar'),
-    create: (body: { title: string; dueDate?: string; description?: string; priority?: string }) =>
+    calendar: (from?: string, to?: string) => {
+        const p = new URLSearchParams()
+        if (from) p.set('from', from)
+        if (to) p.set('to', to)
+        return apiFetch<Task[]>(`/api/tasks/calendar?${p}`)
+    },
+    create: (body: { title: string; dueDate?: string; description?: string; priority?: string; status?: string; courseId?: string; assignmentId?: string }) =>
         apiFetch<Task>('/api/tasks', { method: 'POST', body: JSON.stringify(body) }),
-    update: (id: string, body: Partial<{ title: string; status: string; priority: string; dueDate: string }>) =>
+    update: (id: string, body: Partial<{ title: string; status: string; priority: string; dueDate: string; description: string; courseId: string; assignmentId: string }>) =>
         apiFetch<Task>(`/api/tasks/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
     delete: (id: string) => apiFetch<void>(`/api/tasks/${id}`, { method: 'DELETE' }),
+    reorder: (items: { id: string; status: string; position: number }[]) =>
+        apiFetch<Task[]>('/api/tasks/reorder', { method: 'POST', body: JSON.stringify({ tasks: items }) }),
 }
 
 // ─── Chat ──────────────────────────────────────────────────────────────────────
@@ -297,7 +323,8 @@ export const notifications = {
 
 export interface Tournament {
     id: string; title: string; description: string; type: string; status: string
-    maxScore: number; startsAt: string; endsAt: string; _count?: { participants: number }
+    maxScore: number; startsAt: string; endsAt: string
+    _count?: { participants: number }; joined?: boolean
 }
 export interface LeaderboardEntry { rank: number; score: number; user: { id: string; firstName: string; lastName: string } }
 

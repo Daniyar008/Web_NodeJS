@@ -32,14 +32,21 @@ const resultSelect = {
 
 // ─── list / get ──────────────────────────────────────────────────────────────
 
-export async function listTournaments() {
-    return prisma.tournament.findMany({
+export async function listTournaments(userId?: string) {
+    const rows = await prisma.tournament.findMany({
         orderBy: { startsAt: "desc" },
         include: {
             createdBy: { select: { id: true, firstName: true, lastName: true } },
             _count: { select: { participants: true } },
+            ...(userId
+                ? { participants: { where: { userId }, select: { id: true } } }
+                : {}),
         },
     });
+    return rows.map(({ participants, ...rest }) => ({
+        ...rest,
+        joined: Array.isArray(participants) && participants.length > 0,
+    }));
 }
 
 export async function getTournament(id: string) {

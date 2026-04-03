@@ -24,7 +24,8 @@ export const tournamentRouter = Router();
 
 tournamentRouter.get("/", requireAuth, async (_req, res, next) => {
     try {
-        res.json(await listTournaments());
+        const userId = (res.locals["auth"] as { userId: string }).userId;
+        res.json(await listTournaments(userId));
     } catch (e) {
         next(e);
     }
