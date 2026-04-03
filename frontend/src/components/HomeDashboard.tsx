@@ -16,7 +16,7 @@ import {
     Zap,
 } from 'lucide-react'
 import { CourseShellLayout } from './CourseShellLayout'
-import { student, notifications as notificationsApi, ai as aiApi } from '../lib/api'
+import { student } from '../lib/api'
 import type { Language } from '../i18n/translations'
 import type {
     ActivityPoint,

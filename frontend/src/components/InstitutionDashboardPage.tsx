@@ -6,7 +6,7 @@ import {
 import type { Language } from '../i18n/translations'
 import { InstitutionShellLayout } from './InstitutionShellLayout'
 import { useNavigate } from 'react-router-dom'
-import { institution as instApi, type Institution } from '../lib/api'
+import { institution as instApi } from '../lib/api'
 
 type Props = { language: Language; onLanguageChange: (l: Language) => void }
 
@@ -66,7 +66,7 @@ export function InstitutionDashboardPage({ language, onLanguageChange }: Props) 
     const [priorities, setPriorities] = useState(PRIORITIES)
     const navigate = useNavigate()
     const [instName, setInstName] = useState('СОШ №14')
-    const [memberCount, setMemberCount] = useState<number | null>(null)
+    const [_memberCount, setMemberCount] = useState<number | null>(null)
 
     // Load institution info from API
     useEffect(() => {
