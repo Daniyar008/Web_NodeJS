@@ -397,18 +397,40 @@ export const payments = {
 // ─── Institution ───────────────────────────────────────────────────────────────
 
 export interface Institution {
-    id: string; name: string; address: string | null; phone: string | null; email: string | null
+    id: string; name: string; slug: string; description: string | null
+    address: string | null; phone: string | null; email: string | null; website: string | null; logoUrl: string | null
+    departments?: Array<{ id: string; name: string; _count?: { classes: number } }>
+    classes?: Array<{ id: string; name: string; year: number; departmentId: string }>
     _count?: { members: number; departments: number; classes: number }
 }
 export interface InstitutionMember {
     id: string; role: string
     user: { id: string; email: string; firstName: string; lastName: string }
+    class?: { id: string; name: string } | null
 }
 
 export const institution = {
     list: () => apiFetch<Institution[]>('/api/institutions'),
     get: (id: string) => apiFetch<Institution>(`/api/institutions/${id}`),
+    update: (id: string, body: Partial<{ name: string; description: string; address: string; phone: string; email: string; website: string; logoUrl: string }>) =>
+        apiFetch<Institution>(`/api/institutions/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
     members: (id: string) => apiFetch<InstitutionMember[]>(`/api/institutions/${id}/members`),
+    addMember: (id: string, body: { userId: string; role: string; classId?: string }) =>
+        apiFetch<InstitutionMember>(`/api/institutions/${id}/members`, { method: 'POST', body: JSON.stringify(body) }),
+    removeMember: (id: string, memberId: string) =>
+        apiFetch<void>(`/api/institutions/${id}/members/${memberId}`, { method: 'DELETE' }),
+    createDepartment: (id: string, body: { name: string }) =>
+        apiFetch<{ id: string; name: string }>(`/api/institutions/${id}/departments`, { method: 'POST', body: JSON.stringify(body) }),
+    updateDepartment: (id: string, deptId: string, body: { name: string }) =>
+        apiFetch<{ id: string; name: string }>(`/api/institutions/${id}/departments/${deptId}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    deleteDepartment: (id: string, deptId: string) =>
+        apiFetch<void>(`/api/institutions/${id}/departments/${deptId}`, { method: 'DELETE' }),
+    createClass: (id: string, body: { name: string; year: number; departmentId: string }) =>
+        apiFetch<{ id: string; name: string; year: number; departmentId: string }>(`/api/institutions/${id}/classes`, { method: 'POST', body: JSON.stringify(body) }),
+    updateClass: (id: string, classId: string, body: Partial<{ name: string; year: number; departmentId: string }>) =>
+        apiFetch<{ id: string; name: string; year: number }>(`/api/institutions/${id}/classes/${classId}`, { method: 'PATCH', body: JSON.stringify(body) }),
+    deleteClass: (id: string, classId: string) =>
+        apiFetch<void>(`/api/institutions/${id}/classes/${classId}`, { method: 'DELETE' }),
 }
 
 // ─── Parent ────────────────────────────────────────────────────────────────────

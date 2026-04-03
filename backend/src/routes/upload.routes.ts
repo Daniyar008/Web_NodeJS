@@ -1,15 +1,14 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
+import path from "node:path";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import { uploadAvatar, uploadCover, uploadMedia } from "../lib/upload.js";
+import { uploadFile } from "../lib/storageService.js";
 import { prisma } from "../lib/prisma.js";
 
 const router = Router();
 
-// Helper to build public URL from filename + subfolder
-function fileUrl(req: Request, subfolder: string, filename: string): string {
-    const protocol = req.protocol;
-    const host = req.get("host");
-    return `${protocol}://${host}/uploads/${subfolder}/${filename}`;
+function backendBaseUrl(req: Request): string {
+    return `${req.protocol}://${req.get("host")}`;
 }
 
 // ─── Upload avatar ──────────────────────────────────────────────────────────
@@ -28,7 +27,8 @@ router.post(
             const userId = (res.locals["auth"] as { userId: string }).userId;
             if (!req.file) return res.status(400).json({ message: "No file provided" });
 
-            const url = fileUrl(req, "avatars", req.file.filename);
+            const ext = path.extname(req.file.originalname).toLowerCase();
+            const url = await uploadFile(req.file.buffer, req.file.mimetype, ext, "avatars", backendBaseUrl(req));
 
             await prisma.user.update({
                 where: { id: userId },
@@ -58,7 +58,8 @@ router.post(
             const courseId = String(req.params["courseId"]);
             if (!req.file) return res.status(400).json({ message: "No file provided" });
 
-            const url = fileUrl(req, "covers", req.file.filename);
+            const ext = path.extname(req.file.originalname).toLowerCase();
+            const url = await uploadFile(req.file.buffer, req.file.mimetype, ext, "covers", backendBaseUrl(req));
 
             await prisma.course.update({
                 where: { id: courseId },
@@ -83,12 +84,19 @@ router.post(
             next();
         });
     },
-    (req: Request, res: Response) => {
-        if (!req.file) return res.status(400).json({ message: "No file provided" });
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            if (!req.file) return res.status(400).json({ message: "No file provided" });
 
-        const url = fileUrl(req, "media", req.file.filename);
-        res.json({ url, originalName: req.file.originalname, size: req.file.size });
+            const ext = path.extname(req.file.originalname).toLowerCase();
+            const url = await uploadFile(req.file.buffer, req.file.mimetype, ext, "media", backendBaseUrl(req));
+
+            res.json({ url, originalName: req.file.originalname, size: req.file.size });
+        } catch (e) {
+            next(e);
+        }
     },
 );
 
 export { router as uploadRouter };
+

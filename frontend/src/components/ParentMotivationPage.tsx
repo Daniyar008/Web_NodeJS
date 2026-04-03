@@ -18,13 +18,13 @@ export function ParentMotivationPage({ language, onLanguageChange }: Props) {
         parentApi.children().then(kids => {
             setChildren(kids)
             if (kids.length > 0) setSelectedChild(kids[0].student.id)
-        }).catch(() => {})
+        }).catch(() => { })
     }, [])
 
     useEffect(() => {
         if (!selectedChild) return
-        parentApi.goals(selectedChild).then(setGoals).catch(() => {})
-        parentApi.checkGoals(selectedChild).catch(() => {})
+        parentApi.goals(selectedChild).then(setGoals).catch(() => { })
+        parentApi.checkGoals(selectedChild).catch(() => { })
     }, [selectedChild])
 
     const active = goals.filter(g => !g.achieved)

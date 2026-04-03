@@ -27,6 +27,9 @@ const envSchema = z.object({
     STRIPE_WEBHOOK_SECRET: z.string().optional(),
     STRIPE_DEFAULT_CURRENCY: z.string().default("usd"),
     PLATFORM_FEE_BPS: z.coerce.number().int().min(0).max(10000).default(1500),
+    // Supabase (optional — only needed for Storage; DB is plain DATABASE_URL)
+    SUPABASE_URL: z.string().url().optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

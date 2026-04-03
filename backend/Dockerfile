@@ -9,4 +9,5 @@ COPY . .
 RUN npm run build --workspace backend
 
 EXPOSE 4000
-CMD ["npm", "run", "start", "--workspace", "backend"]
+# Run DB migrations then start the server
+CMD ["sh", "-c", "cd backend && npx prisma migrate deploy && cd .. && npm run start --workspace backend"]
